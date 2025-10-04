@@ -1,35 +1,95 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { Routes, Route, Navigate } from 'react-router-dom'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { useAuth0 } from '@auth0/auth0-react'
+import { HomePage } from './pages/HomePage'
+import { OnboardingChoice } from './pages/OnboardingChoice'
+import { LinkBankPage } from './pages/LinkBankPage'
+import { ManualSetupPage } from './pages/ManualSetupPage'
+import { DashboardPage } from './pages/DashboardPage'
+import { RecommendationsPage } from './pages/RecommendationsPage'
+import { ProfilePage } from './pages/ProfilePage'
+import { Loading } from './components/common/Loading'
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 60 * 1000,
+      refetchOnWindowFocus: false,
+    },
+  },
+})
+
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated, isLoading } = useAuth0()
+
+  if (isLoading) {
+    return <Loading />
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to="/" replace />
+  }
+
+  return <>{children}</>
+}
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <QueryClientProvider client={queryClient}>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route
+          path="/onboarding/choice"
+          element={
+            <ProtectedRoute>
+              <OnboardingChoice />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/onboarding/link-bank"
+          element={
+            <ProtectedRoute>
+              <LinkBankPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/onboarding/manual-setup"
+          element={
+            <ProtectedRoute>
+              <ManualSetupPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <DashboardPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/recommendations"
+          element={
+            <ProtectedRoute>
+              <RecommendationsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <ProfilePage />
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
+    </QueryClientProvider>
   )
 }
 
 export default App
+

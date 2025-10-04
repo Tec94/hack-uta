@@ -1,73 +1,138 @@
-# React + TypeScript + Vite
+# SwipeRight - Credit Card Optimization App
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+> **React + Vite + TypeScript fintech application for optimizing credit card rewards**
 
-Currently, two official plugins are available:
+## 🚀 Quick Start
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+cd SwipeRight
+npm install --legacy-peer-deps
+# Create .env file (see below)
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 📚 Complete Documentation
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+**👉 Everything you need is in [COMPLETE_GUIDE.md](./COMPLETE_GUIDE.md)**
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+This single file contains:
+- ✅ 5-minute quick start
+- ✅ Detailed setup instructions  
+- ✅ Complete feature list
+- ✅ Troubleshooting guide
+- ✅ Deployment instructions
+- ✅ Architecture details
+
+## ⚡ Super Quick Setup
+
+### 1. Install
+```bash
+npm install --legacy-peer-deps
 ```
+
+### 2. Configure Auth0
+- Create **Single Page Application** at [auth0.com](https://auth0.com)
+- Add callback URL: `http://localhost:3000`
+
+### 3. Get Mapbox Token
+- Sign up at [mapbox.com](https://www.mapbox.com/)
+- Copy your public token
+
+### 4. Create `.env`
+```env
+VITE_AUTH0_DOMAIN=your-tenant.auth0.com
+VITE_AUTH0_CLIENT_ID=your-client-id
+VITE_AUTH0_REDIRECT_URI=http://localhost:3000
+VITE_MAPBOX_TOKEN=your-mapbox-token
+VITE_GEMINI_API_KEY=optional-gemini-key
+```
+
+### 5. Run
+```bash
+npm run dev
+```
+
+Open http://localhost:3000
+
+## 🎯 Demo Flow
+
+1. Click "Get Started Free"
+2. Sign up with Auth0
+3. Choose "Link Bank Account"
+4. Use demo credentials: `demo_user` / `demo_pass`
+5. Explore dashboard with interactive map!
+
+## 🛠️ Tech Stack
+
+- **React 18** + **Vite** for blazing-fast development
+- **TypeScript** for type safety
+- **React Router** for navigation
+- **Tailwind CSS** + **Shadcn/ui** for styling
+- **Auth0** for authentication
+- **Mapbox** for interactive maps
+- **Gemini AI** for recommendations (optional)
+- **Framer Motion** for animations
+- **Zustand** for state management
+
+## 📁 Project Structure
+
+```
+src/
+├── pages/          # Route components
+├── components/     # Reusable UI components
+├── lib/            # Utilities & integrations
+├── hooks/          # Custom React hooks
+├── store/          # Zustand state
+├── data/           # Mock data
+└── types/          # TypeScript types
+```
+
+## 📖 Full Documentation
+
+For everything else, see **[COMPLETE_GUIDE.md](./COMPLETE_GUIDE.md)**:
+
+- Complete setup instructions
+- Auth0 configuration details
+- Mapbox integration
+- Feature documentation
+- Deployment guides (Vercel, Netlify)
+- Troubleshooting
+- Environment variables reference
+- API integration details
+- And much more...
+
+## 🚀 Deployment
+
+```bash
+npm run build
+```
+
+Deploy the `dist/` folder to:
+- Vercel (recommended)
+- Netlify
+- Cloudflare Pages
+- Any static host
+
+See [COMPLETE_GUIDE.md](./COMPLETE_GUIDE.md#deployment) for detailed instructions.
+
+## 🤝 Features
+
+- ✅ Auth0 authentication
+- ✅ Interactive Mapbox maps
+- ✅ AI-powered recommendations
+- ✅ Mock Plaid bank linking
+- ✅ Credit card carousel
+- ✅ Budget tracking
+- ✅ Mobile-first design
+- ✅ Progressive Web App
+
+## 📞 Need Help?
+
+1. Read [COMPLETE_GUIDE.md](./COMPLETE_GUIDE.md)
+2. Check browser console (F12)
+3. Verify `.env` variables have `VITE_` prefix
+4. Ensure Auth0 is configured as **Single Page Application**
+
+---
+
+**Built for HackUTA 2024** 🎉
