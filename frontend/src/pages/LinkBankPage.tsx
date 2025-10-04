@@ -1,63 +1,99 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { motion } from 'framer-motion'
-import { Check, Loader2 } from 'lucide-react'
-import { generateMockTransactions, calculateCategorySpending } from '@/data/mock-transactions'
-import { useUserStore } from '@/store/userStore'
-
-const mockBanks = [
-  { id: 'chase', name: 'Chase', logo: '🏦' },
-  { id: 'bofa', name: 'Bank of America', logo: '🏦' },
-  { id: 'wells', name: 'Wells Fargo', logo: '🏦' },
-  { id: 'citi', name: 'Citibank', logo: '🏦' },
-]
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth0 } from '@auth0/auth0-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PlaidLink } from '@/components/plaid/PlaidLink';
+import { motion } from 'framer-motion';
+import { Check, Loader2, AlertCircle } from 'lucide-react';
+import { 
+  createLinkToken, 
+  exchangePublicToken, 
+  getTransactions,
+  calculateSpendingFromTransactions,
+  SANDBOX_CREDENTIALS 
+} from '@/lib/plaid';
+import { useUserStore } from '@/store/userStore';
 
 export function LinkBankPage() {
-  const navigate = useNavigate()
-  const [selectedBank, setSelectedBank] = useState<string | null>(null)
-  const [loading, setLoading] = useState(false)
-  const [step, setStep] = useState<'select' | 'login' | 'processing' | 'success'>('select')
-  const { setBudget, setLinkedBank, setOnboardingCompleted } = useUserStore()
+  const { user } = useAuth0();
+  const navigate = useNavigate();
+  const [linkToken, setLinkToken] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [step, setStep] = useState<'setup' | 'connecting' | 'processing' | 'success'>('setup');
+  const { setBudget, setLinkedBank, setOnboardingCompleted } = useUserStore();
 
-  const handleBankSelect = (bankId: string) => {
-    setSelectedBank(bankId)
-    setStep('login')
-  }
+  // Create link token on component mount
+  useEffect(() => {
+    const initPlaid = async () => {
+      try {
+        if (!user?.sub) {
+          throw new Error('User not authenticated');
+        }
+        
+        const token = await createLinkToken(user.sub);
+        setLinkToken(token);
+      } catch (err) {
+        console.error('Error creating link token:', err);
+        setError('Failed to initialize Plaid. Please check your API credentials.');
+      }
+    };
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    setStep('processing')
+    initPlaid();
+  }, [user]);
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 2000))
+  const handlePlaidSuccess = async (publicToken: string, metadata: any) => {
+    console.log('Plaid Link success:', metadata);
+    setStep('processing');
+    setLoading(true);
 
-    // Generate mock transactions and calculate spending
-    const transactions = generateMockTransactions(30)
-    const spending = calculateCategorySpending(transactions)
+    try {
+      // Exchange public token for access token
+      const { access_token, item_id } = await exchangePublicToken(publicToken);
+      console.log('Access token obtained:', item_id);
 
-    // Store the budget in the user store
-    setBudget({
-      dining: Math.round(spending.dining),
-      gas: Math.round(spending.gas),
-      groceries: Math.round(spending.groceries),
-      travel: Math.round(spending.travel),
-      shopping: Math.round(spending.shopping),
-      entertainment: Math.round(spending.entertainment),
-    })
+      // Get transactions from last 30 days
+      const { transactions } = await getTransactions(access_token);
+      console.log(`Retrieved ${transactions.length} transactions`);
 
-    setLinkedBank(true)
-    setStep('success')
-    setLoading(false)
+      // Calculate spending by category
+      const spending = calculateSpendingFromTransactions(transactions);
+      console.log('Calculated spending:', spending);
 
-    // Navigate to dashboard after a short delay
-    setTimeout(() => {
-      setOnboardingCompleted(true)
-      navigate('/dashboard')
-    }, 2000)
-  }
+      // Store budget in user store
+      setBudget({
+        dining: Math.round(spending.dining),
+        gas: Math.round(spending.gas),
+        groceries: Math.round(spending.groceries),
+        travel: Math.round(spending.travel),
+        shopping: Math.round(spending.shopping),
+        entertainment: Math.round(spending.entertainment),
+      });
+
+      setLinkedBank(true);
+      setStep('success');
+      setLoading(false);
+
+      // Navigate to dashboard after short delay
+      setTimeout(() => {
+        setOnboardingCompleted(true);
+        navigate('/dashboard');
+      }, 2000);
+    } catch (err) {
+      console.error('Error processing Plaid data:', err);
+      setError('Failed to process bank data. Please try again.');
+      setLoading(false);
+      setStep('setup');
+    }
+  };
+
+  const handlePlaidExit = (error: any, metadata: any) => {
+    console.log('Plaid Link exited:', error, metadata);
+    if (error) {
+      setError('Bank connection was cancelled or failed. Please try again.');
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white py-12 px-4">
@@ -68,7 +104,7 @@ export function LinkBankPage() {
           className="text-center mb-8"
         >
           <h1 className="text-3xl font-bold text-gray-900 mb-4">Link Your Bank Account</h1>
-          <p className="text-gray-600">Securely connect your bank to analyze spending patterns</p>
+          <p className="text-gray-600">Securely connect your bank using Plaid Sandbox</p>
           <div className="mt-6 flex items-center justify-center gap-2">
             <div className="w-2 h-2 rounded-full bg-gray-300"></div>
             <div className="w-8 h-2 rounded-full bg-primary"></div>
@@ -76,69 +112,72 @@ export function LinkBankPage() {
           </div>
         </motion.div>
 
-        {step === 'select' && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="grid grid-cols-2 gap-4"
-          >
-            {mockBanks.map((bank) => (
-              <Card
-                key={bank.id}
-                className="cursor-pointer hover:shadow-lg transition-shadow"
-                onClick={() => handleBankSelect(bank.id)}
-              >
-                <CardContent className="pt-6 text-center">
-                  <div className="text-5xl mb-3">{bank.logo}</div>
-                  <p className="font-semibold">{bank.name}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </motion.div>
-        )}
-
-        {step === 'login' && (
+        {step === 'setup' && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
           >
             <Card>
               <CardHeader>
-                <CardTitle>Login to {mockBanks.find(b => b.id === selectedBank)?.name}</CardTitle>
+                <CardTitle>Connect with Plaid</CardTitle>
               </CardHeader>
-              <CardContent>
-                <form onSubmit={handleLogin} className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Username</label>
-                    <input
-                      type="text"
-                      defaultValue="demo_user"
-                      className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary"
-                      required
-                    />
+              <CardContent className="space-y-4">
+                {/* Instructions */}
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <h4 className="font-semibold text-blue-900 mb-2">🏦 Plaid Sandbox Test Mode</h4>
+                  <p className="text-sm text-blue-800 mb-3">
+                    This app uses Plaid Sandbox for testing. Use these credentials:
+                  </p>
+                  <div className="bg-white rounded p-3 space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium">Username:</span>
+                      <code className="text-sm bg-gray-100 px-2 py-1 rounded">{SANDBOX_CREDENTIALS.username}</code>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium">Password:</span>
+                      <code className="text-sm bg-gray-100 px-2 py-1 rounded">{SANDBOX_CREDENTIALS.password}</code>
+                    </div>
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Password</label>
-                    <input
-                      type="password"
-                      defaultValue="demo_pass"
-                      className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary"
-                      required
-                    />
+                  <p className="text-xs text-blue-700 mt-3">
+                    Reference: <a href="https://plaid.com/docs/sandbox/" target="_blank" rel="noopener noreferrer" className="underline">Plaid Sandbox Docs</a>
+                  </p>
+                </div>
+
+                {/* Error message */}
+                {error && (
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3">
+                    <AlertCircle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="text-sm font-medium text-red-900">Error</p>
+                      <p className="text-sm text-red-800">{error}</p>
+                    </div>
                   </div>
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-blue-800">
-                    <p className="font-semibold mb-1">🔒 Demo Mode</p>
-                    <p>This is a simulation. No real bank connection is made.</p>
-                  </div>
-                  <div className="flex gap-3">
-                    <Button type="button" variant="outline" onClick={() => setStep('select')} className="flex-1">
-                      Back
-                    </Button>
-                    <Button type="submit" className="flex-1" disabled={loading}>
-                      Connect Account
-                    </Button>
-                  </div>
-                </form>
+                )}
+
+                {/* Plaid Link button */}
+                {linkToken ? (
+                  <PlaidLink
+                    linkToken={linkToken}
+                    onSuccess={handlePlaidSuccess}
+                    onExit={handlePlaidExit}
+                    buttonText="🔗 Connect Bank with Plaid"
+                  />
+                ) : (
+                  <Button disabled className="w-full" size="lg">
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Initializing Plaid...
+                  </Button>
+                )}
+
+                {/* Back button */}
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => navigate('/onboarding/choice')}
+                  className="w-full"
+                >
+                  Back to Options
+                </Button>
               </CardContent>
             </Card>
           </motion.div>
@@ -154,7 +193,8 @@ export function LinkBankPage() {
               <CardContent className="pt-12 pb-12">
                 <Loader2 className="w-16 h-16 text-primary animate-spin mx-auto mb-6" />
                 <h2 className="text-2xl font-semibold mb-2">Analyzing Your Spending</h2>
-                <p className="text-gray-600">Processing your transactions...</p>
+                <p className="text-gray-600">Fetching your transactions from Plaid...</p>
+                <p className="text-sm text-gray-500 mt-2">This may take a few moments</p>
               </CardContent>
             </Card>
           </motion.div>
@@ -172,13 +212,13 @@ export function LinkBankPage() {
                   <Check className="w-10 h-10 text-green-600" />
                 </div>
                 <h2 className="text-2xl font-semibold mb-2">Successfully Connected!</h2>
-                <p className="text-gray-600">Redirecting to your dashboard...</p>
+                <p className="text-gray-600">Your bank account is linked via Plaid</p>
+                <p className="text-sm text-gray-500 mt-2">Redirecting to your dashboard...</p>
               </CardContent>
             </Card>
           </motion.div>
         )}
       </div>
     </div>
-  )
+  );
 }
-

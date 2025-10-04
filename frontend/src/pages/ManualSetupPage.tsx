@@ -7,6 +7,7 @@ import { motion } from 'framer-motion'
 import { formatCurrency } from '@/lib/utils'
 import { useUserStore } from '@/store/userStore'
 import { UserBudget } from '@/types'
+import { DollarSign } from 'lucide-react'
 
 const categories = [
   { key: 'dining', label: 'Dining & Restaurants', icon: '🍽️' },
@@ -31,6 +32,13 @@ export function ManualSetupPage() {
 
   const handleSliderChange = (key: string, value: number[]) => {
     setBudgets((prev) => ({ ...prev, [key]: value[0] }))
+  }
+
+  const handleInputChange = (key: string, value: string) => {
+    const numValue = parseInt(value) || 0
+    // Clamp value between 0 and 2000
+    const clampedValue = Math.max(0, Math.min(2000, numValue))
+    setBudgets((prev) => ({ ...prev, [key]: clampedValue }))
   }
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -84,16 +92,25 @@ export function ManualSetupPage() {
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.3 + index * 0.1 }}
-                    className="space-y-2"
+                    className="space-y-3"
                   >
                     <div className="flex justify-between items-center">
                       <label className="text-sm font-medium flex items-center gap-2">
                         <span className="text-2xl">{category.icon}</span>
                         {category.label}
                       </label>
-                      <span className="text-lg font-bold text-primary">
-                        {formatCurrency(budgets[category.key as keyof UserBudget])}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <DollarSign className="w-4 h-4 text-gray-400" />
+                        <input
+                          type="number"
+                          value={budgets[category.key as keyof UserBudget]}
+                          onChange={(e) => handleInputChange(category.key, e.target.value)}
+                          min={0}
+                          max={2000}
+                          aria-label={`${category.label} budget amount`}
+                          className="w-24 px-3 py-1.5 text-right font-bold text-primary border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                        />
+                      </div>
                     </div>
                     <Slider
                       value={[budgets[category.key as keyof UserBudget]]}
@@ -105,7 +122,7 @@ export function ManualSetupPage() {
                     />
                     <div className="flex justify-between text-xs text-gray-500">
                       <span>$0</span>
-                      <span>$1,000</span>
+                      <span>$1,000+</span>
                     </div>
                   </motion.div>
                 ))}

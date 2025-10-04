@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "plaid": "^39.0.0",
+    "react-plaid-link": "^4.1.1"
+  }
+}
