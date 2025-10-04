@@ -20,7 +20,7 @@ const categories = [
 export function ManualSetupPage() {
   const navigate = useNavigate()
   const { setBudget, setLinkedBank, setOnboardingCompleted } = useUserStore()
-  const [budgets, setBudgets] = useState<Record<string, number>>({
+  const [budgets, setBudgets] = useState<UserBudget>({
     dining: 300,
     gas: 150,
     groceries: 400,
@@ -37,7 +37,7 @@ export function ManualSetupPage() {
     e.preventDefault()
     
     // Save to store
-    setBudget(budgets as UserBudget)
+    setBudget(budgets)
     setLinkedBank(false)
     setOnboardingCompleted(true)
     
@@ -92,11 +92,11 @@ export function ManualSetupPage() {
                         {category.label}
                       </label>
                       <span className="text-lg font-bold text-primary">
-                        {formatCurrency(budgets[category.key])}
+                        {formatCurrency(budgets[category.key as keyof UserBudget])}
                       </span>
                     </div>
                     <Slider
-                      value={[budgets[category.key]]}
+                      value={[budgets[category.key as keyof UserBudget]]}
                       onValueChange={(value) => handleSliderChange(category.key, value)}
                       min={0}
                       max={1000}
