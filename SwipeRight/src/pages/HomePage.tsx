@@ -4,16 +4,23 @@ import { useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { CreditCard, MapPin, Sparkles, Shield, TrendingUp, Zap } from 'lucide-react'
 import { motion } from 'framer-motion'
+import { useUserStore } from '@/store/userStore'
 
 export function HomePage() {
   const { loginWithRedirect, isAuthenticated, isLoading } = useAuth0()
   const navigate = useNavigate()
+  const { onboardingCompleted } = useUserStore()
 
   useEffect(() => {
     if (isAuthenticated && !isLoading) {
-      navigate('/dashboard')
+      // Route to onboarding if not completed, otherwise go to dashboard
+      if (onboardingCompleted) {
+        navigate('/dashboard')
+      } else {
+        navigate('/onboarding/choice')
+      }
     }
-  }, [isAuthenticated, isLoading, navigate])
+  }, [isAuthenticated, isLoading, onboardingCompleted, navigate])
 
   const features = [
     {

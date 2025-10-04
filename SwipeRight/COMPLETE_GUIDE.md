@@ -60,9 +60,22 @@ VITE_MAPBOX_TOKEN=your-mapbox-token
 
 # Gemini AI (OPTIONAL - has fallback)
 VITE_GEMINI_API_KEY=your-gemini-api-key
+
+# Plaid Sandbox (OPTIONAL - for real bank integration)
+VITE_PLAID_CLIENT_ID=your-plaid-client-id
+VITE_PLAID_SECRET=your-plaid-sandbox-secret
+VITE_PLAID_ENV=sandbox
 ```
 
 ⚠️ **Important**: All variables must have `VITE_` prefix!
+
+### Plaid Integration (Optional)
+
+For **real Plaid Sandbox integration** instead of mock data:
+1. Sign up at [Plaid Dashboard](https://dashboard.plaid.com/signup)
+2. Get your Client ID and Sandbox Secret
+3. Add to `.env` file
+4. See [PLAID_INTEGRATION.md](./PLAID_INTEGRATION.md) for full guide
 
 ## Step 5: Run the App
 

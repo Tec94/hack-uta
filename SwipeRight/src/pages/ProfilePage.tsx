@@ -3,13 +3,15 @@ import { BottomNav } from '@/components/navigation/BottomNav'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { useUserStore } from '@/store/userStore'
-import { User, Mail, CreditCard, DollarSign, LogOut, Settings } from 'lucide-react'
+import { User, Mail, CreditCard, DollarSign, LogOut, Settings, RotateCcw } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils'
 import { motion } from 'framer-motion'
+import { useNavigate } from 'react-router-dom'
 
 export function ProfilePage() {
   const { user, logout } = useAuth0()
-  const { budget, linkedBank, onboardingCompleted } = useUserStore()
+  const navigate = useNavigate()
+  const { budget, linkedBank, onboardingCompleted, reset } = useUserStore()
 
   const totalMonthlySpending = budget
     ? Object.values(budget).reduce((sum, val) => sum + val, 0)
@@ -159,6 +161,19 @@ export function ProfilePage() {
               <Button variant="outline" className="w-full justify-start">
                 <Settings className="w-4 h-4 mr-2" />
                 Settings & Privacy
+              </Button>
+              <Button
+                variant="outline"
+                className="w-full justify-start text-orange-600 hover:text-orange-700 hover:bg-orange-50"
+                onClick={() => {
+                  if (confirm('Are you sure you want to reset your onboarding? This will clear all your settings and you will need to set up your account again.')) {
+                    reset()
+                    navigate('/onboarding/choice')
+                  }
+                }}
+              >
+                <RotateCcw className="w-4 h-4 mr-2" />
+                Reset Onboarding (Testing)
               </Button>
               <Button
                 variant="outline"
