@@ -83,7 +83,7 @@ export function InteractiveMap({
       el.style.boxShadow = '0 2px 4px rgba(0,0,0,0.2)';
       el.textContent = icon;
 
-      const marker = new mapboxgl.Marker(el)
+      new mapboxgl.Marker(el)
         .setLngLat([merchant.location.lng, merchant.location.lat])
         .setPopup(
           new mapboxgl.Popup({ offset: 25 }).setHTML(`
