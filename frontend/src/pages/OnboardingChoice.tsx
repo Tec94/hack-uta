@@ -135,6 +135,12 @@ export function OnboardingChoice() {
           <p className="text-sm text-gray-500">
             You can always change this later in your profile settings
           </p>
+          <button
+            onClick={() => navigate('/home')}
+            className="text-sm text-gray-400 hover:text-gray-600 underline mt-4 transition-colors"
+          >
+            Skip for now (not recommended for accurate results)
+          </button>
         </motion.div>
       </div>
     </div>
