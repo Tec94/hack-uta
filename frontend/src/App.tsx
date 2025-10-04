@@ -9,6 +9,7 @@ import { DashboardPage } from './pages/DashboardPage'
 import { RecommendationsPage } from './pages/RecommendationsPage'
 import { ProfilePage } from './pages/ProfilePage'
 import { Loading } from './components/common/Loading'
+import { Toaster } from './components/ui/toaster'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -87,6 +88,7 @@ function App() {
           }
         />
       </Routes>
+      <Toaster />
     </QueryClientProvider>
   )
 }

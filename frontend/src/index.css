@@ -1,3 +1,6 @@
+/* Mapbox GL styles - @import must come first */
+@import 'mapbox-gl/dist/mapbox-gl.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -36,9 +39,6 @@
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
-
-/* Mapbox GL styles */
-@import 'mapbox-gl/dist/mapbox-gl.css';
 
 /* Custom utility classes */
 .safe-area-bottom {
