@@ -3,6 +3,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import database from './config/database';
+import routes from './routes';
 
 const app: Application = express();
 const PORT = process.env.PORT || 3000;
@@ -15,61 +16,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Routes
-app.get('/', (req: Request, res: Response) => {
-  res.json({
-    message: 'Welcome to Express TypeScript API',
-    timestamp: new Date().toISOString(),
-    version: '1.0.0'
-  });
-});
-
-app.get('/health', (req: Request, res: Response) => {
-  res.json({
-    status: 'OK',
-    uptime: process.uptime(),
-    timestamp: new Date().toISOString()
-  });
-});
-
-// Database health check
-app.get('/db-health', async (req: Request, res: Response) => {
-  try {
-    const isConnected = await database.testConnection();
-    const poolStats = database.getPoolStats();
-    
-    res.json({
-      status: isConnected ? 'OK' : 'ERROR',
-      database: isConnected ? 'Connected' : 'Disconnected',
-      pool: poolStats,
-      timestamp: new Date().toISOString()
-    });
-  } catch (error) {
-    res.status(500).json({
-      status: 'ERROR',
-      database: 'Connection failed',
-      error: error instanceof Error ? error.message : 'Unknown error',
-      timestamp: new Date().toISOString()
-    });
-  }
-});
-
-// Example database query route
-app.get('/db-test', async (req: Request, res: Response) => {
-  try {
-    const result = await database.query('SELECT version() as version, current_database() as database_name');
-    res.json({
-      success: true,
-      data: result.rows[0],
-      timestamp: new Date().toISOString()
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
-      timestamp: new Date().toISOString()
-    });
-  }
-});
+app.use('/', routes);
 
 // 404 handler
 app.use('*', (req: Request, res: Response) => {
