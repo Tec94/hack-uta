@@ -17,6 +17,7 @@ import { fetchNearbyPlaces } from '@/lib/places'
 import { recommendCardsForMerchant, calculatePotentialEarnings, getRecommendationReason } from '@/lib/recommendations'
 import { MapPin, AlertCircle, Loader2, TrendingUp, DollarSign, Award, Sparkles, Star, TestTube } from 'lucide-react'
 import { motion } from 'framer-motion'
+import { useNotification } from '@/contexts/NotificationContext'
 
 const categoryInfo: Record<string, { label: string; icon: string; group: string }> = {
   groceries: { label: 'Groceries', icon: '🛒', group: 'Essential' },
@@ -30,6 +31,7 @@ const categoryInfo: Record<string, { label: string; icon: string; group: string 
 export function DashboardPage() {
   const { user } = useAuth0()
   const navigate = useNavigate()
+  const { showNotification } = useNotification()
   const { location: storedLocation, budget, onboardingCompleted, setLocation, currentCards } = useUserStore()
   const { location: geoLocation, error: geoError, loading: geoLoading, refetch } = useGeolocation()
   const [selectedCard, setSelectedCard] = useState<CreditCard | null>(null)
@@ -89,7 +91,7 @@ export function DashboardPage() {
   // Test notification functionality
   const handleTestNotification = async () => {
     if (!currentLocation) {
-      alert('Location not available. Please enable location services.')
+      showNotification('Location not available. Please enable location services.', 'error')
       return
     }
 
@@ -104,7 +106,7 @@ export function DashboardPage() {
       )
 
       if (nearbyPlaces.length === 0) {
-        alert('No nearby places found. Try a different location or increase the search radius.')
+        showNotification('No nearby places found. Try a different location or increase the search radius.', 'warning')
         return
       }
 
@@ -116,7 +118,7 @@ export function DashboardPage() {
       const recommendedCards = recommendCardsForMerchant(testMerchant, mockCreditCards)
 
       if (recommendedCards.length === 0) {
-        alert('No card recommendations available for this merchant.')
+        showNotification('No card recommendations available for this merchant.', 'warning')
         return
       }
 
@@ -138,9 +140,10 @@ export function DashboardPage() {
         }))
 
         console.log('✅ Test notification sent!')
+        showNotification('Test notification triggered successfully!', 'success')
     } catch (error) {
       console.error('❌ Test notification failed:', error)
-      alert('Failed to test notification. Check console for details.')
+      showNotification('Failed to test notification. Check console for details.', 'error')
     }
   }
 

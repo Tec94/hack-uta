@@ -9,6 +9,7 @@ import { Loading } from '@/components/common/Loading'
 import { ApiCreditCard } from '@/types'
 import { useUserStore } from '@/store/userStore'
 import { CheckCircle, ChevronRight, CreditCard as CreditCardIcon, Loader2 } from 'lucide-react'
+import { useNotification } from '@/contexts/NotificationContext'
 
 interface CardSelection {
   [cardId: string]: boolean
@@ -16,6 +17,7 @@ interface CardSelection {
 
 export function ChooseYourCardPage() {
   const navigate = useNavigate()
+  const { showNotification } = useNotification()
   const { setCurrentCards } = useUserStore()
   const [cards, setCards] = useState<ApiCreditCard[]>([])
   const [loading, setLoading] = useState(true)
@@ -63,7 +65,7 @@ export function ChooseYourCardPage() {
       navigate('/onboarding/budget-setup')
     } catch (error) {
       console.error('Error saving selection:', error)
-      alert('Failed to save your selection. Please try again.')
+      showNotification('Failed to save your selection. Please try again.', 'error')
     } finally {
       setIsSubmitting(false)
     }

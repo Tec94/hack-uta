@@ -17,6 +17,7 @@ import { ToastNotification } from './components/notifications/ToastNotification'
 import { useSmartNotifications } from './hooks/useSmartNotifications'
 import { mockCreditCards } from './data/mock-cards'
 import type { SmartNotification } from './types'
+import { NotificationProvider } from './contexts/NotificationContext'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -98,72 +99,74 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route
-          path="/onboarding/choice"
-          element={
-            <ProtectedRoute>
-              <OnboardingChoice />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/onboarding/link-bank"
-          element={
-            <ProtectedRoute>
-              <LinkBankPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/onboarding/choose-card"
-          element={
-            <ProtectedRoute>
-              <ChooseYourCardPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/onboarding/budget-setup"
-          element={
-            <ProtectedRoute>
-              <ManualSetupPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/cards"
-          element={
-            <ProtectedRoute>
-              <CreditCardManagementPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <DashboardPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/profile"
-          element={
-            <ProtectedRoute>
-              <ProfilePage />
-            </ProtectedRoute>
-          }
-        />
-      </Routes>
-      <Toaster />
-      {isAuthenticated && (
-        <>
-          <ChatbotAssistant />
-          <SmartNotificationProvider />
-        </>
-      )}
+      <NotificationProvider>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route
+            path="/onboarding/choice"
+            element={
+              <ProtectedRoute>
+                <OnboardingChoice />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/onboarding/link-bank"
+            element={
+              <ProtectedRoute>
+                <LinkBankPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/onboarding/choose-card"
+            element={
+              <ProtectedRoute>
+                <ChooseYourCardPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/onboarding/budget-setup"
+            element={
+              <ProtectedRoute>
+                <ManualSetupPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/cards"
+            element={
+              <ProtectedRoute>
+                <CreditCardManagementPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <DashboardPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <ProfilePage />
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+        <Toaster />
+        {isAuthenticated && (
+          <>
+            <ChatbotAssistant />
+            <SmartNotificationProvider />
+          </>
+        )}
+      </NotificationProvider>
     </QueryClientProvider>
   )
 }
