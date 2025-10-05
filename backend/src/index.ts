@@ -45,6 +45,7 @@ app.listen(PORT, async () => {
   console.log(`🧠 Gemini test: http://localhost:${PORT}/gemini/test`);
   console.log(`💳 Cards catalog: http://localhost:${PORT}/api/cards`);
   console.log(`👤 User cards: http://localhost:${PORT}/api/user-cards`);
+  console.log(`🔄 Transfer rates: http://localhost:${PORT}/api/transfer-rates`);
   console.log(`✨ AI Insights: http://localhost:${PORT}/api/insights/cards`);
   console.log(`🎯 AI Recommendations: http://localhost:${PORT}/api/insights/recommend-cards`);
   console.log(`🌐 API endpoint: http://localhost:${PORT}/`);

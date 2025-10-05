@@ -323,6 +323,73 @@ class Database {
       throw error;
     }
   }
+
+  // Transfer Rates operations
+  async getAllTransferRates(): Promise<any[]> {
+    try {
+      const query = `
+        SELECT id, created_at, card_issuer, from_program, to_program, 
+               transfer_ratio, transfer_time, notes
+        FROM transfer_rates
+        ORDER BY card_issuer, from_program
+      `;
+      const result = await this.query(query);
+      return result.rows;
+    } catch (error) {
+      console.error('Error getting all transfer rates:', error);
+      throw error;
+    }
+  }
+
+  async getTransferRateById(id: number): Promise<any> {
+    try {
+      const query = `
+        SELECT id, created_at, card_issuer, from_program, to_program, 
+               transfer_ratio, transfer_time, notes
+        FROM transfer_rates
+        WHERE id = $1
+      `;
+      const result = await this.query(query, [id]);
+      return result.rows[0] || null;
+    } catch (error) {
+      console.error('Error getting transfer rate by ID:', error);
+      throw error;
+    }
+  }
+
+  async getTransferRatesByIssuer(issuer: string): Promise<any[]> {
+    try {
+      const query = `
+        SELECT id, created_at, card_issuer, from_program, to_program, 
+               transfer_ratio, transfer_time, notes
+        FROM transfer_rates
+        WHERE card_issuer ILIKE $1
+        ORDER BY from_program
+      `;
+      const result = await this.query(query, [`%${issuer}%`]);
+      return result.rows;
+    } catch (error) {
+      console.error('Error getting transfer rates by issuer:', error);
+      throw error;
+    }
+  }
+
+  async getTransferRatesByProgram(program: string): Promise<any[]> {
+    try {
+      const query = `
+        SELECT id, created_at, card_issuer, from_program, to_program, 
+               transfer_ratio, transfer_time, notes
+        FROM transfer_rates
+        WHERE from_program ILIKE $1 OR to_program ILIKE $1
+        ORDER BY card_issuer, from_program
+      `;
+      const result = await this.query(query, [`%${program}%`]);
+      return result.rows;
+    } catch (error) {
+      console.error('Error getting transfer rates by program:', error);
+      throw error;
+    }
+  }
 }
 
 // Create and export a singleton instance

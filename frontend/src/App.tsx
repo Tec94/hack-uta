@@ -8,6 +8,7 @@ import { LinkBankPage } from './pages/LinkBankPage'
 import { ManualSetupPage } from './pages/BudgetSetup'
 import { ChooseYourCardPage } from './pages/ChooseYourCard'
 import { CreditCardManagementPage } from './pages/CreditCardManagement'
+import { TransferRatesPage } from './pages/TransferRatesPage'
 import { DashboardPage } from './pages/DashboardPage'
 import { ProfilePage } from './pages/ProfilePage'
 import { Loading } from './components/common/Loading'
@@ -155,6 +156,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <CreditCardManagementPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/transfer-rates"
+            element={
+              <ProtectedRoute>
+                <TransferRatesPage />
               </ProtectedRoute>
             }
           />
