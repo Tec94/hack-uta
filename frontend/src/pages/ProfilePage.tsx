@@ -7,8 +7,10 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { Separator } from '@/components/ui/separator'
+import { Switch } from '@/components/ui/switch'
+import { Slider } from '@/components/ui/slider'
 import { useUserStore } from '@/store/userStore'
-import { Mail, CreditCard, DollarSign, LogOut, Settings, Shield, Bell, HelpCircle, Sparkles, RefreshCw } from 'lucide-react'
+import { Mail, CreditCard, DollarSign, LogOut, Settings, Shield, Bell, HelpCircle, Sparkles, RefreshCw, BellOff, Timer, Radius } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils'
 import { motion } from 'framer-motion'
 
@@ -24,11 +26,48 @@ const categoryInfo: Record<string, { label: string; icon: string; group: string 
 export function ProfilePage() {
   const { user, logout } = useAuth0()
   const navigate = useNavigate()
-  const { budget, linkedBank, onboardingCompleted, reset } = useUserStore()
+  const { 
+    budget, 
+    linkedBank, 
+    onboardingCompleted, 
+    notificationsEnabled, 
+    setNotificationsEnabled,
+    dwellTimeSeconds,
+    setDwellTimeSeconds,
+    dwellRadiusMeters,
+    setDwellRadiusMeters,
+    reset 
+  } = useUserStore()
 
   const totalMonthlySpending = budget
     ? Object.values(budget).reduce((sum, val) => sum + val, 0)
     : 0
+
+  const handleNotificationToggle = (checked: boolean) => {
+    setNotificationsEnabled(checked)
+    if (checked) {
+      console.log('✅ Notifications enabled')
+    } else {
+      console.log('🔕 Notifications disabled')
+    }
+  }
+
+  const handleDwellTimeChange = (value: number[]) => {
+    setDwellTimeSeconds(value[0])
+    console.log(`⏱️ Dwell time set to ${value[0]} seconds (${Math.floor(value[0] / 60)} min ${value[0] % 60} sec)`)
+  }
+
+  const handleRadiusChange = (value: number[]) => {
+    setDwellRadiusMeters(value[0])
+    console.log(`📏 Dwell radius set to ${value[0]} meters`)
+  }
+
+  const formatTime = (seconds: number) => {
+    if (seconds < 60) return `${seconds}s`
+    const mins = Math.floor(seconds / 60)
+    const secs = seconds % 60
+    return secs > 0 ? `${mins}m ${secs}s` : `${mins}m`
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/30 pb-24">
@@ -225,9 +264,9 @@ export function ProfilePage() {
         >
           <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
             <CardHeader>
-              <CardTitle className="text-lg">Quick Actions</CardTitle>
+              <CardTitle className="text-lg">Settings</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
+            <CardContent className="space-y-4">
               <Button 
                 variant="outline" 
                 className="w-full justify-start hover:bg-blue-50 hover:border-blue-300 transition-colors" 
@@ -241,10 +280,136 @@ export function ProfilePage() {
                 <Settings className="w-5 h-5 mr-3 text-purple-600" />
                 <span>Preferences</span>
               </Button>
-              <Button variant="outline" className="w-full justify-start hover:bg-green-50 hover:border-green-300 transition-colors" size="lg">
-                <Bell className="w-5 h-5 mr-3 text-green-600" />
-                <span>Notifications</span>
-              </Button>
+              
+              <Separator />
+              
+              {/* Smart Notifications Toggle */}
+              <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border border-green-200">
+                <div className="flex items-start justify-between gap-4 mb-4">
+                  <div className="flex items-start gap-3 flex-1">
+                    <div className={`w-10 h-10 ${notificationsEnabled ? 'bg-green-500' : 'bg-gray-400'} rounded-lg flex items-center justify-center transition-colors`}>
+                      {notificationsEnabled ? (
+                        <Bell className="w-5 h-5 text-white" />
+                      ) : (
+                        <BellOff className="w-5 h-5 text-white" />
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-semibold text-gray-900 mb-1">Smart Notifications</p>
+                      <p className="text-xs text-gray-600 leading-relaxed">
+                        Get card recommendations when you dwell at a location
+                      </p>
+                    </div>
+                  </div>
+                  <Switch 
+                    checked={notificationsEnabled}
+                    onCheckedChange={handleNotificationToggle}
+                    className="mt-1"
+                  />
+                </div>
+
+                {/* Detection Settings */}
+                {notificationsEnabled && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="space-y-4 pt-4 border-t border-green-200"
+                  >
+                    {/* Dwell Time Slider */}
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Timer className="w-4 h-4 text-green-700" />
+                          <label className="text-sm font-medium text-gray-900">
+                            Dwell Time
+                          </label>
+                        </div>
+                        <span className="text-sm font-bold text-green-700">
+                          {formatTime(dwellTimeSeconds)}
+                        </span>
+                      </div>
+                      <Slider
+                        value={[dwellTimeSeconds]}
+                        onValueChange={handleDwellTimeChange}
+                        min={10}
+                        max={600}
+                        step={10}
+                        className="w-full"
+                      />
+                      <p className="text-xs text-gray-600">
+                        How long to stay at a location before notification
+                      </p>
+                    </div>
+
+                    {/* Dwell Radius Slider */}
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Radius className="w-4 h-4 text-green-700" />
+                          <label className="text-sm font-medium text-gray-900">
+                            Detection Radius
+                          </label>
+                        </div>
+                        <span className="text-sm font-bold text-green-700">
+                          {dwellRadiusMeters}m
+                        </span>
+                      </div>
+                      <Slider
+                        value={[dwellRadiusMeters]}
+                        onValueChange={handleRadiusChange}
+                        min={10}
+                        max={100}
+                        step={5}
+                        className="w-full"
+                      />
+                      <p className="text-xs text-gray-600">
+                        Maximum movement radius while dwelling
+                      </p>
+                    </div>
+
+                    {/* Quick Presets */}
+                    <div className="flex gap-2 pt-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          setDwellTimeSeconds(10)
+                          setDwellRadiusMeters(10)
+                        }}
+                        className="flex-1 text-xs"
+                      >
+                        🚀 Quick Test
+                        <span className="block text-[10px] text-muted-foreground">10s / 10m</span>
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          setDwellTimeSeconds(300)
+                          setDwellRadiusMeters(30)
+                        }}
+                        className="flex-1 text-xs"
+                      >
+                        🎯 Default
+                        <span className="block text-[10px] text-muted-foreground">5m / 30m</span>
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          setDwellTimeSeconds(600)
+                          setDwellRadiusMeters(50)
+                        }}
+                        className="flex-1 text-xs"
+                      >
+                        🏠 Relaxed
+                        <span className="block text-[10px] text-muted-foreground">10m / 50m</span>
+                      </Button>
+                    </div>
+                  </motion.div>
+                )}
+              </div>
             </CardContent>
           </Card>
 

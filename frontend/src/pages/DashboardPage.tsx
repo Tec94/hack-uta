@@ -15,7 +15,7 @@ import { CreditCard, Merchant } from '@/types'
 import { mockCreditCards } from '@/data/mock-cards'
 import { fetchNearbyPlaces } from '@/lib/places'
 import { recommendCardsForMerchant, calculatePotentialEarnings, getRecommendationReason } from '@/lib/recommendations'
-import { MapPin, AlertCircle, Loader2, TrendingUp, DollarSign, Award, Sparkles, Star } from 'lucide-react'
+import { MapPin, AlertCircle, Loader2, TrendingUp, DollarSign, Award, Sparkles, Star, TestTube } from 'lucide-react'
 import { motion } from 'framer-motion'
 
 const categoryInfo: Record<string, { label: string; icon: string; group: string }> = {
@@ -64,6 +64,64 @@ export function DashboardPage() {
 
   const handleMerchantSelect = (merchant: Merchant) => {
     setSelectedMerchant(merchant)
+  }
+
+  // Test notification functionality
+  const handleTestNotification = async () => {
+    if (!currentLocation) {
+      alert('Location not available. Please enable location services.')
+      return
+    }
+
+    console.log('🧪 Testing notification system...')
+    
+    try {
+      // Fetch nearby places
+      const nearbyPlaces = await fetchNearbyPlaces(
+        currentLocation.lat,
+        currentLocation.lng,
+        100
+      )
+
+      if (nearbyPlaces.length === 0) {
+        alert('No nearby places found. Try a different location or increase the search radius.')
+        return
+      }
+
+      // Get the closest merchant
+      const testMerchant = nearbyPlaces[0]
+      console.log('🏪 Test merchant:', testMerchant.name)
+
+      // Get recommended cards
+      const recommendedCards = recommendCardsForMerchant(testMerchant, mockCreditCards)
+
+      if (recommendedCards.length === 0) {
+        alert('No card recommendations available for this merchant.')
+        return
+      }
+
+        const bestCard = recommendedCards[0]
+        const earnings = calculatePotentialEarnings(testMerchant, bestCard)
+
+        // Create test notification
+        const testNotification = {
+          merchant: testMerchant,
+          recommendedCard: bestCard,
+          reason: `Best rewards for ${testMerchant.category}`,
+          estimatedEarnings: earnings,
+          timestamp: Date.now(),
+        }
+
+        // Trigger a notification event that will be caught by the global notification system
+        window.dispatchEvent(new CustomEvent('smart-notification', { 
+          detail: testNotification 
+        }))
+
+        console.log('✅ Test notification sent!')
+    } catch (error) {
+      console.error('❌ Test notification failed:', error)
+      alert('Failed to test notification. Check console for details.')
+    }
   }
 
   if (!onboardingCompleted) {
@@ -131,6 +189,37 @@ export function DashboardPage() {
 
       <div className="max-w-7xl mx-auto px-4 py-6 space-y-6">
         {/* Location Status */}
+        {/* Test Notification Button */}
+        {currentLocation && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-lg p-4"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 bg-purple-500 rounded-lg flex items-center justify-center">
+                  <TestTube className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <p className="font-medium text-gray-900 mb-1">Test Smart Notifications</p>
+                  <p className="text-sm text-gray-600">
+                    Trigger a notification instantly using your current location
+                  </p>
+                </div>
+              </div>
+              <Button
+                onClick={handleTestNotification}
+                size="sm"
+                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+              >
+                <TestTube className="w-4 h-4 mr-2" />
+                Test Now
+              </Button>
+            </div>
+          </motion.div>
+        )}
+
         {geoLoading && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
