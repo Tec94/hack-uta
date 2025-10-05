@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import useEmblaCarousel from 'embla-carousel-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -9,10 +9,10 @@ import {
   Plus, 
   CheckCircle,
   Sparkles,
-  Star,
   ChevronLeft,
   ChevronRight,
-  Zap
+  Zap,
+  Loader2
 } from 'lucide-react'
 
 interface RecommendedCardsProps {
@@ -38,6 +38,51 @@ export function RecommendedCards({
     loop: false,
   })
 
+  // AI recommendations state
+  const [aiRecommendedIds, setAiRecommendedIds] = useState<string[]>([])
+  const [loadingAI, setLoadingAI] = useState(false)
+  const [useAI, setUseAI] = useState(false)
+
+  useEffect(() => {
+    // Fetch AI recommendations when budget and cards are available
+    if (budget && cards.length > 0) {
+      fetchAIRecommendations()
+    }
+  }, [budget, cards.length])
+
+  const fetchAIRecommendations = async () => {
+    if (!budget || cards.length === 0) return
+
+    setLoadingAI(true)
+    try {
+      const response = await fetch('http://localhost:3000/api/insights/recommend-cards', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          budget: budget,
+          availableCards: cards,
+          userCards: currentCards,
+          limit: 5,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (response.ok && data.success && data.data.recommendedCardIds) {
+        setAiRecommendedIds(data.data.recommendedCardIds)
+        setUseAI(data.data.aiPowered !== false)
+      }
+    } catch (err) {
+      console.error('Error fetching AI recommendations:', err)
+      // Fall back to algorithm-based recommendations
+      setUseAI(false)
+    } finally {
+      setLoadingAI(false)
+    }
+  }
+
   const getCategoryColor = (_category: string) => {
     // Unified styling - all categories use the same neutral badge
     return 'bg-secondary text-secondary-foreground'
@@ -53,7 +98,30 @@ export function RecommendedCards({
       return cards.slice(0, 5)
     }
 
-    // Get top spending categories
+    // Use AI recommendations if available
+    if (useAI && aiRecommendedIds.length > 0) {
+      // Order cards by AI recommendation
+      const orderedCards: ApiCreditCard[] = []
+      aiRecommendedIds.forEach(id => {
+        const card = cards.find(c => c.id === id)
+        if (card) {
+          orderedCards.push(card)
+        }
+      })
+      
+      // If we don't have enough cards, fill with fallback
+      if (orderedCards.length < 5) {
+        const usedIds = new Set(orderedCards.map(c => c.id))
+        const remaining = cards
+          .filter(c => !usedIds.has(c.id))
+          .slice(0, 5 - orderedCards.length)
+        orderedCards.push(...remaining)
+      }
+      
+      return orderedCards
+    }
+
+    // Fallback: Get top spending categories
     const sortedBudget = Object.entries(budget).sort((a, b) => b[1] - a[1])
     const topCategory = sortedBudget[0]?.[0] || ''
     const secondCategory = sortedBudget[1]?.[0] || ''
@@ -128,13 +196,32 @@ export function RecommendedCards({
                   <CardTitle className="text-lg sm:text-xl md:text-2xl">
                     Recommended for You
                   </CardTitle>
-                  <Badge variant="default" className="w-fit">
-                    <Star className="w-3 h-3 mr-1 fill-current" />
-                    AI Powered
-                  </Badge>
+                  {loadingAI ? (
+                    <Badge variant="secondary" className="w-fit">
+                      <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                      Analyzing...
+                    </Badge>
+                  ) : useAI ? (
+                    <Badge variant="default" className="w-fit">
+                      <Sparkles className="w-3 h-3 mr-1" />
+                      AI Powered
+                    </Badge>
+                  ) : (
+                    <Badge variant="secondary" className="w-fit">
+                      <Zap className="w-3 h-3 mr-1" />
+                      Smart Match
+                    </Badge>
+                  )}
                 </div>
                 <p className="text-xs sm:text-sm text-muted-foreground">
-                  {budget ? 'Based on your spending habits' : 'Top rated cards to maximize rewards'}
+                  {loadingAI 
+                    ? 'AI is analyzing the best cards for you...'
+                    : budget 
+                      ? useAI 
+                        ? 'Personalized AI recommendations based on your spending' 
+                        : 'Matched to your spending habits'
+                      : 'Top rated cards to maximize rewards'
+                  }
                 </p>
               </div>
             </div>

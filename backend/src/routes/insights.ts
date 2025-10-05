@@ -1,0 +1,281 @@
+import { Router, Request, Response } from 'express';
+import geminiConfig from '../config/gemini';
+
+const router = Router();
+
+/**
+ * Generate AI insights for credit card recommendations
+ * POST /api/insights/cards
+ */
+router.post('/cards', async (req: Request, res: Response) => {
+  try {
+    const { budget, userCards, totalCards } = req.body;
+
+    // Validate input
+    if (!budget || typeof budget !== 'object') {
+      return res.status(400).json({
+        success: false,
+        error: 'Budget data is required',
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    // Calculate total spending and find top categories
+    const budgetEntries = Object.entries(budget).sort((a: any, b: any) => b[1] - a[1]);
+    const totalSpending = Object.values(budget).reduce((sum: number, val: any) => sum + val, 0);
+    const topCategory = budgetEntries[0]?.[0] || 'general';
+    const topSpending = budgetEntries[0]?.[1] || 0;
+    const secondCategory = budgetEntries[1]?.[0] || '';
+    const secondSpending = budgetEntries[1]?.[1] || 0;
+
+    // Build context for Gemini
+    const categoryBreakdown = budgetEntries
+      .map((entry: any) => `${entry[0]}: $${entry[1]}`)
+      .join(', ');
+
+    const prompt = `You are a credit card rewards expert. Based on the following user spending data, provide personalized insights and recommendations.
+
+User Spending Pattern:
+- Total Monthly Spending: $${totalSpending}
+- Top Category: ${topCategory} ($${topSpending}/month)
+- Second Category: ${secondCategory} ($${secondSpending}/month)
+- Full Breakdown: ${categoryBreakdown}
+- User currently has ${userCards || 0} cards
+- Total cards available: ${totalCards || 0}
+
+Please provide:
+1. A brief, friendly insight (2-3 sentences) about their spending pattern and how they can maximize rewards
+2. Estimate their potential annual earnings if they optimize their card usage (be realistic based on typical 2-5% rewards)
+3. A confidence score (0-100) for how well the recommended cards match their spending
+
+Format your response as JSON with these exact fields:
+{
+  "insight": "string - 2-3 sentences about their spending and recommendations",
+  "potentialEarnings": number - estimated annual earnings in dollars,
+  "matchScore": number - confidence score 0-100,
+  "topRecommendation": "string - brief advice on their top category"
+}
+
+Keep the insight conversational and encouraging. Focus on their top 2 spending categories.`;
+
+    const result = await geminiConfig.generateContent(prompt);
+
+    if (!result.success) {
+      return res.status(500).json({
+        success: false,
+        error: 'Failed to generate insights',
+        details: result.message,
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    // Parse Gemini response
+    let insights;
+    try {
+      // Try to extract JSON from the response
+      const responseText = result.data.response;
+      const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+      
+      if (jsonMatch) {
+        insights = JSON.parse(jsonMatch[0]);
+      } else {
+        // Fallback if JSON parsing fails
+        insights = {
+          insight: responseText.substring(0, 300),
+          potentialEarnings: Math.round(totalSpending * 0.03 * 12),
+          matchScore: 85,
+          topRecommendation: `Focus on maximizing rewards in ${topCategory}`
+        };
+      }
+    } catch (parseError) {
+      // Fallback insights if parsing fails
+      insights = {
+        insight: `Based on your spending pattern with a focus on ${topCategory} ($${topSpending}/month), you have great opportunities to maximize rewards. Cards with strong ${topCategory} rewards could significantly boost your earnings.`,
+        potentialEarnings: Math.round(totalSpending * 0.03 * 12),
+        matchScore: 85,
+        topRecommendation: `Look for cards offering 3-5% back on ${topCategory} purchases`
+      };
+    }
+
+    return res.json({
+      success: true,
+      data: insights,
+      metadata: {
+        totalSpending,
+        topCategory,
+        userCards: userCards || 0,
+        totalCards: totalCards || 0
+      },
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error: any) {
+    console.error('Error generating card insights:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to generate insights',
+      details: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
+/**
+ * Generate AI-powered card recommendations
+ * POST /api/insights/recommend-cards
+ */
+router.post('/recommend-cards', async (req: Request, res: Response) => {
+  try {
+    const { budget, availableCards, userCards, limit = 5 } = req.body;
+
+    // Validate input
+    if (!budget || typeof budget !== 'object') {
+      return res.status(400).json({
+        success: false,
+        error: 'Budget data is required',
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    if (!availableCards || !Array.isArray(availableCards)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Available cards data is required',
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    // Calculate spending analysis
+    const budgetEntries = Object.entries(budget).sort((a: any, b: any) => b[1] - a[1]);
+    const totalSpending = Object.values(budget).reduce((sum: number, val: any) => sum + val, 0);
+    const topCategories = budgetEntries.slice(0, 3).map((entry: any) => ({
+      category: entry[0],
+      amount: entry[1],
+      percentage: ((entry[1] / totalSpending) * 100).toFixed(1)
+    }));
+
+    // Build card catalog for AI
+    const cardCatalog = availableCards.map((card: any) => ({
+      id: card.id,
+      name: card.card_name,
+      bank: card.bank_name,
+      category: card.category,
+      network: card.network,
+      rewards: Object.entries(card.reward_summary)
+        .map(([cat, rate]: [string, any]) => `${cat}: ${(rate * 100).toFixed(1)}%`)
+        .join(', ')
+    }));
+
+    const prompt = `You are an expert credit card rewards optimizer. Analyze the user's spending and recommend the best credit cards.
+
+User Spending Pattern (Monthly):
+${topCategories.map(c => `- ${c.category}: $${c.amount} (${c.percentage}%)`).join('\n')}
+Total: $${totalSpending}
+
+Available Credit Cards:
+${cardCatalog.slice(0, 20).map((card: any, idx: number) => 
+  `${idx + 1}. ${card.name} by ${card.bank} [${card.category}]
+   Rewards: ${card.rewards}`
+).join('\n\n')}
+
+Task: Recommend the top ${limit} credit cards that best match this user's spending pattern. Consider:
+1. Reward rates that align with their top spending categories
+2. Overall value and versatility
+3. Category-specific strengths
+
+Respond with ONLY a JSON array of card IDs in order of recommendation (best first):
+["card_id_1", "card_id_2", "card_id_3", ...]
+
+Return exactly ${limit} card IDs from the list above.`;
+
+    const result = await geminiConfig.generateContent(prompt);
+
+    if (!result.success) {
+      // Fallback to simple algorithm
+      const fallbackRecommendations = availableCards
+        .slice(0, limit)
+        .map((card: any) => card.id);
+      
+      return res.json({
+        success: true,
+        data: {
+          recommendedCardIds: fallbackRecommendations,
+          reasoning: 'Using fallback recommendations',
+          aiPowered: false
+        },
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    // Parse AI response
+    let recommendedCardIds: string[] = [];
+    try {
+      const responseText = result.data.response;
+      // Try to extract JSON array from response
+      const jsonMatch = responseText.match(/\[[\s\S]*?\]/);
+      
+      if (jsonMatch) {
+        recommendedCardIds = JSON.parse(jsonMatch[0]);
+      } else {
+        // Try to extract card IDs from text
+        const idMatches = responseText.match(/["'](\d+)["']/g);
+        if (idMatches) {
+          recommendedCardIds = idMatches
+            .map((match: string) => match.replace(/["']/g, ''))
+            .slice(0, limit);
+        }
+      }
+
+      // Validate IDs exist in available cards
+      const validIds = recommendedCardIds.filter((id: string) => 
+        availableCards.some((card: any) => card.id === id)
+      );
+
+      // If we don't have enough valid IDs, fill with fallback
+      if (validIds.length < limit) {
+        const usedIds = new Set(validIds);
+        const fallbackIds = availableCards
+          .filter((card: any) => !usedIds.has(card.id))
+          .slice(0, limit - validIds.length)
+          .map((card: any) => card.id);
+        
+        recommendedCardIds = [...validIds, ...fallbackIds];
+      } else {
+        recommendedCardIds = validIds.slice(0, limit);
+      }
+
+    } catch (parseError) {
+      console.error('Error parsing AI recommendations:', parseError);
+      // Fallback to simple algorithm
+      recommendedCardIds = availableCards
+        .slice(0, limit)
+        .map((card: any) => card.id);
+    }
+
+    return res.json({
+      success: true,
+      data: {
+        recommendedCardIds: recommendedCardIds,
+        reasoning: 'AI-powered recommendations based on your spending patterns',
+        aiPowered: true,
+        metadata: {
+          totalSpending,
+          topCategories: topCategories.map((c: any) => c.category),
+          analyzedCards: cardCatalog.length
+        }
+      },
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error: any) {
+    console.error('Error generating card recommendations:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to generate recommendations',
+      details: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
+export default router;
