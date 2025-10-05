@@ -24,7 +24,7 @@ export function OnboardingChoice() {
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white py-12 px-4">
+    <div className="min-h-screen bg-background py-12 px-4">
       <div className="max-w-5xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -32,16 +32,16 @@ export function OnboardingChoice() {
           transition={{ duration: 0.5 }}
           className="text-center mb-12"
         >
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+          <h1 className="text-3xl md:text-4xl font-bold mb-4">
             Welcome, {user?.name || 'there'}! 👋
           </h1>
-          <p className="text-xl text-gray-600">
+          <p className="text-xl text-muted-foreground">
             How would you like to set up your profile?
           </p>
           <div className="mt-6 flex items-center justify-center gap-2">
             <div className="w-8 h-2 rounded-full bg-primary"></div>
-            <div className="w-2 h-2 rounded-full bg-gray-300"></div>
-            <div className="w-2 h-2 rounded-full bg-gray-300"></div>
+            <div className="w-2 h-2 rounded-full bg-muted"></div>
+            <div className="w-2 h-2 rounded-full bg-muted"></div>
           </div>
         </motion.div>
 
@@ -54,8 +54,8 @@ export function OnboardingChoice() {
           >
             <Card className="h-full hover:shadow-lg transition-shadow border-2 hover:border-primary">
               <CardHeader>
-                <div className="w-16 h-16 bg-blue-100 rounded-xl flex items-center justify-center mb-4">
-                  <Link2 className="w-8 h-8 text-blue-600" />
+                <div className="w-16 h-16 bg-primary rounded-xl flex items-center justify-center mb-4">
+                  <Link2 className="w-8 h-8 text-primary-foreground" />
                 </div>
                 <CardTitle className="text-2xl">Link Bank Account</CardTitle>
                 <CardDescription className="text-base">
@@ -66,8 +66,8 @@ export function OnboardingChoice() {
                 <ul className="space-y-3 mb-6">
                   {linkBankBenefits.map((benefit) => (
                     <li key={benefit} className="flex items-start gap-2">
-                      <Check className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
-                      <span className="text-gray-700">{benefit}</span>
+                      <Check className="w-5 h-5 mt-0.5 flex-shrink-0" />
+                      <span>{benefit}</span>
                     </li>
                   ))}
                 </ul>
@@ -78,7 +78,7 @@ export function OnboardingChoice() {
                 >
                   Link Bank Account
                 </Button>
-                <p className="text-xs text-gray-500 mt-3 text-center">
+                <p className="text-xs text-muted-foreground mt-3 text-center">
                   🔒 Secured with bank-level encryption
                 </p>
               </CardContent>
@@ -93,8 +93,8 @@ export function OnboardingChoice() {
           >
             <Card className="h-full hover:shadow-lg transition-shadow border-2 hover:border-primary">
               <CardHeader>
-                <div className="w-16 h-16 bg-purple-100 rounded-xl flex items-center justify-center mb-4">
-                  <Edit3 className="w-8 h-8 text-purple-600" />
+                <div className="w-16 h-16 bg-secondary rounded-xl flex items-center justify-center mb-4">
+                  <Edit3 className="w-8 h-8" />
                 </div>
                 <CardTitle className="text-2xl">Manual Setup</CardTitle>
                 <CardDescription className="text-base">
@@ -105,8 +105,8 @@ export function OnboardingChoice() {
                 <ul className="space-y-3 mb-6">
                   {manualInputBenefits.map((benefit) => (
                     <li key={benefit} className="flex items-start gap-2">
-                      <Check className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
-                      <span className="text-gray-700">{benefit}</span>
+                      <Check className="w-5 h-5 mt-0.5 flex-shrink-0" />
+                      <span>{benefit}</span>
                     </li>
                   ))}
                 </ul>
@@ -118,7 +118,7 @@ export function OnboardingChoice() {
                 >
                   Manual Setup
                 </Button>
-                <p className="text-xs text-gray-500 mt-3 text-center">
+                <p className="text-xs text-muted-foreground mt-3 text-center">
                   ⚡ Takes less than 3 minutes
                 </p>
               </CardContent>
@@ -132,12 +132,12 @@ export function OnboardingChoice() {
           transition={{ duration: 0.5, delay: 0.5 }}
           className="text-center mt-8"
         >
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-muted-foreground">
             You can always change this later in your profile settings
           </p>
           <button
             onClick={() => navigate('/home')}
-            className="text-sm text-gray-400 hover:text-gray-600 underline mt-4 transition-colors"
+            className="text-sm text-muted-foreground hover:text-foreground underline mt-4 transition-colors"
           >
             Skip for now (not recommended for accurate results)
           </button>

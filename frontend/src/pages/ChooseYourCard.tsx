@@ -69,16 +69,9 @@ export function ChooseYourCardPage() {
     }
   }
 
-  const getCategoryColor = (category: string) => {
-    switch (category.toLowerCase()) {
-      case 'cashback': return 'bg-green-100 text-green-800'
-      case 'travel rewards': return 'bg-blue-100 text-blue-800'
-      case 'rotating categories': return 'bg-purple-100 text-purple-800'
-      case 'entertainment rewards': return 'bg-pink-100 text-pink-800'
-      case 'adaptive cashback': return 'bg-orange-100 text-orange-800'
-      case 'flat cashback': return 'bg-gray-100 text-gray-800'
-      default: return 'bg-gray-100 text-gray-800'
-    }
+  const getCategoryColor = (_category: string) => {
+    // Unified styling - all categories use the same neutral badge
+    return 'bg-secondary text-secondary-foreground'
   }
 
   if (loading) {
@@ -87,14 +80,14 @@ export function ChooseYourCardPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white py-12 px-4 pb-24">
+      <div className="min-h-screen bg-background py-12 px-4 pb-24">
         <div className="max-w-4xl mx-auto">
           <Card className="text-center p-8">
-            <div className="text-red-500 mb-4">
+            <div className="text-destructive mb-4">
               <CreditCardIcon className="w-12 h-12 mx-auto" />
             </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Error Loading Cards</h2>
-            <p className="text-gray-600 mb-6">{error}</p>
+            <h2 className="text-2xl font-bold mb-2">Error Loading Cards</h2>
+            <p className="text-muted-foreground mb-6">{error}</p>
             <Button onClick={fetchCards} variant="outline">
               Try Again
             </Button>
@@ -107,7 +100,7 @@ export function ChooseYourCardPage() {
   const selectedCount = Object.values(selectedCards).filter(Boolean).length
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white py-12 px-4 pb-24">
+    <div className="min-h-screen bg-background py-12 px-4 pb-24">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <motion.div
@@ -115,17 +108,17 @@ export function ChooseYourCardPage() {
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-8"
         >
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full mb-4">
-            <CreditCardIcon className="w-8 h-8 text-white" />
+          <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-primary rounded-full mb-4">
+            <CreditCardIcon className="w-6 h-6 sm:w-8 sm:h-8 text-primary-foreground" />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">Choose Your Credit Cards</h1>
-          <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+          <h1 className="text-2xl sm:text-3xl font-bold mb-4">Choose Your Credit Cards</h1>
+          <p className="text-muted-foreground text-sm sm:text-base md:text-lg max-w-2xl mx-auto">
             Select the credit cards you currently own or skip to continue.
           </p>
           <div className="mt-6 flex items-center justify-center gap-2">
             <div className="w-2 h-2 rounded-full bg-primary"></div>
-            <div className="w-2 h-2 rounded-full bg-gray-300"></div>
-            <div className="w-2 h-2 rounded-full bg-gray-300"></div>
+            <div className="w-2 h-2 rounded-full bg-muted"></div>
+            <div className="w-2 h-2 rounded-full bg-muted"></div>
           </div>
         </motion.div>
 
@@ -162,10 +155,10 @@ export function ChooseYourCardPage() {
                 <CardHeader className="pb-4">
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex-1 min-w-0">
-                      <CardTitle className="text-lg font-semibold text-gray-900 mb-1 truncate">
+                      <CardTitle className="text-lg font-semibold mb-1 truncate">
                         {card.card_name}
                       </CardTitle>
-                      <p className="text-sm text-gray-600">{card.bank_name}</p>
+                      <p className="text-sm text-muted-foreground">{card.bank_name}</p>
                     </div>
                     <div className="flex items-center gap-2 flex-shrink-0">
                       {selectedCards[card.id] && (
@@ -216,7 +209,7 @@ export function ChooseYourCardPage() {
             <Button
               onClick={handleSubmit}
               disabled={isSubmitting}
-              className="w-full sm:w-auto min-w-[140px] bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+              className="w-full sm:w-auto min-w-[140px]"
               size="lg"
             >
               {isSubmitting ? (
@@ -237,7 +230,7 @@ export function ChooseYourCardPage() {
             <motion.p
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="text-sm text-gray-500 text-center"
+              className="text-sm text-muted-foreground text-center"
             >
               You can add cards later from your profile
             </motion.p>

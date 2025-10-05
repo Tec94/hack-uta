@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useAuth0 } from '@auth0/auth0-react'
 import { useNavigate } from 'react-router-dom'
 import { InteractiveMap } from '@/components/map/InteractiveMap'
-import { CardsCarousel } from '@/components/cards/CardsCarousel'
+import { RecommendedCards } from '@/components/cards/RecommendedCards'
 import { CardDetailModal } from '@/components/cards/CardDetailModal'
 import { BottomNav } from '@/components/navigation/BottomNav'
 import { Button } from '@/components/ui/button'
@@ -11,7 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { useGeolocation } from '@/hooks/useGeolocation'
 import { useUserStore } from '@/store/userStore'
-import { CreditCard, Merchant } from '@/types'
+import { CreditCard, Merchant, ApiCreditCard } from '@/types'
 import { mockCreditCards } from '@/data/mock-cards'
 import { fetchNearbyPlaces } from '@/lib/places'
 import { recommendCardsForMerchant, calculatePotentialEarnings, getRecommendationReason } from '@/lib/recommendations'
@@ -30,12 +30,14 @@ const categoryInfo: Record<string, { label: string; icon: string; group: string 
 export function DashboardPage() {
   const { user } = useAuth0()
   const navigate = useNavigate()
-  const { location: storedLocation, budget, onboardingCompleted, setLocation } = useUserStore()
+  const { location: storedLocation, budget, onboardingCompleted, setLocation, currentCards } = useUserStore()
   const { location: geoLocation, error: geoError, loading: geoLoading, refetch } = useGeolocation()
   const [selectedCard, setSelectedCard] = useState<CreditCard | null>(null)
   const [modalOpen, setModalOpen] = useState(false)
   const [merchants, setMerchants] = useState<Merchant[]>([])
   const [selectedMerchant, setSelectedMerchant] = useState<Merchant | null>(null)
+  const [apiCards, setApiCards] = useState<ApiCreditCard[]>([])
+  const [cardsLoading, setCardsLoading] = useState(true)
 
   // Redirect to onboarding if not completed
   useEffect(() => {
@@ -43,6 +45,24 @@ export function DashboardPage() {
       navigate('/onboarding/choice')
     }
   }, [onboardingCompleted, navigate])
+
+  // Fetch API cards
+  useEffect(() => {
+    const fetchCards = async () => {
+      try {
+        const response = await fetch('http://localhost:3000/api/cards')
+        if (response.ok) {
+          const data = await response.json()
+          setApiCards(data.data || [])
+        }
+      } catch (err) {
+        console.error('Error fetching cards:', err)
+      } finally {
+        setCardsLoading(false)
+      }
+    }
+    fetchCards()
+  }, [])
 
   // Update stored location when geolocation succeeds
   useEffect(() => {
@@ -129,57 +149,53 @@ export function DashboardPage() {
   }
 
   const totalBudget = budget ? Object.values(budget).reduce((sum, val) => sum + val, 0) : 0
-  const topCategory = budget ? Object.entries(budget).sort((a, b) => b[1] - a[1])[0] : null
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/30 pb-24">
+    <div className="min-h-screen bg-background pb-24">
       {/* Header */}
-      <div className="relative bg-gradient-to-r from-blue-600 via-purple-600 to-pink-500 text-white px-4 py-8 overflow-hidden">
-        <div className="absolute inset-0 bg-grid-white/10"></div>
-        <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-32 translate-x-32"></div>
-        
-        <div className="max-w-7xl mx-auto relative z-10">
-          <div className="flex items-start justify-between mb-4">
-            <div>
-              <h1 className="text-3xl font-bold mb-2">Welcome back, {user?.name?.split(' ')[0]}! 👋</h1>
-              <p className="text-blue-100 text-lg">Here are your personalized insights</p>
+      <div className="border-b bg-card text-card-foreground">
+        <div className="max-w-7xl mx-auto px-4 py-4 sm:py-6">
+          <div className="flex flex-col sm:flex-row items-start sm:justify-between gap-3 sm:gap-4 mb-4">
+            <div className="min-w-0">
+              <h1 className="text-xl sm:text-2xl font-bold mb-1">Welcome back, {user?.name?.split(' ')[0]}! 👋</h1>
+              <p className="text-xs sm:text-sm text-muted-foreground">Here are your personalized insights</p>
             </div>
-            <Badge variant="secondary" className="bg-white/20 text-white border-white/30 backdrop-blur-sm">
-              <Sparkles className="w-3 h-3 mr-1" />
+            <Badge variant="outline" className="gap-1 flex-shrink-0">
+              <Sparkles className="w-3 h-3" />
               Testing Member
             </Badge>
           </div>
           
           {/* Quick Stats */}
           {totalBudget > 0 && (
-            <div className="grid grid-cols-3 gap-4 mt-6">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mt-4">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/20"
+                className="rounded-xl p-3 sm:p-4 border bg-card"
               >
                 <DollarSign className="w-5 h-5 mb-2 opacity-80" />
-                <p className="text-2xl font-bold">${totalBudget}</p>
+                <p className="text-xl sm:text-2xl font-bold">${totalBudget}</p>
                 <p className="text-xs opacity-80">Monthly Budget</p>
               </motion.div>
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
-                className="bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/20"
+                className="rounded-xl p-3 sm:p-4 border bg-card"
               >
                 <Award className="w-5 h-5 mb-2 opacity-80" />
-                <p className="text-2xl font-bold">{mockCreditCards.length}</p>
+                <p className="text-xl sm:text-2xl font-bold">{mockCreditCards.length}</p>
                 <p className="text-xs opacity-80">Top Cards</p>
               </motion.div>
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
-                className="bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/20"
+                className="rounded-xl p-3 sm:p-4 border bg-card"
               >
                 <TrendingUp className="w-5 h-5 mb-2 opacity-80" />
-                <p className="text-2xl font-bold">3.2x</p>
+                <p className="text-xl sm:text-2xl font-bold">3.2x</p>
                 <p className="text-xs opacity-80">Avg. Rewards</p>
               </motion.div>
             </div>
@@ -224,10 +240,10 @@ export function DashboardPage() {
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-center gap-3"
+            className="bg-muted border rounded-lg p-4 flex items-center gap-3"
           >
-            <Loader2 className="w-5 h-5 text-blue-600 animate-spin" />
-            <span className="text-blue-900">Getting your location...</span>
+            <Loader2 className="w-5 h-5 animate-spin" />
+            <span className="text-sm font-medium">Getting your location...</span>
           </motion.div>
         )}
 
@@ -235,13 +251,13 @@ export function DashboardPage() {
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-orange-50 border border-orange-200 rounded-lg p-4"
+            className="bg-destructive/10 border border-destructive/20 rounded-lg p-4"
           >
             <div className="flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-orange-600 mt-0.5" />
+              <AlertCircle className="w-5 h-5 text-destructive mt-0.5" />
               <div className="flex-1">
-                <p className="text-orange-900 font-medium mb-1">Location Access Needed</p>
-                <p className="text-sm text-orange-800 mb-3">{geoError.message}</p>
+                <p className="font-medium mb-1">Location Access Needed</p>
+                <p className="text-sm text-muted-foreground mb-3">{geoError.message}</p>
                 <Button onClick={refetch} size="sm" variant="outline">
                   <MapPin className="w-4 h-4 mr-2" />
                   Try Again
@@ -258,12 +274,12 @@ export function DashboardPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
+            <Card className="shadow-sm">
               <CardHeader>
                 <div className="flex justify-between items-center">
                   <div className="flex items-center gap-2">
-                    <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
-                      <MapPin className="w-5 h-5 text-white" />
+                    <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
+                      <MapPin className="w-5 h-5 text-primary-foreground" />
                     </div>
                     <div>
                       <CardTitle className="text-xl">Nearby Merchants</CardTitle>
@@ -276,7 +292,7 @@ export function DashboardPage() {
                 </div>
               </CardHeader>
               <CardContent className="pt-0">
-                <div className="rounded-xl overflow-hidden border-2 border-gray-200">
+                <div className="rounded-lg overflow-hidden border">
                   <InteractiveMap
                     userLocation={currentLocation}
                     merchants={merchants}
@@ -290,33 +306,33 @@ export function DashboardPage() {
                     className="mt-4 space-y-4"
                   >
                     {/* Merchant Info */}
-                    <div className="p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl border border-blue-200">
+                    <div className="p-4 bg-muted rounded-lg border">
                       <div className="flex items-start justify-between">
                         <div>
-                          <h3 className="font-semibold text-gray-900 mb-1 flex items-center gap-2">
-                            <MapPin className="w-4 h-4 text-blue-600" />
+                          <h3 className="font-semibold mb-1 flex items-center gap-2">
+                            <MapPin className="w-4 h-4" />
                             {selectedMerchant.name}
                           </h3>
-                          <p className="text-sm text-gray-600 capitalize">
+                          <p className="text-sm text-muted-foreground capitalize">
                             {selectedMerchant.category}
                           </p>
                           {selectedMerchant.address && (
-                            <p className="text-xs text-gray-500 mt-1">
+                            <p className="text-xs text-muted-foreground mt-1">
                               {selectedMerchant.address}
                             </p>
                           )}
                         </div>
-                        <Badge className="bg-green-100 text-green-800 border-green-300">
+                        <Badge variant="secondary">
                           ~${selectedMerchant.estimatedSpend}
                         </Badge>
                       </div>
                     </div>
 
                     {/* Recommended Cards for this Location */}
-                    <div className="bg-white rounded-xl border border-gray-200 p-4">
+                    <div className="bg-card rounded-lg border p-4">
                       <div className="flex items-center gap-2 mb-3">
-                        <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
-                        <h4 className="font-semibold text-gray-900">Best Cards for This Location</h4>
+                        <Star className="w-4 h-4 fill-current" />
+                        <h4 className="font-semibold">Best Cards for This Location</h4>
                       </div>
                       <div className="space-y-2">
                         {recommendCardsForMerchant(selectedMerchant, mockCreditCards).map((card, index) => (
@@ -326,20 +342,20 @@ export function DashboardPage() {
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: index * 0.1 }}
                             onClick={() => handleCardClick(card)}
-                            className="p-3 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border border-purple-200 hover:border-purple-400 cursor-pointer transition-all hover:shadow-md"
+                            className="p-3 bg-muted rounded-lg border hover:border-primary cursor-pointer transition-all hover:shadow-sm"
                           >
                             <div className="flex items-start justify-between">
                               <div className="flex-1">
                                 <div className="flex items-center gap-2 mb-1">
-                                  <span className="text-xs font-bold text-purple-600 bg-purple-100 px-2 py-0.5 rounded">
+                                  <Badge variant="secondary" className="text-xs">
                                     #{index + 1}
-                                  </span>
-                                  <p className="font-semibold text-gray-900 text-sm">{card.name}</p>
+                                  </Badge>
+                                  <p className="font-semibold text-sm">{card.name}</p>
                                 </div>
-                                <p className="text-xs text-gray-600 mb-1">
+                                <p className="text-xs text-muted-foreground mb-1">
                                   {getRecommendationReason(selectedMerchant, card)}
                                 </p>
-                                <p className="text-xs font-medium text-green-700">
+                                <p className="text-xs font-medium">
                                   Earn: {calculatePotentialEarnings(selectedMerchant, card)}
                                 </p>
                               </div>
@@ -356,36 +372,14 @@ export function DashboardPage() {
         )}
 
         {/* Recommended Cards */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-        >
-          <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
-            <CardHeader>
-              <div className="flex items-start justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center">
-                    <Sparkles className="w-5 h-5 text-white" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-xl">Smart Recommendations</CardTitle>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      Optimized for your {topCategory ? topCategory[0] : 'spending'} habits
-                    </p>
-                  </div>
-                </div>
-                <Badge className="bg-purple-100 text-purple-800 border-purple-300">
-                  <TrendingUp className="w-3 h-3 mr-1" />
-                  Top Picks
-                </Badge>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <CardsCarousel cards={mockCreditCards} onCardClick={handleCardClick} />
-            </CardContent>
-          </Card>
-        </motion.div>
+        {!cardsLoading && apiCards.length > 0 && (
+          <RecommendedCards
+            cards={apiCards}
+            currentCards={currentCards}
+            budget={budget ?? undefined}
+            showAddButton={false}
+          />
+        )}
 
         {/* Quick Stats */}
         {budget && (
@@ -394,11 +388,11 @@ export function DashboardPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
           >
-            <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
+            <Card className="shadow-sm">
               <CardHeader>
                 <div className="flex items-center gap-2">
-                  <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
-                    <DollarSign className="w-5 h-5 text-white" />
+                  <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
+                    <DollarSign className="w-5 h-5 text-primary-foreground" />
                   </div>
                   <div>
                     <CardTitle className="text-xl">Spending Breakdown</CardTitle>
@@ -409,7 +403,7 @@ export function DashboardPage() {
               <CardContent>
                 {/* Essential Expenses */}
                 <div className="mb-6">
-                  <h3 className="text-sm font-semibold text-gray-700 mb-3">Essential Expenses</h3>
+                  <h3 className="text-sm font-semibold mb-3">Essential Expenses</h3>
                   <div className="space-y-3">
                     {Object.entries(budget)
                       .filter(([cat]) => categoryInfo[cat]?.group === 'Essential')
@@ -434,7 +428,7 @@ export function DashboardPage() {
                               </div>
                               <div className="flex items-center gap-2">
                                 <span className="text-sm text-muted-foreground">{percentage.toFixed(0)}%</span>
-                                <span className="text-lg font-bold text-gray-900">${amount}</span>
+                                <span className="text-lg font-bold">${amount}</span>
                               </div>
                             </div>
                             <Progress value={percentage} className="h-2" />
@@ -446,7 +440,7 @@ export function DashboardPage() {
 
                 {/* Lifestyle & Discretionary */}
                 <div>
-                  <h3 className="text-sm font-semibold text-gray-700 mb-3">Lifestyle & Discretionary</h3>
+                  <h3 className="text-sm font-semibold mb-3">Lifestyle & Discretionary</h3>
                   <div className="space-y-3">
                     {Object.entries(budget)
                       .filter(([cat]) => categoryInfo[cat]?.group === 'Lifestyle')
@@ -471,7 +465,7 @@ export function DashboardPage() {
                               </div>
                               <div className="flex items-center gap-2">
                                 <span className="text-sm text-muted-foreground">{percentage.toFixed(0)}%</span>
-                                <span className="text-lg font-bold text-gray-900">${amount}</span>
+                                <span className="text-lg font-bold">${amount}</span>
                               </div>
                             </div>
                             <Progress value={percentage} className="h-2" />
@@ -481,10 +475,10 @@ export function DashboardPage() {
                   </div>
                 </div>
                 
-                <div className="mt-6 pt-6 border-t border-gray-200">
+                <div className="mt-6 pt-6 border-t">
                   <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium text-gray-600">Total Monthly Budget</span>
-                    <span className="text-2xl font-bold text-primary">${totalBudget}</span>
+                    <span className="text-sm font-medium text-muted-foreground">Total Monthly Budget</span>
+                    <span className="text-2xl font-bold">${totalBudget}</span>
                   </div>
                 </div>
               </CardContent>

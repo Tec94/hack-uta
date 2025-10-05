@@ -57,7 +57,7 @@ export function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50">
+    <div className="min-h-screen bg-background">
       {/* Hero Section */}
       <div className="container mx-auto px-4 py-12 md:py-20">
         <motion.div
@@ -72,11 +72,8 @@ export function HomePage() {
             transition={{ duration: 0.5 }}
             className="flex justify-center mb-8"
           >
-            <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-600 rounded-3xl blur-2xl opacity-40 animate-pulse"></div>
-              <div className="relative w-24 h-24 bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 rounded-3xl flex items-center justify-center shadow-2xl">
-                <CreditCard className="w-12 h-12 text-white" />
-              </div>
+            <div className="w-24 h-24 bg-primary rounded-3xl flex items-center justify-center shadow-lg">
+              <CreditCard className="w-12 h-12 text-primary-foreground" />
             </div>
           </motion.div>
 
@@ -100,26 +97,26 @@ export function HomePage() {
             </Badge>
           </motion.div>
 
-          <h1 className="text-5xl md:text-7xl font-bold text-gray-900 mb-6 leading-tight">
+          <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
             Maximize Every Purchase with
             <br />
-            <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+            <span className="text-primary">
               CardWise
             </span>
           </h1>
 
-          <p className="text-xl md:text-2xl text-gray-600 mb-10 leading-relaxed max-w-3xl mx-auto">
+          <p className="text-xl md:text-2xl text-muted-foreground mb-10 leading-relaxed max-w-3xl mx-auto">
             Stop leaving money on the table. Get instant, AI-powered credit card recommendations 
             based on your location and spending patterns.
             <br />
-            <span className="font-semibold text-primary">Make every swipe count.</span>
+            <span className="font-semibold">Make every swipe count.</span>
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Button 
               onClick={() => loginWithRedirect()}
               size="lg" 
-              className="text-lg px-10 py-7 w-full sm:w-auto shadow-xl hover:shadow-2xl transition-all duration-300 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+              className="text-lg px-10 py-7 w-full sm:w-auto"
             >
               <Zap className="w-5 h-5 mr-2" />
               Start Earning More
@@ -127,16 +124,16 @@ export function HomePage() {
             <Button 
               variant="outline" 
               size="lg" 
-              className="text-lg px-10 py-7 w-full sm:w-auto border-2 hover:bg-gray-50"
+              className="text-lg px-10 py-7 w-full sm:w-auto"
               onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
             >
               See How It Works
             </Button>
           </div>
 
-          <div className="flex flex-wrap justify-center items-center gap-6 mt-8 text-sm text-gray-500">
+          <div className="flex flex-wrap justify-center items-center gap-6 mt-8 text-sm text-muted-foreground">
             <span className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+              <div className="w-2 h-2 bg-primary rounded-full"></div>
               Free to use
             </span>
             <span>•</span>
@@ -153,24 +150,22 @@ export function HomePage() {
           transition={{ duration: 0.8, delay: 0.2 }}
           className="mt-20 max-w-5xl mx-auto"
         >
-          <div className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-gray-200/50 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-bl from-blue-100/50 to-transparent rounded-full -translate-y-48 translate-x-48"></div>
-            <div className="aspect-video bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 rounded-2xl flex items-center justify-center relative overflow-hidden shadow-inner">
-              <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
+          <div className="bg-card rounded-3xl shadow-lg p-8 border">
+            <div className="aspect-video bg-muted rounded-2xl flex items-center justify-center relative overflow-hidden">
               <div className="text-center relative z-10">
                 <div className="flex justify-center gap-4 mb-6">
-                  <div className="w-16 h-16 bg-white rounded-2xl shadow-lg flex items-center justify-center animate-bounce">
-                    <MapPin className="w-8 h-8 text-blue-600" />
+                  <div className="w-16 h-16 bg-background rounded-2xl shadow-md flex items-center justify-center animate-bounce border">
+                    <MapPin className="w-8 h-8" />
                   </div>
-                  <div className="w-16 h-16 bg-white rounded-2xl shadow-lg flex items-center justify-center animate-bounce" style={{ animationDelay: '0.2s' }}>
-                    <CreditCard className="w-8 h-8 text-purple-600" />
+                  <div className="w-16 h-16 bg-background rounded-2xl shadow-md flex items-center justify-center animate-bounce border" style={{ animationDelay: '0.2s' }}>
+                    <CreditCard className="w-8 h-8" />
                   </div>
-                  <div className="w-16 h-16 bg-white rounded-2xl shadow-lg flex items-center justify-center animate-bounce" style={{ animationDelay: '0.4s' }}>
-                    <Sparkles className="w-8 h-8 text-pink-600" />
+                  <div className="w-16 h-16 bg-background rounded-2xl shadow-md flex items-center justify-center animate-bounce border" style={{ animationDelay: '0.4s' }}>
+                    <Sparkles className="w-8 h-8" />
                   </div>
                 </div>
-                <p className="text-gray-700 font-semibold text-lg">Interactive Map & Smart Recommendations</p>
-                <p className="text-gray-500 text-sm mt-2">Real-time insights for every location</p>
+                <p className="font-semibold text-lg">Interactive Map & Smart Recommendations</p>
+                <p className="text-muted-foreground text-sm mt-2">Real-time insights for every location</p>
               </div>
             </div>
           </div>
@@ -186,10 +181,10 @@ export function HomePage() {
           transition={{ duration: 0.6 }}
           className="text-center mb-12"
         >
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">
             Why SwipeRight?
           </h2>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             Make every swipe count with intelligent, personalized recommendations
           </p>
         </motion.div>
@@ -197,12 +192,6 @@ export function HomePage() {
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
           {features.map((feature, index) => {
             const Icon = feature.icon
-            const gradients = [
-              'from-blue-500 to-blue-600',
-              'from-purple-500 to-purple-600', 
-              'from-pink-500 to-pink-600',
-              'from-indigo-500 to-indigo-600'
-            ]
             return (
               <motion.div
                 key={feature.title}
@@ -211,13 +200,13 @@ export function HomePage() {
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 whileHover={{ y: -8, transition: { duration: 0.2 } }}
-                className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-gray-100 hover:shadow-2xl transition-all group"
+                className="bg-card p-6 rounded-2xl shadow-sm border hover:shadow-lg transition-all group"
               >
-                <div className={`w-14 h-14 bg-gradient-to-br ${gradients[index]} rounded-xl flex items-center justify-center mb-4 shadow-lg group-hover:scale-110 transition-transform`}>
-                  <Icon className="w-7 h-7 text-white" />
+                <div className="w-14 h-14 bg-primary rounded-xl flex items-center justify-center mb-4 shadow-md group-hover:scale-110 transition-transform">
+                  <Icon className="w-7 h-7 text-primary-foreground" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-primary transition-colors">{feature.title}</h3>
-                <p className="text-gray-600 leading-relaxed">{feature.description}</p>
+                <h3 className="text-xl font-bold mb-2">{feature.title}</h3>
+                <p className="text-muted-foreground leading-relaxed">{feature.description}</p>
               </motion.div>
             )
           })}
@@ -231,19 +220,15 @@ export function HomePage() {
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="relative bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 rounded-3xl p-12 md:p-16 text-center text-white overflow-hidden shadow-2xl"
+          className="relative bg-primary rounded-3xl p-12 md:p-16 text-center text-primary-foreground overflow-hidden shadow-lg"
         >
-          <div className="absolute inset-0 bg-grid-white/10"></div>
-          <div className="absolute top-10 left-10 w-32 h-32 bg-white/10 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-10 right-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
-          
           <div className="relative z-10">
             <motion.div
               initial={{ scale: 0 }}
               whileInView={{ scale: 1 }}
               viewport={{ once: true }}
               transition={{ delay: 0.2, type: "spring" }}
-              className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full mb-6"
+              className="inline-flex items-center gap-2 bg-background/10 backdrop-blur-sm px-4 py-2 rounded-full mb-6"
             >
               <Sparkles className="w-4 h-4" />
               <span className="text-sm font-medium">Limited Time: Get Premium Free for 3 Months</span>
@@ -252,20 +237,20 @@ export function HomePage() {
             <h2 className="text-4xl md:text-5xl font-bold mb-4">
               Ready to Maximize Your Rewards?
             </h2>
-            <p className="text-xl md:text-2xl mb-8 opacity-95 max-w-2xl mx-auto">
+            <p className="text-xl md:text-2xl mb-8 opacity-90 max-w-2xl mx-auto">
               Join thousands of smart spenders already earning 3x more with optimized card usage
             </p>
             <Button 
               onClick={() => loginWithRedirect()}
               size="lg" 
               variant="secondary" 
-              className="text-lg px-10 py-7 hover:scale-105 transition-transform shadow-xl"
+              className="text-lg px-10 py-7"
             >
               <Zap className="w-5 h-5 mr-2" />
               Start Earning More Today
             </Button>
             
-            <div className="flex flex-wrap justify-center items-center gap-8 mt-10 text-sm">
+            <div className="flex flex-wrap justify-center items-center gap-8 mt-10 text-sm opacity-90">
               <span className="flex items-center gap-2">
                 <Shield className="w-5 h-5" />
                 Bank-level security
@@ -284,24 +269,24 @@ export function HomePage() {
       </div>
 
       {/* Footer */}
-      <footer className="container mx-auto px-4 py-12 border-t border-gray-300">
+      <footer className="container mx-auto px-4 py-12 border-t">
         <div className="max-w-4xl mx-auto">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
-                <CreditCard className="w-5 h-5 text-white" />
+              <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
+                <CreditCard className="w-5 h-5 text-primary-foreground" />
               </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              <span className="text-xl font-bold">
                 SwipeRight
               </span>
             </div>
-            <div className="flex gap-6 text-sm text-gray-600">
-              <a href="#" className="hover:text-primary transition-colors">Privacy Policy</a>
-              <a href="#" className="hover:text-primary transition-colors">Terms of Service</a>
-              <a href="#" className="hover:text-primary transition-colors">Contact</a>
+            <div className="flex gap-6 text-sm text-muted-foreground">
+              <a href="#" className="hover:text-foreground transition-colors">Privacy Policy</a>
+              <a href="#" className="hover:text-foreground transition-colors">Terms of Service</a>
+              <a href="#" className="hover:text-foreground transition-colors">Contact</a>
             </div>
           </div>
-          <div className="text-center text-gray-500 text-sm mt-8">
+          <div className="text-center text-muted-foreground text-sm mt-8">
             <p>&copy; 2024 SwipeRight. All rights reserved. Made with ❤️ for smart spenders.</p>
           </div>
         </div>

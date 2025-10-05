@@ -100,18 +100,18 @@ export function ManualSetupPage() {
   const percentageUsed = monthlyIncome > 0 ? Math.round((totalBudget / monthlyIncome) * 100) : 0
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white py-12 px-4 pb-24">
+    <div className="min-h-screen bg-background py-12 px-4 pb-24">
       <div className="max-w-3xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-8"
         >
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">Set Your Monthly Budget</h1>
-          <p className="text-gray-600">Adjust the sliders to match your typical monthly spending</p>
+          <h1 className="text-2xl sm:text-3xl font-bold mb-4">Set Your Monthly Budget</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">Adjust the sliders to match your typical monthly spending</p>
           <div className="mt-6 flex items-center justify-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-gray-300"></div>
-            <div className="w-2 h-2 rounded-full bg-gray-300"></div>
+            <div className="w-2 h-2 rounded-full bg-muted"></div>
+            <div className="w-2 h-2 rounded-full bg-muted"></div>
             <div className="w-8 h-2 rounded-full bg-primary"></div>
           </div>
         </motion.div>
@@ -122,18 +122,18 @@ export function ManualSetupPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
-          <Card className="mb-6 border-2 border-primary/20 bg-gradient-to-br from-blue-50 to-purple-50">
+          <Card className="mb-6 shadow-sm">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="w-6 h-6 text-primary" />
+                <TrendingUp className="w-6 h-6" />
                 Monthly Income
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                <Label htmlFor="income" className="text-base">What is your monthly income?</Label>
+                <Label htmlFor="income" className="text-sm sm:text-base">What is your monthly income?</Label>
                 <div className="flex items-center gap-2">
-                  <DollarSign className="w-5 h-5 text-gray-400" />
+                  <DollarSign className="w-5 h-5 text-muted-foreground flex-shrink-0" />
                   <Input
                     id="income"
                     type="number"
@@ -141,10 +141,10 @@ export function ManualSetupPage() {
                     onChange={(e) => setMonthlyIncome(parseInt(e.target.value) || 0)}
                     placeholder="e.g., 5000"
                     min={0}
-                    className="text-2xl font-bold h-14"
+                    className="text-xl sm:text-2xl font-bold h-12 sm:h-14"
                   />
                 </div>
-                <p className="text-sm text-gray-600">Enter your total monthly take-home income (after taxes)</p>
+                <p className="text-xs sm:text-sm text-muted-foreground">Enter your total monthly take-home income (after taxes)</p>
               </div>
             </CardContent>
           </Card>
@@ -156,29 +156,29 @@ export function ManualSetupPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
         >
-          <Card className={`mb-6 ${remaining < 0 ? 'border-2 border-red-300 bg-red-50' : 'border-2 border-green-300 bg-green-50'}`}>
+          <Card className="mb-6 shadow-sm">
             <CardContent className="pt-6">
-              <div className="grid grid-cols-3 gap-4 text-center">
+              <div className="grid grid-cols-3 gap-2 sm:gap-4 text-center">
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">Income</p>
-                  <p className="text-xl font-bold text-gray-900">{formatCurrency(monthlyIncome)}</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground mb-1">Income</p>
+                  <p className="text-base sm:text-xl font-bold">{formatCurrency(monthlyIncome)}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">Allocated</p>
-                  <p className="text-xl font-bold text-primary">{formatCurrency(totalBudget)}</p>
-                  <p className="text-xs text-gray-500">{percentageUsed}%</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground mb-1">Allocated</p>
+                  <p className="text-base sm:text-xl font-bold">{formatCurrency(totalBudget)}</p>
+                  <p className="text-[10px] sm:text-xs text-muted-foreground">{percentageUsed}%</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">Remaining</p>
-                  <p className={`text-xl font-bold ${remaining >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  <p className="text-xs sm:text-sm text-muted-foreground mb-1">Remaining</p>
+                  <p className="text-base sm:text-xl font-bold">
                     {formatCurrency(remaining)}
                   </p>
                 </div>
               </div>
               {remaining < 0 && (
-                <div className="mt-4 p-3 bg-red-100 border border-red-300 rounded-lg flex items-start gap-2">
-                  <AlertCircle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
-                  <p className="text-sm text-red-800">
+                <div className="mt-4 p-3 bg-destructive/10 border border-destructive/20 rounded-lg flex items-start gap-2">
+                  <AlertCircle className="w-5 h-5 text-destructive mt-0.5 flex-shrink-0" />
+                  <p className="text-sm">
                     Your budget exceeds your income by <strong>{formatCurrency(Math.abs(remaining))}</strong>. 
                     Please adjust your allocations.
                   </p>
@@ -214,7 +214,7 @@ export function ManualSetupPage() {
                 {categoryGroups.map((group, groupIndex) => (
                   <div key={group.title}>
                     {groupIndex > 0 && <Separator className="my-6" />}
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">{group.title}</h3>
+                    <h3 className="text-lg font-semibold mb-4">{group.title}</h3>
                     <div className="space-y-6">
                       {group.categories.map((category, index) => (
                         <motion.div
@@ -224,13 +224,13 @@ export function ManualSetupPage() {
                           transition={{ delay: 0.5 + groupIndex * 0.2 + index * 0.05 }}
                           className="space-y-3"
                         >
-                          <div className="flex justify-between items-center">
+                          <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2">
                             <label className="text-sm font-medium flex items-center gap-2">
-                              <span className="text-2xl">{category.icon}</span>
-                              {category.label}
+                              <span className="text-xl sm:text-2xl">{category.icon}</span>
+                              <span className="text-xs sm:text-sm">{category.label}</span>
                             </label>
                             <div className="flex items-center gap-2">
-                              <DollarSign className="w-4 h-4 text-gray-400" />
+                              <DollarSign className="w-4 h-4 text-muted-foreground flex-shrink-0" />
                               <input
                                 type="number"
                                 value={budgets[category.key] || ''}
@@ -238,11 +238,11 @@ export function ManualSetupPage() {
                                 min={0}
                                 max={category.max}
                                 aria-label={`${category.label} budget amount`}
-                                className="w-28 px-3 py-1.5 text-right font-bold text-primary border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                                className="w-24 sm:w-28 px-2 sm:px-3 py-1.5 text-right font-bold border rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
                               />
                             </div>
                           </div>
-                          <p className="text-xs text-gray-500">
+                          <p className="text-xs text-muted-foreground">
                             Suggested allocation: {Math.round((category.suggestedRatio || 0) * 100)}% of income
                             {monthlyIncome > 0 && (
                               <span className="ml-1">
@@ -256,9 +256,9 @@ export function ManualSetupPage() {
                   </div>
                 ))}
 
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-6">
-                  <h4 className="font-semibold text-blue-900 mb-2">💡 Budgeting Tips</h4>
-                  <ul className="text-sm text-blue-800 space-y-1">
+                <div className="bg-muted border rounded-lg p-4 mt-6">
+                  <h4 className="font-semibold mb-2">💡 Budgeting Tips</h4>
+                  <ul className="text-sm text-muted-foreground space-y-1">
                     <li>• Be realistic about your spending to get better card recommendations</li>
                     <li>• Don't forget to include all recurring expenses</li>
                     <li>• Your budget should not exceed your income</li>

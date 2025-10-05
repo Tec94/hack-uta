@@ -106,19 +106,19 @@ export function LinkBankPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white py-12 px-4">
+    <div className="min-h-screen bg-background py-12 px-4">
       <div className="max-w-3xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-8"
         >
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">Link Your Bank Account</h1>
-          <p className="text-gray-600">Securely connect your bank using Plaid Sandbox</p>
+          <h1 className="text-3xl font-bold mb-4">Link Your Bank Account</h1>
+          <p className="text-muted-foreground">Securely connect your bank using Plaid Sandbox</p>
           <div className="mt-6 flex items-center justify-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-gray-300"></div>
+            <div className="w-2 h-2 rounded-full bg-muted"></div>
             <div className="w-8 h-2 rounded-full bg-primary"></div>
-            <div className="w-2 h-2 rounded-full bg-gray-300"></div>
+            <div className="w-2 h-2 rounded-full bg-muted"></div>
           </div>
         </motion.div>
 
@@ -133,33 +133,33 @@ export function LinkBankPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 {/* Instructions */}
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <h4 className="font-semibold text-blue-900 mb-2">🏦 Plaid Sandbox Test Mode</h4>
-                  <p className="text-sm text-blue-800 mb-3">
+                <div className="bg-muted border rounded-lg p-4">
+                  <h4 className="font-semibold mb-2">🏦 Plaid Sandbox Test Mode</h4>
+                  <p className="text-sm text-muted-foreground mb-3">
                     This app uses Plaid Sandbox for testing. Use these credentials:
                   </p>
-                  <div className="bg-white rounded p-3 space-y-2">
+                  <div className="bg-background rounded p-3 space-y-2 border">
                     <div className="flex justify-between items-center">
                       <span className="text-sm font-medium">Username:</span>
-                      <code className="text-sm bg-gray-100 px-2 py-1 rounded">{SANDBOX_CREDENTIALS.username}</code>
+                      <code className="text-sm bg-muted px-2 py-1 rounded">{SANDBOX_CREDENTIALS.username}</code>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-sm font-medium">Password:</span>
-                      <code className="text-sm bg-gray-100 px-2 py-1 rounded">{SANDBOX_CREDENTIALS.password}</code>
+                      <code className="text-sm bg-muted px-2 py-1 rounded">{SANDBOX_CREDENTIALS.password}</code>
                     </div>
                   </div>
-                  <p className="text-xs text-blue-700 mt-3">
-                    Reference: <a href="https://plaid.com/docs/sandbox/" target="_blank" rel="noopener noreferrer" className="underline">Plaid Sandbox Docs</a>
+                  <p className="text-xs text-muted-foreground mt-3">
+                    Reference: <a href="https://plaid.com/docs/sandbox/" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground">Plaid Sandbox Docs</a>
                   </p>
                 </div>
 
                 {/* Error message */}
                 {error && (
-                  <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3">
-                    <AlertCircle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
+                  <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4 flex items-start gap-3">
+                    <AlertCircle className="w-5 h-5 text-destructive mt-0.5 flex-shrink-0" />
                     <div>
-                      <p className="text-sm font-medium text-red-900">Error</p>
-                      <p className="text-sm text-red-800">{error}</p>
+                      <p className="text-sm font-medium">Error</p>
+                      <p className="text-sm text-muted-foreground">{error}</p>
                     </div>
                   </div>
                 )}
@@ -203,8 +203,8 @@ export function LinkBankPage() {
               <CardContent className="pt-12 pb-12">
                 <Loader2 className="w-16 h-16 text-primary animate-spin mx-auto mb-6" />
                 <h2 className="text-2xl font-semibold mb-2">Analyzing Your Spending</h2>
-                <p className="text-gray-600">Fetching your transactions from Plaid...</p>
-                <p className="text-sm text-gray-500 mt-2">This may take a few moments</p>
+                <p className="text-muted-foreground">Fetching your transactions from Plaid...</p>
+                <p className="text-sm text-muted-foreground mt-2">This may take a few moments</p>
               </CardContent>
             </Card>
           </motion.div>
@@ -218,12 +218,12 @@ export function LinkBankPage() {
           >
             <Card>
               <CardContent className="pt-12 pb-12">
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <Check className="w-10 h-10 text-green-600" />
+                <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-6">
+                  <Check className="w-10 h-10 text-primary-foreground" />
                 </div>
                 <h2 className="text-2xl font-semibold mb-2">Successfully Connected!</h2>
-                <p className="text-gray-600">Your bank account is linked via Plaid</p>
-                <p className="text-sm text-gray-500 mt-2">Redirecting to your dashboard...</p>
+                <p className="text-muted-foreground">Your bank account is linked via Plaid</p>
+                <p className="text-sm text-muted-foreground mt-2">Redirecting to your dashboard...</p>
               </CardContent>
             </Card>
           </motion.div>
@@ -237,12 +237,12 @@ export function LinkBankPage() {
           >
             <Card>
               <CardContent className="pt-12 pb-12">
-                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <Check className="w-10 h-10 text-blue-600" />
+                <div className="w-16 h-16 bg-secondary rounded-full flex items-center justify-center mx-auto mb-6">
+                  <Check className="w-10 h-10" />
                 </div>
                 <h2 className="text-2xl font-semibold mb-2">Bank Already Connected!</h2>
-                <p className="text-gray-600">Your bank account is already linked via Plaid</p>
-                <p className="text-sm text-gray-500 mt-2">You can proceed to your dashboard</p>
+                <p className="text-muted-foreground">Your bank account is already linked via Plaid</p>
+                <p className="text-sm text-muted-foreground mt-2">You can proceed to your dashboard</p>
                 
                 <div className="mt-6 space-y-3">
                   <Button
