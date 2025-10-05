@@ -87,3 +87,24 @@ export interface ApiCreditCard {
   reward_summary: Record<string, number>;
 }
 
+// Notification system types
+export interface NotificationState {
+  lastNotificationTime: number | null;
+  isEnabled: boolean;
+  currentDwellingLocation: UserLocation | null;
+}
+
+export interface LocationHistory {
+  location: UserLocation;
+  timestamp: number;
+  dwellTimeSeconds: number;
+}
+
+export interface SmartNotification {
+  merchant: Merchant;
+  recommendedCard: CreditCard;
+  reason: string;
+  estimatedEarnings: string;
+  timestamp: number;
+}
+

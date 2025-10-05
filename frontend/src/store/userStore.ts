@@ -8,11 +8,19 @@ interface UserState {
   currentCards: string[];
   onboardingCompleted: boolean;
   linkedBank: boolean;
+  notificationsEnabled: boolean;
+  lastNotificationTimestamp: number | null;
+  dwellTimeSeconds: number; // Custom dwell time for testing (default: 300 = 5 minutes)
+  dwellRadiusMeters: number; // Custom dwell radius for testing (default: 30 meters)
   setLocation: (location: UserLocation) => void;
   setBudget: (budget: UserBudget) => void;
   setCurrentCards: (cards: string[]) => void;
   setOnboardingCompleted: (completed: boolean) => void;
   setLinkedBank: (linked: boolean) => void;
+  setNotificationsEnabled: (enabled: boolean) => void;
+  setLastNotificationTimestamp: (timestamp: number | null) => void;
+  setDwellTimeSeconds: (seconds: number) => void;
+  setDwellRadiusMeters: (meters: number) => void;
   reset: () => void;
 }
 
@@ -22,6 +30,10 @@ const initialState = {
   currentCards: [],
   onboardingCompleted: false,
   linkedBank: false,
+  notificationsEnabled: true,
+  lastNotificationTimestamp: null,
+  dwellTimeSeconds: 300, // 5 minutes default
+  dwellRadiusMeters: 30, // 30 meters default
 };
 
 export const useUserStore = create<UserState>()(
@@ -33,6 +45,10 @@ export const useUserStore = create<UserState>()(
       setCurrentCards: (cards) => set({ currentCards: cards }),
       setOnboardingCompleted: (completed) => set({ onboardingCompleted: completed }),
       setLinkedBank: (linked) => set({ linkedBank: linked }),
+      setNotificationsEnabled: (enabled) => set({ notificationsEnabled: enabled }),
+      setLastNotificationTimestamp: (timestamp) => set({ lastNotificationTimestamp: timestamp }),
+      setDwellTimeSeconds: (seconds) => set({ dwellTimeSeconds: seconds }),
+      setDwellRadiusMeters: (meters) => set({ dwellRadiusMeters: meters }),
       reset: () => set(initialState),
     }),
     {
