@@ -71,31 +71,28 @@ export function DashboardPage() {
   const topCategory = budget ? Object.entries(budget).sort((a, b) => b[1] - a[1])[0] : null
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/30 pb-24">
+    <div className="min-h-screen bg-background pb-24">
       {/* Header */}
-      <div className="relative bg-gradient-to-r from-blue-600 via-purple-600 to-pink-500 text-white px-4 py-8 overflow-hidden">
-        <div className="absolute inset-0 bg-grid-white/10"></div>
-        <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-32 translate-x-32"></div>
-        
-        <div className="max-w-7xl mx-auto relative z-10">
+      <div className="border-b bg-card text-card-foreground">
+        <div className="max-w-7xl mx-auto px-4 py-6">
           <div className="flex items-start justify-between mb-4">
             <div>
-              <h1 className="text-3xl font-bold mb-2">Welcome back, {user?.name?.split(' ')[0]}! 👋</h1>
-              <p className="text-blue-100 text-lg">Here are your personalized insights</p>
+              <h1 className="text-2xl font-bold mb-1">Welcome back, {user?.name?.split(' ')[0]}! 👋</h1>
+              <p className="text-sm text-muted-foreground">Here are your personalized insights</p>
             </div>
-            <Badge variant="secondary" className="bg-white/20 text-white border-white/30 backdrop-blur-sm">
-              <Sparkles className="w-3 h-3 mr-1" />
+            <Badge variant="outline" className="gap-1">
+              <Sparkles className="w-3 h-3" />
               Testing Member
             </Badge>
           </div>
           
           {/* Quick Stats */}
           {totalBudget > 0 && (
-            <div className="grid grid-cols-3 gap-4 mt-6">
+            <div className="grid grid-cols-3 gap-4 mt-4">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/20"
+                className="rounded-xl p-4 border bg-card"
               >
                 <DollarSign className="w-5 h-5 mb-2 opacity-80" />
                 <p className="text-2xl font-bold">${totalBudget}</p>
@@ -105,7 +102,7 @@ export function DashboardPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
-                className="bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/20"
+                className="rounded-xl p-4 border bg-card"
               >
                 <Award className="w-5 h-5 mb-2 opacity-80" />
                 <p className="text-2xl font-bold">{mockCreditCards.length}</p>
@@ -115,7 +112,7 @@ export function DashboardPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
-                className="bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/20"
+                className="rounded-xl p-4 border bg-card"
               >
                 <TrendingUp className="w-5 h-5 mb-2 opacity-80" />
                 <p className="text-2xl font-bold">3.2x</p>
