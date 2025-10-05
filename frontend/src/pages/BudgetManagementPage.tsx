@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useAuth0 } from '@auth0/auth0-react'
 import { BottomNav } from '@/components/navigation/BottomNav'
 import { MonthlyBudgetBreakdown } from '@/components/budget/MonthlyBudgetBreakdown'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -10,6 +11,8 @@ import { Separator } from '@/components/ui/separator'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useUserStore } from '@/store/userStore'
+import { useToast } from '@/hooks/use-toast'
+import { getBudget, updateBudget } from '@/lib/budget'
 import { 
   DollarSign, 
   TrendingUp, 
@@ -50,6 +53,8 @@ interface AIInsights {
 
 export function BudgetManagementPage() {
   const navigate = useNavigate()
+  const { user } = useAuth0()
+  const { toast } = useToast()
   const { budget, setBudget, monthlyIncome: storedIncome, setMonthlyIncome: saveMonthlyIncome } = useUserStore()
   
   const [editMode, setEditMode] = useState(false)
@@ -63,10 +68,49 @@ export function BudgetManagementPage() {
     travel: 0,
   })
   const [monthlyIncome, setMonthlyIncome] = useState<number>(storedIncome || 0)
+  const [saving, setSaving] = useState(false)
+  const [initialLoading, setInitialLoading] = useState(true)
   
   // AI Insights state
   const [aiInsights, setAiInsights] = useState<AIInsights | null>(null)
   const [loadingInsights, setLoadingInsights] = useState(false)
+
+  // Load budget from API on mount
+  useEffect(() => {
+    const loadBudget = async () => {
+      if (!user?.sub) {
+        setInitialLoading(false)
+        return
+      }
+
+      try {
+        const budgetData = await getBudget(user.sub)
+        if (budgetData) {
+          setMonthlyIncome(budgetData.income)
+          saveMonthlyIncome(budgetData.income)
+          
+          // Map API budget to UserBudget format
+          const userBudget: UserBudget = {
+            rent: budgetData.budget.rent || 0,
+            groceries: budgetData.budget.groceries || 0,
+            gas: budgetData.budget.gas || 0,
+            dining: budgetData.budget.dining || 0,
+            shopping: budgetData.budget.shopping || 0,
+            entertainment: budgetData.budget.entertainment || 0,
+            travel: budgetData.budget.travel || 0,
+          }
+          setBudget(userBudget)
+          setTempBudget(userBudget)
+        }
+      } catch (error) {
+        console.error('Error loading budget:', error)
+      } finally {
+        setInitialLoading(false)
+      }
+    }
+
+    loadBudget()
+  }, [user?.sub, setBudget, saveMonthlyIncome])
 
   useEffect(() => {
     if (budget) {
@@ -74,10 +118,6 @@ export function BudgetManagementPage() {
       fetchAIInsights()
     }
   }, [budget])
-
-  useEffect(() => {
-    setMonthlyIncome(storedIncome || 0)
-  }, [storedIncome])
 
   const fetchAIInsights = async () => {
     if (!budget) return
@@ -121,17 +161,69 @@ export function BudgetManagementPage() {
     }))
   }
 
-  const handleSave = () => {
-    setBudget(tempBudget)
-    saveMonthlyIncome(monthlyIncome)
-    setEditMode(false)
-    // Refresh AI insights
-    setTimeout(() => fetchAIInsights(), 500)
+  const handleSave = async () => {
+    if (!user?.sub) {
+      toast({
+        title: 'Error',
+        description: 'You must be logged in to save budget',
+        variant: 'destructive',
+      })
+      return
+    }
+
+    setSaving(true)
+    try {
+      // Convert UserBudget to API format (with all categories)
+      const budgetForApi = {
+        rent: tempBudget.rent || 0,
+        groceries: tempBudget.groceries || 0,
+        gas: tempBudget.gas || 0,
+        dining: tempBudget.dining || 0,
+        shopping: tempBudget.shopping || 0,
+        entertainment: tempBudget.entertainment || 0,
+        travel: tempBudget.travel || 0,
+      }
+
+      await updateBudget(user.sub, monthlyIncome, budgetForApi)
+      
+      setBudget(tempBudget)
+      saveMonthlyIncome(monthlyIncome)
+      setEditMode(false)
+      
+      toast({
+        title: 'Budget Saved',
+        description: 'Your budget has been updated successfully',
+      })
+      
+      // Refresh AI insights
+      setTimeout(() => fetchAIInsights(), 500)
+    } catch (error: any) {
+      console.error('Error saving budget:', error)
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to save budget',
+        variant: 'destructive',
+      })
+    } finally {
+      setSaving(false)
+    }
   }
 
   const handleCancel = () => {
     setTempBudget(budget || tempBudget)
+    setMonthlyIncome(storedIncome || 0)
     setEditMode(false)
+  }
+
+  if (initialLoading) {
+    return (
+      <div className="min-h-screen bg-background pb-24 flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-12 h-12 animate-spin mx-auto mb-4" />
+          <p className="text-muted-foreground">Loading your budget...</p>
+        </div>
+      </div>
+    )
   }
 
   if (!budget) {
@@ -359,13 +451,22 @@ export function BudgetManagementPage() {
                 <div className="flex flex-col sm:flex-row items-start sm:items-center sm:justify-between gap-3">
                   <CardTitle className="text-lg sm:text-xl">Edit Monthly Budget</CardTitle>
                   <div className="flex gap-2 w-full sm:w-auto">
-                    <Button onClick={handleCancel} variant="outline" size="sm" className="flex-1 sm:flex-initial">
+                    <Button onClick={handleCancel} variant="outline" size="sm" className="flex-1 sm:flex-initial" disabled={saving}>
                       <X className="w-4 h-4 mr-2" />
                       Cancel
                     </Button>
-                    <Button onClick={handleSave} size="sm" className="flex-1 sm:flex-initial">
-                      <Check className="w-4 h-4 mr-2" />
-                      Save
+                    <Button onClick={handleSave} size="sm" className="flex-1 sm:flex-initial" disabled={saving}>
+                      {saving ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Saving...
+                        </>
+                      ) : (
+                        <>
+                          <Check className="w-4 h-4 mr-2" />
+                          Save
+                        </>
+                      )}
                     </Button>
                   </div>
                 </div>

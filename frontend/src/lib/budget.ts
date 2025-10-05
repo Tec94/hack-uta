@@ -1,87 +1,104 @@
-/**
- * Budget API Integration
- * Handles user budget data persistence
- */
-
-import axios from 'axios';
-
-// Backend API URL
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
+const API_URL = 'http://localhost:3000/api/budget'
 
 export interface BudgetData {
-  id: number;
-  created_at: string;
-  user_id: string;
-  income: number;
-  budget: Record<string, number>;
+  user_id: string
+  income: number
+  budget: Record<string, number>
 }
 
-export interface CreateBudgetRequest {
-  user_id: string;
-  income: number;
-  budget: Record<string, number>;
-}
-
-/**
- * Create or update budget
- */
-export async function saveBudget(data: CreateBudgetRequest): Promise<BudgetData> {
-  try {
-    const response = await axios.post(`${BACKEND_URL}/api/budget`, data);
-    return response.data.data;
-  } catch (error: any) {
-    console.error('Error saving budget:', error);
-    const errorMsg = error.response?.data?.error || 'Failed to save budget';
-    throw new Error(errorMsg);
+export interface BudgetResponse {
+  success: boolean
+  data?: {
+    id: number
+    user_id: string
+    income: number
+    budget: Record<string, number>
+    created_at: string
+    updated_at: string
   }
+  has_budget?: boolean
+  error?: string
+  timestamp: string
 }
 
 /**
- * Get budget by user ID
+ * Save or update budget for a user
  */
-export async function getBudget(userId: string): Promise<BudgetData | null> {
-  try {
-    const response = await axios.get(`${BACKEND_URL}/api/budget/${userId}`);
-    return response.data.data;
-  } catch (error: any) {
-    if (error.response?.status === 404) {
-      // Budget not found is not an error
-      return null;
+export async function saveBudget(data: BudgetData): Promise<BudgetResponse> {
+  const response = await fetch(API_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  })
+
+  const result = await response.json()
+
+  if (!response.ok) {
+    throw new Error(result.error || 'Failed to save budget')
+  }
+
+  return result
+}
+
+/**
+ * Get budget for a user
+ */
+export async function getBudget(userId: string): Promise<BudgetResponse['data'] | null> {
+  const response = await fetch(`${API_URL}/${userId}`)
+
+  const result = await response.json()
+
+  if (!response.ok) {
+    if (response.status === 404) {
+      return null // Budget not found
     }
-    console.error('Error getting budget:', error);
-    const errorMsg = error.response?.data?.error || 'Failed to get budget';
-    throw new Error(errorMsg);
+    throw new Error(result.error || 'Failed to get budget')
   }
+
+  return result.data
 }
 
 /**
- * Update budget
+ * Update budget for a user
  */
-export async function updateBudget(userId: string, income: number, budget: Record<string, number>): Promise<BudgetData> {
-  try {
-    const response = await axios.put(`${BACKEND_URL}/api/budget/${userId}`, {
-      income,
-      budget
-    });
-    return response.data.data;
-  } catch (error: any) {
-    console.error('Error updating budget:', error);
-    const errorMsg = error.response?.data?.error || 'Failed to update budget';
-    throw new Error(errorMsg);
+export async function updateBudget(
+  userId: string,
+  income: number,
+  budget: Record<string, number>
+): Promise<BudgetResponse> {
+  const response = await fetch(`${API_URL}/${userId}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ income, budget }),
+  })
+
+  const result = await response.json()
+
+  if (!response.ok) {
+    throw new Error(result.error || 'Failed to update budget')
   }
+
+  return result
 }
 
 /**
- * Delete budget
+ * Delete budget for a user
  */
-export async function deleteBudget(userId: string): Promise<boolean> {
-  try {
-    await axios.delete(`${BACKEND_URL}/api/budget/${userId}`);
-    return true;
-  } catch (error: any) {
-    console.error('Error deleting budget:', error);
-    const errorMsg = error.response?.data?.error || 'Failed to delete budget';
-    throw new Error(errorMsg);
+export async function deleteBudget(userId: string): Promise<BudgetResponse> {
+  const response = await fetch(`${API_URL}/${userId}`, {
+    method: 'DELETE',
+  })
+
+  const result = await response.json()
+
+  if (!response.ok) {
+    throw new Error(result.error || 'Failed to delete budget')
   }
+
+  return result
 }
 

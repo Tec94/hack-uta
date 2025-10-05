@@ -225,7 +225,7 @@ export function ChooseYourCardPage() {
                                 variant={cardOrigin === 'bank' ? 'default' : 'secondary'} 
                                 className="text-xs"
                               >
-                                {cardOrigin === 'bank' ? '🏦 From Bank' : '✋ Manual'}
+                                {cardOrigin === 'bank' ? '🏦 From Plaid' : '✋ Manual'}
                               </Badge>
                             )}
                           </div>

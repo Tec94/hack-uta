@@ -360,7 +360,7 @@ export function CreditCardManagementPage() {
                 variant={origin === 'bank' ? 'default' : 'secondary'} 
                 className="text-xs"
               >
-                {origin === 'bank' ? '🏦 From Bank' : '✋ Manual'}
+                {origin === 'bank' ? '🏦 From Plaid' : '✋ Manual'}
               </Badge>
             )}
           </div>
