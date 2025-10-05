@@ -95,7 +95,7 @@ export function RecommendedCards({
   // Recommendation algorithm based on user spending
   const getRecommendedCards = (): ApiCreditCard[] => {
     if (!budget || cards.length === 0) {
-      return cards.slice(0, 5)
+      return cards // Show all cards if no budget
     }
 
     // Use AI recommendations if available
@@ -109,14 +109,10 @@ export function RecommendedCards({
         }
       })
       
-      // If we don't have enough cards, fill with fallback
-      if (orderedCards.length < 5) {
-        const usedIds = new Set(orderedCards.map(c => c.id))
-        const remaining = cards
-          .filter(c => !usedIds.has(c.id))
-          .slice(0, 5 - orderedCards.length)
-        orderedCards.push(...remaining)
-      }
+      // Add remaining cards that weren't in AI recommendations
+      const usedIds = new Set(orderedCards.map(c => c.id))
+      const remaining = cards.filter(c => !usedIds.has(c.id))
+      orderedCards.push(...remaining)
       
       return orderedCards
     }
@@ -157,10 +153,9 @@ export function RecommendedCards({
       return { card, score }
     })
 
-    // Sort by score and return top 5
+    // Sort by score and return all cards
     return scoredCards
       .sort((a, b) => b.score - a.score)
-      .slice(0, 5)
       .map(item => item.card)
   }
 

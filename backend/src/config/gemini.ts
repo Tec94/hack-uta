@@ -18,8 +18,9 @@ class GeminiConfig {
 
     try {
       this.genAI = new GoogleGenerativeAI(apiKey);
-      this.model = this.genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
-      console.log('✅ Gemini AI initialized successfully');
+      // Use the stable exp model - gemini-flash-lite-latest is currently available
+      this.model = this.genAI.getGenerativeModel({ model: 'gemini-flash-lite-latest' });
+      console.log('✅ Gemini AI initialized successfully with model: gemini-2.0-flash-exp');
     } catch (error) {
       console.error('❌ Failed to initialize Gemini AI:', error);
     }

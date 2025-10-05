@@ -12,7 +12,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useGeolocation } from '@/hooks/useGeolocation'
 import { useUserStore } from '@/store/userStore'
 import { CreditCard, Merchant, ApiCreditCard } from '@/types'
-import { mockCreditCards } from '@/data/mock-cards'
 import { fetchNearbyPlaces } from '@/lib/places'
 import { recommendCardsForMerchant, calculatePotentialEarnings, getRecommendationReason } from '@/lib/recommendations'
 import { MapPin, AlertCircle, Loader2, TrendingUp, DollarSign, Award, Sparkles, Star, TestTube, Edit } from 'lucide-react'
@@ -31,6 +30,7 @@ export function DashboardPage() {
   const [selectedMerchant, setSelectedMerchant] = useState<Merchant | null>(null)
   const [apiCards, setApiCards] = useState<ApiCreditCard[]>([])
   const [cardsLoading, setCardsLoading] = useState(true)
+  const [userCards, setUserCards] = useState<CreditCard[]>([])
 
   // Redirect to onboarding if not completed
   useEffect(() => {
@@ -56,6 +56,37 @@ export function DashboardPage() {
     }
     fetchCards()
   }, [])
+
+  // Fetch user cards for recommendations
+  useEffect(() => {
+    const fetchUserCards = async () => {
+      if (!user?.sub) return
+      
+      try {
+        const response = await fetch(`http://localhost:3000/api/user-cards/${user.sub}`)
+        if (response.ok) {
+          const data = await response.json()
+          if (data.success && data.data) {
+            // Convert API cards to CreditCard format for recommendations
+            const cards: CreditCard[] = data.data.map((card: any) => ({
+              id: card.card_cat_id.toString(),
+              name: card.card_name,
+              issuer: card.bank_name,
+              network: card.network,
+              rewardRates: card.reward_summary || {},
+              annualFee: 0, // Default value
+              signupBonus: '', // Default value
+              features: [] // Default value
+            }))
+            setUserCards(cards)
+          }
+        }
+      } catch (err) {
+        console.error('Error fetching user cards:', err)
+      }
+    }
+    fetchUserCards()
+  }, [user?.sub])
 
   // Update stored location when geolocation succeeds
   useEffect(() => {
@@ -103,7 +134,7 @@ export function DashboardPage() {
       const testMerchant = nearbyPlaces[0]
 
       // Get recommended cards
-      const recommendedCards = recommendCardsForMerchant(testMerchant, mockCreditCards)
+      const recommendedCards = recommendCardsForMerchant(testMerchant, userCards)
 
       if (recommendedCards.length === 0) {
         showNotification('No card recommendations available for this merchant.', 'warning')
@@ -173,8 +204,8 @@ export function DashboardPage() {
                 className="rounded-xl p-3 sm:p-4 border bg-card hover:shadow-md transition-shadow"
               >
                 <Award className="w-4 h-4 sm:w-5 sm:h-5 mb-1 sm:mb-2 opacity-80" />
-                <p className="text-lg sm:text-2xl font-bold">{mockCreditCards.length}</p>
-                <p className="text-[10px] sm:text-xs opacity-80">Top Cards</p>
+                <p className="text-lg sm:text-2xl font-bold">{userCards.length}</p>
+                <p className="text-[10px] sm:text-xs opacity-80">My Cards</p>
               </motion.div>
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -323,7 +354,7 @@ export function DashboardPage() {
                         <h4 className="font-semibold">Best Cards for This Location</h4>
                       </div>
                       <div className="space-y-2">
-                        {recommendCardsForMerchant(selectedMerchant, mockCreditCards).map((card, index) => (
+                        {recommendCardsForMerchant(selectedMerchant, userCards).map((card, index) => (
                           <motion.div
                             key={card.id}
                             initial={{ opacity: 0, x: -10 }}

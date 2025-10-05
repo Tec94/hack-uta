@@ -19,7 +19,6 @@ import { ChatbotAssistant } from './components/chatbot/ChatbotAssistant'
 import { ToastNotification } from './components/notifications/ToastNotification'
 import { CardDetailModal } from './components/cards/CardDetailModal'
 import { useSmartNotifications } from './hooks/useSmartNotifications'
-import { mockCreditCards } from './data/mock-cards'
 import type { SmartNotification, CreditCard } from './types'
 import { NotificationProvider } from './contexts/NotificationContext'
 
@@ -62,10 +61,43 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
 function SmartNotificationProvider() {
   const navigate = useNavigate()
+  const { user } = useAuth0()
+  const [userCards, setUserCards] = useState<CreditCard[]>([])
+  
+  // Fetch user cards
+  useEffect(() => {
+    const fetchUserCards = async () => {
+      if (!user?.sub) return
+      
+      try {
+        const response = await fetch(`http://localhost:3000/api/user-cards/${user.sub}`)
+        if (response.ok) {
+          const data = await response.json()
+          if (data.success && data.data) {
+            // Convert API cards to CreditCard format
+            const cards: CreditCard[] = data.data.map((card: any) => ({
+              id: card.card_cat_id.toString(),
+              name: card.card_name,
+              issuer: card.bank_name,
+              network: card.network,
+              rewardRates: card.reward_summary || {},
+              annualFee: 0,
+              signupBonus: '',
+              features: []
+            }))
+            setUserCards(cards)
+          }
+        }
+      } catch (err) {
+        console.error('Error fetching user cards:', err)
+      }
+    }
+    fetchUserCards()
+  }, [user?.sub])
   
   // Smart notifications hook
   const { currentNotification } = useSmartNotifications({
-    cards: mockCreditCards,
+    cards: userCards,
     enabled: true,
   })
 
