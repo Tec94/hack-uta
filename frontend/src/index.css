@@ -67,9 +67,22 @@
   * {
     @apply border-border;
   }
+  
+  /* Ensure proper height for fixed positioning elements */
+  html,
   body {
+    height: 100%;
     @apply bg-background text-foreground;
+  }
+  
+  body {
     font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  
+  #root {
+    min-height: 100vh;
+    min-height: 100dvh; /* Dynamic viewport height for mobile browsers */
+    position: relative;
   }
 }
 

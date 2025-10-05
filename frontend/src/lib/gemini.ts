@@ -4,6 +4,16 @@ import { CreditCard, UserBudget, Merchant } from '@/types';
 const apiKey = import.meta.env.VITE_GEMINI_API_KEY || '';
 const genAI = apiKey ? new GoogleGenerativeAI(apiKey) : null;
 
+export interface SpendingData {
+  dining: number;
+  gas: number;
+  groceries: number;
+  travel: number;
+  shopping: number;
+  entertainment: number;
+  rent: number;
+}
+
 export async function getLocationBasedRecommendation(
   merchant: Merchant,
   userCards: CreditCard[],
@@ -91,7 +101,7 @@ function getFallbackLocationRecommendation(merchant: Merchant, userCards: Credit
   };
 
   const relevantCategory = categoryMap[merchant.category] || 'general';
-  
+
   if (userCards.length === 0) {
     return `For purchases at ${merchant.name}, consider applying for a card with strong ${relevantCategory} rewards. You could earn 3-5% back on this $${merchant.estimatedSpend || 50} purchase.`;
   }
@@ -100,6 +110,63 @@ function getFallbackLocationRecommendation(merchant: Merchant, userCards: Credit
   const estimatedRewards = ((merchant.estimatedSpend || 50) * 0.03).toFixed(2);
 
   return `For your purchase at ${merchant.name}, use your ${bestCard.name}. With ${bestCard.primaryBenefit}, you'll earn approximately $${estimatedRewards} in rewards on this transaction.`;
+}
+
+/**
+ * Enhanced location recommendation using transaction data
+ */
+export async function getTransactionBasedLocationRecommendation(
+  merchant: Merchant,
+  userCards: CreditCard[],
+  spendingData: SpendingData,
+  budget: UserBudget
+): Promise<string> {
+  if (!genAI) {
+    return getFallbackLocationRecommendation(merchant, userCards);
+  }
+
+  try {
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+
+    // Calculate spending patterns
+    const totalSpending = Object.values(spendingData).reduce((sum, val) => sum + val, 0);
+    const spendingEntries = Object.entries(spendingData)
+      .filter(([_, amount]) => amount > 0)
+      .sort((a, b) => b[1] - a[1]);
+
+    const topCategories = spendingEntries.slice(0, 3);
+
+    const prompt = `
+You are a credit card rewards optimization expert. A user is currently at ${merchant.name}, which is a ${merchant.category} establishment.
+
+User's Transaction-Based Spending Patterns (last 30 days):
+- Total Spending: $${totalSpending.toFixed(2)}
+- Top Categories: ${topCategories.map(([cat, amt]) => `${cat}: $${amt.toFixed(2)}`).join(', ')}
+- Full Breakdown: ${Object.entries(spendingData).map(([cat, amt]) => `${cat}: $${amt.toFixed(2)}`).join(', ')}
+
+User's Monthly Budget:
+- ${Object.entries(budget).map(([cat, amt]) => `${cat}: $${amt}`).join('\n- ')}
+
+User's Current Cards:
+${userCards.map(card => `- ${card.name}: ${card.primaryBenefit}`).join('\n')}
+
+The user is about to make a purchase of approximately $${merchant.estimatedSpend || 50}.
+
+Provide a recommendation that considers their actual spending behavior. If their spending pattern shows they spend heavily in a category that aligns with this merchant, emphasize that. Calculate realistic rewards based on their spending patterns.
+
+Response format:
+- Card recommendation (1-2 sentences)
+- Expected rewards value for this purchase
+- Brief explanation why this card is best for them
+    `;
+
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    return response.text();
+  } catch (error) {
+    console.error('Gemini API error:', error);
+    return getFallbackLocationRecommendation(merchant, userCards);
+  }
 }
 
 function getFallbackProfileRecommendation(budget: UserBudget): string {
@@ -167,6 +234,110 @@ Provide a helpful, concise, and friendly response (2-4 sentences). If the user a
     console.error('Gemini API error:', error);
     return getFallbackChatbotResponse(userMessage, budget);
   }
+}
+
+/**
+ * Enhanced budgeting insights using actual transaction data
+ */
+export async function getTransactionBasedBudgetInsights(
+  spendingData: SpendingData,
+  budget: UserBudget,
+  monthlyIncome?: number
+): Promise<string> {
+  if (!genAI) {
+    return getFallbackTransactionBudgetInsights(spendingData, budget, monthlyIncome);
+  }
+
+  try {
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+
+    // Calculate insights from transaction data vs budget
+    const totalSpending = Object.values(spendingData).reduce((sum, val) => sum + val, 0);
+    const totalBudget = Object.values(budget).reduce((sum, val) => sum + val, 0);
+
+    const spendingVsBudget = Object.entries(spendingData).map(([category, spent]) => {
+      const budgeted = budget[category as keyof UserBudget] || 0;
+      const variance = spent - budgeted;
+      const variancePercent = budgeted > 0 ? (variance / budgeted) * 100 : 0;
+
+      return {
+        category,
+        spent,
+        budgeted,
+        variance,
+        variancePercent,
+        status: variance > 0 ? 'over' : variance < 0 ? 'under' : 'on-track'
+      };
+    });
+
+    const overBudget = spendingVsBudget.filter(item => item.status === 'over');
+    const underBudget = spendingVsBudget.filter(item => item.status === 'under');
+
+    const prompt = `
+You are a personal finance advisor specializing in budget optimization and spending analysis.
+
+User's Actual Spending vs Budget (last 30 days):
+
+Total Spending: $${totalSpending.toFixed(2)}
+Total Budget: $${totalBudget.toFixed(2)}
+${monthlyIncome ? `Monthly Income: $${monthlyIncome}` : 'Income not provided'}
+
+Category Analysis:
+${spendingVsBudget.map(item =>
+  `${item.category}: Spent $${item.spent.toFixed(2)} vs Budget $${item.budgeted.toFixed(2)} (${item.status === 'over' ? '+' : item.status === 'under' ? '-' : ''}${Math.abs(item.variancePercent).toFixed(1)}%)`
+).join('\n')}
+
+${overBudget.length > 0 ? `Categories Over Budget: ${overBudget.map(item => item.category).join(', ')}` : ''}
+${underBudget.length > 0 ? `Categories Under Budget: ${underBudget.map(item => item.category).join(', ')}` : ''}
+
+Provide actionable budgeting insights based on their actual spending behavior vs their planned budget. Focus on:
+
+1. Overall budget health assessment
+2. Key areas where they can improve
+3. Specific recommendations for categories they're overspending
+4. Positive reinforcement for categories they're managing well
+
+Keep response conversational, encouraging, and practical (2-4 sentences).
+    `;
+
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    return response.text();
+  } catch (error) {
+    console.error('Gemini API error:', error);
+    return getFallbackTransactionBudgetInsights(spendingData, budget, monthlyIncome);
+  }
+}
+
+function getFallbackTransactionBudgetInsights(
+  spendingData: SpendingData,
+  budget: UserBudget,
+  monthlyIncome?: number
+): string {
+  // Use monthlyIncome for potential future enhancements
+  const totalSpending = Object.values(spendingData).reduce((sum, val) => sum + val, 0);
+  const totalBudget = Object.values(budget).reduce((sum, val) => sum + val, 0);
+
+  const variance = totalSpending - totalBudget;
+  const variancePercent = totalBudget > 0 ? (variance / totalBudget) * 100 : 0;
+
+  if (Math.abs(variancePercent) < 10) {
+    return `You're doing great with your budget! Your actual spending of $${totalSpending.toFixed(2)} is very close to your planned budget of $${totalBudget.toFixed(2)}. Keep up the good work!`;
+  }
+
+  if (variance > 0) {
+    const overBudgetCats = Object.entries(spendingData)
+      .filter(([_, spent]) => {
+        const budgeted = budget[_[0] as keyof UserBudget] || 0;
+        return spent > budgeted;
+      })
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 2);
+
+    return `You're spending ${Math.abs(variancePercent).toFixed(1)}% over your budget ($${totalSpending.toFixed(2)} vs $${totalBudget.toFixed(2)}). Focus on ${overBudgetCats.map(([cat]) => cat).join(' and ')} where you're overspending the most.`;
+  }
+
+  return `You're spending ${Math.abs(variancePercent).toFixed(1)}% under your budget! That's great financial discipline. You have $${Math.abs(variance).toFixed(2)} extra that could go toward savings or debt reduction.`;
 }
 
 function getFallbackChatbotResponse(userMessage: string, budget: UserBudget | null): string {
