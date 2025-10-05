@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useAuth0 } from '@auth0/auth0-react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -20,11 +21,13 @@ import {
   Wallet,
   Filter,
   Sparkles,
-  Star
+  Star,
+  Loader2
 } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 
 export function CreditCardManagementPage() {
+  const { user } = useAuth0()
   const { toast } = useToast()
   const { currentCards, setCurrentCards, budget } = useUserStore()
   const [allCards, setAllCards] = useState<ApiCreditCard[]>([])
@@ -32,10 +35,17 @@ export function CreditCardManagementPage() {
   const [error, setError] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
+  const [addingCard, setAddingCard] = useState<string | null>(null)
+  const [removingCard, setRemovingCard] = useState<string | null>(null)
+  // Map catalog IDs to database user_card IDs
+  const [userCardIdMap, setUserCardIdMap] = useState<Record<string, number>>({})
 
   useEffect(() => {
     fetchCards()
-  }, [])
+    if (user?.sub) {
+      fetchUserCards()
+    }
+  }, [user?.sub])
 
   const fetchCards = async () => {
     try {
@@ -58,23 +68,151 @@ export function CreditCardManagementPage() {
     }
   }
 
+  const fetchUserCards = async () => {
+    if (!user?.sub) return
+
+    try {
+      const response = await fetch(`http://localhost:3000/api/user-cards/${user.sub}`)
+      if (!response.ok) {
+        throw new Error('Failed to fetch user cards')
+      }
+      const data = await response.json()
+      
+      // Build a map of card_cat_id to user_card id
+      const idMap: Record<string, number> = {}
+      const catalogIds: string[] = []
+      
+      if (data.data && Array.isArray(data.data)) {
+        data.data.forEach((userCard: any) => {
+          // Map catalog ID (card_cat_id) to database ID (id)
+          idMap[String(userCard.card_cat_id)] = userCard.id
+          catalogIds.push(String(userCard.card_cat_id))
+        })
+      }
+      
+      setUserCardIdMap(idMap)
+      setCurrentCards(catalogIds)
+    } catch (err) {
+      console.error('Error fetching user cards:', err)
+      // Don't show error toast for this, just log it
+    }
+  }
+
   const myCards = allCards.filter(card => currentCards.includes(card.id))
   const availableCards = allCards.filter(card => !currentCards.includes(card.id))
 
-  const handleAddCard = (cardId: string) => {
-    setCurrentCards([...currentCards, cardId])
-    toast({
-      title: 'Card Added',
-      description: 'Successfully added card to your wallet',
-    })
+  const handleAddCard = async (cardId: string) => {
+    if (!user?.sub) {
+      toast({
+        title: 'Error',
+        description: 'You must be logged in to add cards',
+        variant: 'destructive',
+      })
+      return
+    }
+
+    setAddingCard(cardId)
+    try {
+      const response = await fetch('http://localhost:3000/api/user-cards', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          user_id: user.sub,
+          card_cat_id: parseInt(cardId),
+          is_active: true,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to add card')
+      }
+
+      // Update local state with catalog ID
+      setCurrentCards([...currentCards, cardId])
+      
+      // Store the mapping of catalog ID to database user_card ID
+      if (data.data && data.data.id) {
+        setUserCardIdMap({
+          ...userCardIdMap,
+          [cardId]: data.data.id
+        })
+      }
+      
+      toast({
+        title: 'Card Added',
+        description: 'Successfully added card to your wallet',
+      })
+    } catch (err: any) {
+      console.error('Error adding card:', err)
+      toast({
+        title: 'Error',
+        description: err.message || 'Failed to add card to your wallet',
+        variant: 'destructive',
+      })
+    } finally {
+      setAddingCard(null)
+    }
   }
 
-  const handleRemoveCard = (cardId: string) => {
-    setCurrentCards(currentCards.filter(id => id !== cardId))
-    toast({
-      title: 'Card Removed',
-      description: 'Successfully removed card from your wallet',
-    })
+  const handleRemoveCard = async (cardId: string) => {
+    if (!user?.sub) {
+      toast({
+        title: 'Error',
+        description: 'You must be logged in to remove cards',
+        variant: 'destructive',
+      })
+      return
+    }
+
+    // Get the database user_card ID from our mapping
+    const userCardId = userCardIdMap[cardId]
+    if (!userCardId) {
+      toast({
+        title: 'Error',
+        description: 'Card record not found. Please refresh the page.',
+        variant: 'destructive',
+      })
+      return
+    }
+
+    setRemovingCard(cardId)
+    try {
+      const response = await fetch(`http://localhost:3000/api/user-cards/${user.sub}/card/${userCardId}`, {
+        method: 'DELETE',
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to remove card')
+      }
+
+      // Update local state
+      setCurrentCards(currentCards.filter(id => id !== cardId))
+      
+      // Remove from mapping
+      const newMap = { ...userCardIdMap }
+      delete newMap[cardId]
+      setUserCardIdMap(newMap)
+      
+      toast({
+        title: 'Card Removed',
+        description: 'Successfully removed card from your wallet',
+      })
+    } catch (err: any) {
+      console.error('Error removing card:', err)
+      toast({
+        title: 'Error',
+        description: err.message || 'Failed to remove card from your wallet',
+        variant: 'destructive',
+      })
+    } finally {
+      setRemovingCard(null)
+    }
   }
 
   const getCategoryColor = (_category: string) => {
@@ -187,9 +325,19 @@ export function CreditCardManagementPage() {
                   size="sm"
                   className="w-full"
                   onClick={() => handleRemoveCard(card.id)}
+                  disabled={removingCard === card.id}
                 >
-                  <Trash2 className="w-4 h-4 mr-2" />
-                  Remove Card
+                  {removingCard === card.id ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Removing...
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 className="w-4 h-4 mr-2" />
+                      Remove Card
+                    </>
+                  )}
                 </Button>
               ) : (
                 <Button
@@ -197,9 +345,19 @@ export function CreditCardManagementPage() {
                   size="sm"
                   className="w-full"
                   onClick={() => handleAddCard(card.id)}
+                  disabled={addingCard === card.id}
                 >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add to Wallet
+                  {addingCard === card.id ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Adding...
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="w-4 h-4 mr-2" />
+                      Add to Wallet
+                    </>
+                  )}
                 </Button>
               )}
             </div>
