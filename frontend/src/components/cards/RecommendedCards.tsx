@@ -245,22 +245,22 @@ export function RecommendedCards({
                           ? 'border-primary' 
                           : 'border-muted-foreground/20'
                       } ${onCardClick ? 'cursor-pointer' : ''}`}>
-                        <CardHeader className="pb-3">
-                          <div className="flex items-start justify-between mb-2">
-                            <Badge variant={index === 0 ? 'default' : 'secondary'}>
+                        <CardHeader className="pb-2 sm:pb-3">
+                          <div className="flex items-start justify-between mb-2 gap-2">
+                            <Badge variant={index === 0 ? 'default' : 'secondary'} className="text-xs">
                               #{index + 1} Match
                             </Badge>
                             {isOwned && (
-                              <Badge variant="secondary">
+                              <Badge variant="secondary" className="text-xs">
                                 <CheckCircle className="w-3 h-3 mr-1 text-foreground" />
                                 Owned
                               </Badge>
                             )}
                           </div>
-                          <CardTitle className="text-lg line-clamp-1 text-foreground">{card.card_name}</CardTitle>
-                          <p className="text-sm text-foreground">{card.bank_name}</p>
-                          <div className="flex items-center gap-2 mt-2 flex-wrap">
-                            <Badge className={getCategoryColor(card.category)} variant="outline">
+                          <CardTitle className="text-base sm:text-lg line-clamp-1 text-foreground">{card.card_name}</CardTitle>
+                          <p className="text-xs sm:text-sm text-muted-foreground truncate">{card.bank_name}</p>
+                          <div className="flex items-center gap-1.5 sm:gap-2 mt-2 flex-wrap">
+                            <Badge className={`${getCategoryColor(card.category)} text-xs`} variant="outline">
                               {card.category}
                             </Badge>
                             <Badge variant="outline" className="text-xs">{card.network}</Badge>
@@ -274,18 +274,18 @@ export function RecommendedCards({
                             )}
                           </div>
                         </CardHeader>
-                        <CardContent>
-                          <div className="space-y-3">
-                            <div className="bg-muted rounded-lg p-3">
-                              <div className="flex items-center gap-2 mb-2">
-                                <Zap className="w-4 h-4 text-foreground" />
+                        <CardContent className="pt-2">
+                          <div className="space-y-2 sm:space-y-3">
+                            <div className="bg-muted rounded-lg p-2.5 sm:p-3">
+                              <div className="flex items-center gap-1.5 sm:gap-2 mb-1.5 sm:mb-2">
+                                <Zap className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-foreground" />
                                 <p className="text-xs font-semibold text-foreground">Top Reward</p>
                               </div>
-                              <div className="flex justify-between items-center">
-                                <span className="text-sm capitalize text-foreground">
+                              <div className="flex justify-between items-center gap-2">
+                                <span className="text-xs sm:text-sm capitalize text-foreground truncate">
                                   {topReward[0].replace(/_/g, ' ')}
                                 </span>
-                                <span className="text-lg font-bold text-foreground">
+                                <span className="text-base sm:text-lg font-bold text-foreground flex-shrink-0">
                                   {formatRewardRate(topReward[1])}
                                 </span>
                               </div>
@@ -350,12 +350,12 @@ export function RecommendedCards({
           </div>
           
           {budget && (
-            <div className="mt-4 p-3 bg-muted rounded-lg border">
-              <p className="text-sm">
-                <Sparkles className="w-4 h-4 inline mr-1" />
-                These cards are selected based on your <span className="font-semibold">
+            <div className="mt-3 sm:mt-4 p-2.5 sm:p-3 bg-muted rounded-lg border">
+              <p className="text-xs sm:text-sm flex items-start gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 inline flex-shrink-0 mt-0.5" />
+                <span>These cards are selected based on your <span className="font-semibold">
                   {Object.entries(budget).sort((a, b) => b[1] - a[1])[0]?.[0] || 'spending'}
-                </span> patterns to maximize your rewards.
+                </span> patterns to maximize your rewards.</span>
               </p>
             </div>
           )}
