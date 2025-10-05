@@ -13,6 +13,7 @@ import { Label } from '@/components/ui/label'
 import { useUserStore } from '@/store/userStore'
 import { useToast } from '@/hooks/use-toast'
 import { getBudget, updateBudget } from '@/lib/budget'
+import { getTransactions, calculateSpendingFromTransactions } from '@/lib/plaid'
 import { 
   DollarSign, 
   TrendingUp, 
@@ -74,6 +75,10 @@ export function BudgetManagementPage() {
   // AI Insights state
   const [aiInsights, setAiInsights] = useState<AIInsights | null>(null)
   const [loadingInsights, setLoadingInsights] = useState(false)
+  
+  // Actual spending data
+  const [actualSpending, setActualSpending] = useState<UserBudget | null>(null)
+  const [loadingSpending, setLoadingSpending] = useState(false)
 
   // Load budget from API on mount
   useEffect(() => {
@@ -116,8 +121,52 @@ export function BudgetManagementPage() {
     if (budget) {
       setTempBudget(budget)
       fetchAIInsights()
+      fetchActualSpending()
     }
   }, [budget])
+
+  const fetchActualSpending = async () => {
+    if (!user?.sub) return
+
+    setLoadingSpending(true)
+    try {
+      // Get transactions for the current month
+      const endDate = new Date()
+
+      // Test: set start date to 2020-01-01
+      const startDate = new Date(2020, 0, 1)
+      // const startDate = new Date(endDate.getFullYear(), endDate.getMonth(), 1)
+      
+      const transactionData = await getTransactions(
+        undefined, // accessToken - will use userId instead
+        user.sub,
+        startDate.toISOString().split('T')[0],
+        endDate.toISOString().split('T')[0]
+      )
+
+      if (transactionData.transactions) {
+        const spending = calculateSpendingFromTransactions(transactionData.transactions)
+        
+        // Map to UserBudget format
+        const userSpending: UserBudget = {
+          rent: spending.rent || 0,
+          groceries: spending.groceries || 0,
+          gas: spending.gas || 0,
+          dining: spending.dining || 0,
+          shopping: spending.shopping || 0,
+          entertainment: spending.entertainment || 0,
+          travel: spending.travel || 0,
+        }
+        
+        setActualSpending(userSpending)
+      }
+    } catch (error) {
+      console.error('Error fetching actual spending:', error)
+      // Don't show error toast for spending data - it's optional
+    } finally {
+      setLoadingSpending(false)
+    }
+  }
 
   const fetchAIInsights = async () => {
     if (!budget) return
@@ -430,9 +479,11 @@ export function BudgetManagementPage() {
         {!editMode ? (
           <MonthlyBudgetBreakdown
             budget={tempBudget}
+            actualSpending={actualSpending}
             title="Monthly Budget Breakdown"
             description="View and track your spending categories"
             showTotal={true}
+            loadingSpending={loadingSpending}
             actionButton={{
               label: 'Edit',
               icon: <Edit className="w-4 h-4 mr-2" />,

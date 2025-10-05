@@ -136,6 +136,7 @@ export function calculateSpendingFromTransactions(transactions: any[]) {
   console.log('Total transactions:', transactions.length);
   
   const spending = {
+    rent: 0,
     dining: 0,
     gas: 0,
     groceries: 0,
@@ -164,7 +165,12 @@ export function calculateSpendingFromTransactions(transactions: any[]) {
 
       let matched = false;
 
-      if (category.includes('food') || category.includes('restaurant') || category.includes('dining')) {
+      if (category.includes('rent') || category.includes('apartment') || category.includes('housing') || 
+          category.includes('lease') || category.includes('landlord') || category.includes('mortgage') ||
+          category.includes('property management') || category.includes('rental')) {
+        spending.rent += tx.amount;
+        matched = true;
+      } else if (category.includes('food') || category.includes('restaurant') || category.includes('dining')) {
         spending.dining += tx.amount;
         matched = true;
       } else if (category.includes('gas') || category.includes('fuel') || category.includes('transportation')) {

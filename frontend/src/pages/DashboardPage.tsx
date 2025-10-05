@@ -141,7 +141,11 @@ export function DashboardPage() {
       try {
         // Get first day of current month
         const now = new Date()
-        const firstDay = new Date(now.getFullYear(), now.getMonth(), 1)
+
+        // const firstDay = new Date(now.getFullYear(), now.getMonth(), 1)
+        // Test: set first day to 2020-01-01
+        const firstDay = new Date(2020, 0, 1)
+
         const startDate = firstDay.toISOString().split('T')[0]
         const endDate = now.toISOString().split('T')[0]
 
@@ -155,7 +159,7 @@ export function DashboardPage() {
 
         // Update spending in store
         setSpending({
-          rent: 0, // Rent not tracked via transactions
+          rent: Math.round(currentSpending.rent), // Rent not tracked via transactions
           dining: Math.round(currentSpending.dining),
           gas: Math.round(currentSpending.gas),
           groceries: Math.round(currentSpending.groceries),

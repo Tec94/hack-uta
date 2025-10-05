@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { Button } from '@/components/ui/button'
-import { DollarSign } from 'lucide-react'
+import { DollarSign, Loader2 } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { UserBudget } from '@/types'
 import { formatCurrency } from '@/lib/utils'
@@ -18,10 +18,12 @@ const categoryInfo: Record<string, { label: string; icon: string; group: string 
 
 interface MonthlyBudgetBreakdownProps {
   budget: UserBudget
-  spending?: UserBudget | null // Actual spending from transactions
+  actualSpending?: UserBudget | null // Actual spending from transactions
+  spending?: UserBudget | null // Legacy prop for backward compatibility
   title?: string
   description?: string
   showTotal?: boolean
+  loadingSpending?: boolean
   actionButton?: {
     label: string
     icon?: React.ReactNode
@@ -33,17 +35,21 @@ interface MonthlyBudgetBreakdownProps {
 
 export function MonthlyBudgetBreakdown({
   budget,
-  spending = null,
+  actualSpending = null,
+  spending = null, // Legacy prop
   title = 'Spending Breakdown',
   description = 'Monthly budget allocation',
   showTotal = true,
+  loadingSpending = false,
   actionButton,
   animationDelay = 0,
   compact = false
 }: MonthlyBudgetBreakdownProps) {
   const totalBudget = Object.values(budget).reduce((sum, val) => sum + val, 0)
-  const totalSpending = spending ? Object.values(spending).reduce((sum, val) => sum + val, 0) : 0
-  const hasSpendingData = spending !== null
+  // Use actualSpending if available, fallback to spending for backward compatibility
+  const currentSpending = actualSpending || spending
+  const totalSpending = currentSpending ? Object.values(currentSpending).reduce((sum, val) => sum + val, 0) : 0
+  const hasSpendingData = currentSpending !== null
 
   // Custom order for Essential: rent, groceries, gas
   const essentialOrder = ['rent', 'groceries', 'gas']
@@ -98,7 +104,7 @@ export function MonthlyBudgetBreakdown({
               <h3 className="text-xs sm:text-sm font-semibold mb-2 sm:mb-3 text-muted-foreground">Essential Expenses</h3>
               <div className={compact ? 'space-y-3' : 'space-y-4'}>
                 {essentialCategories.map(([category, budgetAmount], index) => {
-                  const spendingAmount = hasSpendingData ? (spending[category as keyof UserBudget] || 0) : 0
+                  const spendingAmount = hasSpendingData ? (currentSpending[category as keyof UserBudget] || 0) : 0
                   // Only calculate percentage based on actual spending vs budget
                   const percentage = hasSpendingData && budgetAmount > 0 
                     ? (spendingAmount / budgetAmount) * 100 
@@ -156,7 +162,7 @@ export function MonthlyBudgetBreakdown({
               <h3 className="text-xs sm:text-sm font-semibold mb-2 sm:mb-3 text-muted-foreground">Lifestyle & Discretionary</h3>
               <div className={compact ? 'space-y-3' : 'space-y-4'}>
                 {lifestyleCategories.map(([category, budgetAmount], index) => {
-                  const spendingAmount = hasSpendingData ? (spending[category as keyof UserBudget] || 0) : 0
+                  const spendingAmount = hasSpendingData ? (currentSpending[category as keyof UserBudget] || 0) : 0
                   // Only calculate percentage based on actual spending vs budget
                   const percentage = hasSpendingData && budgetAmount > 0 
                     ? (spendingAmount / budgetAmount) * 100 
@@ -214,9 +220,15 @@ export function MonthlyBudgetBreakdown({
             <div className={`${compact ? 'mt-4 pt-4' : 'mt-5 sm:mt-6 pt-4 sm:pt-6'} border-t`}>
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-1 sm:gap-2">
                 <span className="text-xs sm:text-sm font-medium text-muted-foreground">
-                  {hasSpendingData ? 'Total Spending vs Budget' : 'Total Monthly Budget'}
+                  {loadingSpending ? 'Loading spending data...' : 
+                   hasSpendingData ? 'Total Spending vs Budget' : 'Total Monthly Budget'}
                 </span>
-                {hasSpendingData ? (
+                {loadingSpending ? (
+                  <div className="flex items-center gap-2">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span className="text-sm text-muted-foreground">Loading...</span>
+                  </div>
+                ) : hasSpendingData ? (
                   <span className="font-bold text-base sm:text-lg md:text-xl lg:text-2xl">
                     {formatCurrency(totalSpending)} / {formatCurrency(totalBudget)}
                   </span>
