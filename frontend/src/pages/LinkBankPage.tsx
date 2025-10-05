@@ -10,6 +10,7 @@ import {
   createLinkToken, 
   exchangePublicToken, 
   getTransactions,
+  getStoredAccessToken,
   calculateSpendingFromTransactions,
   SANDBOX_CREDENTIALS 
 } from '@/lib/plaid';
@@ -19,12 +20,11 @@ export function LinkBankPage() {
   const { user } = useAuth0();
   const navigate = useNavigate();
   const [linkToken, setLinkToken] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [step, setStep] = useState<'setup' | 'connecting' | 'processing' | 'success'>('setup');
+  const [step, setStep] = useState<'setup' | 'connecting' | 'processing' | 'success' | 'already_connected'>('setup');
   const { setBudget, setLinkedBank, setOnboardingCompleted } = useUserStore();
 
-  // Create link token on component mount
+  // Check for existing bank link and create link token on component mount
   useEffect(() => {
     const initPlaid = async () => {
       try {
@@ -32,29 +32,41 @@ export function LinkBankPage() {
           throw new Error('User not authenticated');
         }
         
+        // Check if user already has a bank link
+        const bankLinkData = await getStoredAccessToken(user.sub);
+        if (bankLinkData.has_bank_link) {
+          console.log('User already has a bank link:', bankLinkData);
+          setStep('already_connected');
+          setLinkedBank(true);
+          return;
+        }
+        
         const token = await createLinkToken(user.sub);
         setLinkToken(token);
       } catch (err) {
-        console.error('Error creating link token:', err);
+        console.error('Error initializing Plaid:', err);
         setError('Failed to initialize Plaid. Please check your API credentials.');
       }
     };
 
     initPlaid();
-  }, [user]);
+  }, [user, setLinkedBank]);
 
   const handlePlaidSuccess = async (publicToken: string, metadata: any) => {
     console.log('Plaid Link success:', metadata);
     setStep('processing');
-    setLoading(true);
 
     try {
-      // Exchange public token for access token
-      const { access_token, item_id } = await exchangePublicToken(publicToken);
-      console.log('Access token obtained:', item_id);
+      if (!user?.sub) {
+        throw new Error('User not authenticated');
+      }
 
-      // Get transactions from last 30 days
-      const { transactions } = await getTransactions(access_token);
+      // Exchange public token for access token and persist to database
+      const { item_id, bank_link_id, created_at } = await exchangePublicToken(publicToken, user.sub);
+      console.log('Access token obtained and persisted:', { item_id, bank_link_id, created_at });
+
+      // Get transactions from last 30 days using user_id (access token is now stored in DB)
+      const { transactions } = await getTransactions(undefined, user.sub);
       console.log(`Retrieved ${transactions.length} transactions`);
 
       // Calculate spending by category
@@ -73,7 +85,6 @@ export function LinkBankPage() {
 
       setLinkedBank(true);
       setStep('success');
-      setLoading(false);
 
       // Navigate to dashboard after short delay
       setTimeout(() => {
@@ -83,7 +94,6 @@ export function LinkBankPage() {
     } catch (err) {
       console.error('Error processing Plaid data:', err);
       setError('Failed to process bank data. Please try again.');
-      setLoading(false);
       setStep('setup');
     }
   };
@@ -214,6 +224,47 @@ export function LinkBankPage() {
                 <h2 className="text-2xl font-semibold mb-2">Successfully Connected!</h2>
                 <p className="text-gray-600">Your bank account is linked via Plaid</p>
                 <p className="text-sm text-gray-500 mt-2">Redirecting to your dashboard...</p>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
+
+        {step === 'already_connected' && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="text-center"
+          >
+            <Card>
+              <CardContent className="pt-12 pb-12">
+                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <Check className="w-10 h-10 text-blue-600" />
+                </div>
+                <h2 className="text-2xl font-semibold mb-2">Bank Already Connected!</h2>
+                <p className="text-gray-600">Your bank account is already linked via Plaid</p>
+                <p className="text-sm text-gray-500 mt-2">You can proceed to your dashboard</p>
+                
+                <div className="mt-6 space-y-3">
+                  <Button
+                    onClick={() => {
+                      setOnboardingCompleted(true);
+                      navigate('/dashboard');
+                    }}
+                    className="w-full"
+                    size="lg"
+                  >
+                    Go to Dashboard
+                  </Button>
+                  
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => navigate('/onboarding/choice')}
+                    className="w-full"
+                  >
+                    Back to Options
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </motion.div>
