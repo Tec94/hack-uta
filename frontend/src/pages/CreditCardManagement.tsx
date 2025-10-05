@@ -39,6 +39,14 @@ export function CreditCardManagementPage() {
   const [removingCard, setRemovingCard] = useState<string | null>(null)
   // Map catalog IDs to database user_card IDs
   const [userCardIdMap, setUserCardIdMap] = useState<Record<string, number>>({})
+  // AI Insights
+  const [aiInsights, setAiInsights] = useState<{
+    insight: string
+    potentialEarnings: number
+    matchScore: number
+    topRecommendation: string
+  } | null>(null)
+  const [loadingInsights, setLoadingInsights] = useState(false)
 
   useEffect(() => {
     fetchCards()
@@ -46,6 +54,13 @@ export function CreditCardManagementPage() {
       fetchUserCards()
     }
   }, [user?.sub])
+
+  useEffect(() => {
+    // Fetch AI insights when budget is available
+    if (budget && allCards.length > 0) {
+      fetchAIInsights()
+    }
+  }, [budget, allCards.length, currentCards.length])
 
   const fetchCards = async () => {
     try {
@@ -95,6 +110,40 @@ export function CreditCardManagementPage() {
     } catch (err) {
       console.error('Error fetching user cards:', err)
       // Don't show error toast for this, just log it
+    }
+  }
+
+  const fetchAIInsights = async () => {
+    if (!budget) return
+
+    setLoadingInsights(true)
+    try {
+      const response = await fetch('http://localhost:3000/api/insights/cards', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          budget: budget,
+          userCards: currentCards.length,
+          totalCards: allCards.length,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to generate insights')
+      }
+
+      if (data.success && data.data) {
+        setAiInsights(data.data)
+      }
+    } catch (err) {
+      console.error('Error fetching AI insights:', err)
+      // Don't show error, just use fallback data
+    } finally {
+      setLoadingInsights(false)
     }
   }
 
@@ -601,48 +650,93 @@ export function CreditCardManagementPage() {
           >
             <Card className="shadow-sm overflow-hidden">
               <CardHeader>
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center">
-                    <Sparkles className="w-6 h-6 text-primary-foreground" />
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center">
+                      <Sparkles className="w-6 h-6 text-primary-foreground" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-2xl">AI-Powered Insights</CardTitle>
+                      <p className="text-sm text-muted-foreground">Personalized recommendations based on your spending</p>
+                    </div>
                   </div>
-                  <div>
-                    <CardTitle className="text-2xl">AI-Powered Insights</CardTitle>
-                    <p className="text-sm text-muted-foreground">Personalized recommendations based on your spending</p>
-                  </div>
+                  {loadingInsights && (
+                    <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+                  )}
                 </div>
               </CardHeader>
               <CardContent>
                 <div className="bg-muted/50 rounded-lg p-6">
-                  <p className="text-lg leading-relaxed mb-6">
-                    Based on your spending pattern, focusing on cards with strong{' '}
-                    <span className="font-bold bg-secondary px-2 py-1 rounded">
-                      {Object.entries(budget).sort((a, b) => b[1] - a[1])[0][0]}
-                    </span>
-                    {' '}rewards could maximize your earnings. Our AI recommends cards that offer{' '}
-                    <span className="font-bold">3-5% back</span> in your top categories.
-                  </p>
-                  
-                  <div className="grid md:grid-cols-3 gap-4">
-                    <div className="bg-card border p-4 rounded-lg">
-                      <TrendingUp className="w-8 h-8 mb-2" />
-                      <p className="text-sm text-muted-foreground mb-1">Potential Earnings</p>
-                      <p className="text-2xl font-bold">
-                        +${Math.round(Object.values(budget).reduce((a, b) => a + b, 0) * 0.03 * 12)}/yr
+                  {aiInsights ? (
+                    <>
+                      <p className="text-lg leading-relaxed mb-6">
+                        {aiInsights.insight}
                       </p>
-                    </div>
-                    <div className="bg-card border p-4 rounded-lg">
-                      <Star className="w-8 h-8 mb-2 fill-current" />
-                      <p className="text-sm text-muted-foreground mb-1">Match Score</p>
-                      <p className="text-2xl font-bold">
-                        94%
+                      
+                      <div className="grid md:grid-cols-3 gap-4">
+                        <div className="bg-card border p-4 rounded-lg">
+                          <TrendingUp className="w-8 h-8 mb-2" />
+                          <p className="text-sm text-muted-foreground mb-1">Potential Earnings</p>
+                          <p className="text-2xl font-bold">
+                            +${aiInsights.potentialEarnings}/yr
+                          </p>
+                        </div>
+                        <div className="bg-card border p-4 rounded-lg">
+                          <Star className="w-8 h-8 mb-2 fill-current" />
+                          <p className="text-sm text-muted-foreground mb-1">Match Score</p>
+                          <p className="text-2xl font-bold">
+                            {aiInsights.matchScore}%
+                          </p>
+                        </div>
+                        <div className="bg-card border p-4 rounded-lg">
+                          <Wallet className="w-8 h-8 mb-2" />
+                          <p className="text-sm text-muted-foreground mb-1">Cards Analyzed</p>
+                          <p className="text-2xl font-bold">{allCards.length}</p>
+                        </div>
+                      </div>
+
+                      {aiInsights.topRecommendation && (
+                        <div className="mt-4 p-3 bg-card border rounded-lg">
+                          <p className="text-sm font-medium">
+                            💡 Top Recommendation: {aiInsights.topRecommendation}
+                          </p>
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      <p className="text-lg leading-relaxed mb-6">
+                        Based on your spending pattern, focusing on cards with strong{' '}
+                        <span className="font-bold bg-secondary px-2 py-1 rounded">
+                          {Object.entries(budget).sort((a, b) => b[1] - a[1])[0][0]}
+                        </span>
+                        {' '}rewards could maximize your earnings. Our AI recommends cards that offer{' '}
+                        <span className="font-bold">3-5% back</span> in your top categories.
                       </p>
-                    </div>
-                    <div className="bg-card border p-4 rounded-lg">
-                      <Wallet className="w-8 h-8 mb-2" />
-                      <p className="text-sm text-muted-foreground mb-1">Cards Analyzed</p>
-                      <p className="text-2xl font-bold">{allCards.length}</p>
-                    </div>
-                  </div>
+                      
+                      <div className="grid md:grid-cols-3 gap-4">
+                        <div className="bg-card border p-4 rounded-lg">
+                          <TrendingUp className="w-8 h-8 mb-2" />
+                          <p className="text-sm text-muted-foreground mb-1">Potential Earnings</p>
+                          <p className="text-2xl font-bold">
+                            +${Math.round(Object.values(budget).reduce((a, b) => a + b, 0) * 0.03 * 12)}/yr
+                          </p>
+                        </div>
+                        <div className="bg-card border p-4 rounded-lg">
+                          <Star className="w-8 h-8 mb-2 fill-current" />
+                          <p className="text-sm text-muted-foreground mb-1">Match Score</p>
+                          <p className="text-2xl font-bold">
+                            85%
+                          </p>
+                        </div>
+                        <div className="bg-card border p-4 rounded-lg">
+                          <Wallet className="w-8 h-8 mb-2" />
+                          <p className="text-sm text-muted-foreground mb-1">Cards Analyzed</p>
+                          <p className="text-2xl font-bold">{allCards.length}</p>
+                        </div>
+                      </div>
+                    </>
+                  )}
                 </div>
               </CardContent>
             </Card>
