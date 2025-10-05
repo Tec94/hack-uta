@@ -19,7 +19,6 @@ export function LinkBankPage() {
   const { user } = useAuth0();
   const navigate = useNavigate();
   const [linkToken, setLinkToken] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [step, setStep] = useState<'setup' | 'connecting' | 'processing' | 'success'>('setup');
   const { setBudget, setLinkedBank, setOnboardingCompleted } = useUserStore();
@@ -46,7 +45,6 @@ export function LinkBankPage() {
   const handlePlaidSuccess = async (publicToken: string, metadata: any) => {
     console.log('Plaid Link success:', metadata);
     setStep('processing');
-    setLoading(true);
 
     try {
       // Exchange public token for access token
@@ -73,7 +71,6 @@ export function LinkBankPage() {
 
       setLinkedBank(true);
       setStep('success');
-      setLoading(false);
 
       // Navigate to dashboard after short delay
       setTimeout(() => {
@@ -83,7 +80,6 @@ export function LinkBankPage() {
     } catch (err) {
       console.error('Error processing Plaid data:', err);
       setError('Failed to process bank data. Please try again.');
-      setLoading(false);
       setStep('setup');
     }
   };
