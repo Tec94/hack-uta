@@ -1,6 +1,8 @@
-# SwipeRight - Smart Credit Card Recommendations
+# Credify - Smart Credit Card Optimizer
 
-AI-powered credit card recommendation platform that helps users maximize their rewards based on location and spending habits.
+**Never miss out on credit card rewards again.**
+
+AI-powered platform that ensures you're always using the right card at the right place. Get real-time notifications, personalized recommendations, and maximize every purchase.
 
 ## 🏗️ Project Structure
 
@@ -30,7 +32,8 @@ hack-uta/
 
 ### Prerequisites
 
-- Node.js 18+ 
+- Node.js 18+
+- PostgreSQL 14+
 - npm or yarn
 
 ### Installation
@@ -60,103 +63,99 @@ hack-uta/
 
 ### Environment Variables
 
-#### Frontend (.env)
+Create `backend/.env`:
+```env
+PORT=3000
+DATABASE_URL=postgresql://user:password@localhost:5432/credify
+GEMINI_API_KEY=your_gemini_api_key
+PLAID_CLIENT_ID=your_plaid_client_id
+PLAID_SECRET=your_plaid_secret
+PLAID_ENV=sandbox
+MAPBOX_ACCESS_TOKEN=your_mapbox_token
+```
+
 Create `frontend/.env`:
 ```env
 VITE_MAPBOX_TOKEN=your_mapbox_token
 VITE_AUTH0_DOMAIN=your_auth0_domain
 VITE_AUTH0_CLIENT_ID=your_auth0_client_id
-VITE_AUTH0_AUDIENCE=your_auth0_audience
-VITE_GEMINI_API_KEY=your_gemini_api_key
-```
-
-#### Backend (.env)
-Create `backend/.env`:
-```env
-PORT=3001
-DATABASE_URL=your_database_url
-PLAID_CLIENT_ID=your_plaid_client_id
-PLAID_SECRET=your_plaid_secret
-PLAID_ENV=sandbox
 ```
 
 ### Running the Application
 
-#### Development Mode
-
-**Frontend** (from `frontend/` directory):
-```bash
-npm run dev
-```
-The frontend will run on `http://localhost:5173`
-
-**Backend** (from `backend/` directory):
-```bash
-npm run dev
-```
-The backend will run on `http://localhost:3001`
-
-#### Production Build
-
-**Frontend**:
-```bash
-cd frontend
-npm run build
-npm run preview
-```
-
-**Backend**:
+**Start Backend** (Terminal 1):
 ```bash
 cd backend
-npm run build
-npm start
+npm run dev
 ```
+Backend runs on `http://localhost:3000`
+
+**Start Frontend** (Terminal 2):
+```bash
+cd frontend
+npm run dev
+```
+Frontend runs on `http://localhost:5173`
+
+### Database Setup
+
+Ensure PostgreSQL is installed and running, then create the database:
+```bash
+createdb credify
+```
+The backend will automatically create tables on first run.
 
 ## 🎨 Tech Stack
 
 ### Frontend
-- **React 18** - UI framework
-- **TypeScript** - Type safety
-- **Vite** - Build tool
-- **TailwindCSS** - Styling
-- **ShadCN UI** - Component library
-- **Framer Motion** - Animations
-- **Mapbox GL** - Interactive maps
-- **Auth0** - Authentication
-- **Zustand** - State management
-- **React Query** - Data fetching
-- **Plaid Link** - Bank account linking
+- **React 18** + **TypeScript** - UI framework with type safety
+- **Vite** - Fast build tool
+- **Tailwind CSS** + **Shadcn UI** - Modern styling
+- **Framer Motion** - Smooth animations
+- **Mapbox GL JS** - Interactive maps
+- **Auth0** - Secure authentication
+- **Zustand** - Lightweight state management
+- **TanStack Query** - Server state management
 
 ### Backend
-- **Node.js** - Runtime
-- **Express** - Web framework
-- **TypeScript** - Type safety
-- **Plaid API** - Financial data integration
+- **Node.js** + **Express** + **TypeScript** - Robust API server
+- **PostgreSQL** - Production database
+- **Google Gemini AI** - AI-powered insights
+- **Plaid API** - Bank integration
+- **Mapbox Places API** - Location services
 
-## 📱 Features
+## ✨ Key Features
 
-- 🗺️ **Location-based recommendations** - Find the best credit cards for nearby merchants
-- 🤖 **AI-powered insights** - Smart recommendations using Google Gemini AI
-- 💳 **Credit card comparison** - Detailed card information and benefits
-- 📊 **Spending analysis** - Track and categorize your spending
-- 🏦 **Bank integration** - Connect accounts via Plaid
-- 🎯 **Personalized profiles** - Custom budget and spending categories
+- 🎯 **Smart Location Detection** - Get instant notifications when you arrive at stores
+- 🤖 **AI-Powered Insights** - Gemini AI analyzes spending patterns and recommends optimal cards
+- 💰 **Budget Optimization** - Track spending, get personalized insights, discover savings opportunities
+- ✈️ **Points Maximization** - Compare transfer rates to airline and hotel partners
+- 🏦 **Bank Integration** - Securely connect accounts via Plaid
+- 🗺️ **Interactive Maps** - Visualize nearby merchants and best card recommendations
 
-## 🔒 Security
+## 🔌 API Endpoints
 
-- Secure authentication via Auth0
-- Bank-level encryption for financial data
-- Environment variables for sensitive credentials
-- CORS protection on backend API
+```
+Health & Status
+GET  /health
+GET  /gemini-health
 
-## 📄 License
+Credit Cards
+GET  /api/cards
+GET  /api/user-cards/:user_id
+POST /api/user-cards
+GET  /api/transfer-rates
 
-MIT License - see LICENSE file for details
-
-## 👥 Contributors
-
-Built with ❤️ for HackUTA
+AI Insights
+POST /api/insights/cards
+POST /api/insights/recommend-cards
+POST /api/insights/budget
+```
 
 ---
 
-**Note**: This is a hackathon project. For production use, additional security measures and error handling should be implemented.
+## 🏆 Built for HackUTA
+
+**Credify** - Spend smart. Earn more. Every purchase, optimized.
+
+Made with ❤️ using React, TypeScript, PostgreSQL, and Google Gemini AI.
