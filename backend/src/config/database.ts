@@ -209,6 +209,120 @@ class Database {
       throw error;
     }
   }
+
+  // User Cards operations
+  async addUserCard(userId: string, cardCatId: number, isActive: boolean = true): Promise<any> {
+    try {
+      const query = `
+        INSERT INTO cards (user_id, card_cat_id, is_active)
+        VALUES ($1, $2, $3)
+        RETURNING id, created_at, user_id, card_cat_id, is_active
+      `;
+      const result = await this.query(query, [userId, cardCatId, isActive]);
+      return result.rows[0];
+    } catch (error) {
+      console.error('Error adding user card:', error);
+      throw error;
+    }
+  }
+
+  async getUserCards(userId: string): Promise<any[]> {
+    try {
+      const query = `
+        SELECT 
+          c.id,
+          c.created_at,
+          c.user_id,
+          c.card_cat_id,
+          c.is_active,
+          cc.bank_name,
+          cc.card_name,
+          cc.network,
+          cc.category,
+          cc.reward_summary
+        FROM cards c
+        JOIN card_catalog cc ON c.card_cat_id = cc.id
+        WHERE c.user_id = $1
+        ORDER BY c.created_at DESC
+      `;
+      const result = await this.query(query, [userId]);
+      return result.rows;
+    } catch (error) {
+      console.error('Error getting user cards:', error);
+      throw error;
+    }
+  }
+
+  async getUserCardById(cardId: number, userId: string): Promise<any> {
+    try {
+      const query = `
+        SELECT 
+          c.id,
+          c.created_at,
+          c.user_id,
+          c.card_cat_id,
+          c.is_active,
+          cc.bank_name,
+          cc.card_name,
+          cc.network,
+          cc.category,
+          cc.reward_summary
+        FROM cards c
+        JOIN card_catalog cc ON c.card_cat_id = cc.id
+        WHERE c.id = $1 AND c.user_id = $2
+      `;
+      const result = await this.query(query, [cardId, userId]);
+      return result.rows[0] || null;
+    } catch (error) {
+      console.error('Error getting user card by ID:', error);
+      throw error;
+    }
+  }
+
+  async updateUserCardStatus(cardId: number, userId: string, isActive: boolean): Promise<any> {
+    try {
+      const query = `
+        UPDATE cards
+        SET is_active = $3
+        WHERE id = $1 AND user_id = $2
+        RETURNING id, created_at, user_id, card_cat_id, is_active
+      `;
+      const result = await this.query(query, [cardId, userId, isActive]);
+      return result.rows[0] || null;
+    } catch (error) {
+      console.error('Error updating user card status:', error);
+      throw error;
+    }
+  }
+
+  async deleteUserCard(cardId: number, userId: string): Promise<boolean> {
+    try {
+      const query = `
+        DELETE FROM cards
+        WHERE id = $1 AND user_id = $2
+      `;
+      const result = await this.query(query, [cardId, userId]);
+      return result.rowCount > 0;
+    } catch (error) {
+      console.error('Error deleting user card:', error);
+      throw error;
+    }
+  }
+
+  async checkUserCardExists(userId: string, cardCatId: number): Promise<boolean> {
+    try {
+      const query = `
+        SELECT COUNT(*) as count
+        FROM cards
+        WHERE user_id = $1 AND card_cat_id = $2
+      `;
+      const result = await this.query(query, [userId, cardCatId]);
+      return parseInt(result.rows[0].count) > 0;
+    } catch (error) {
+      console.error('Error checking if user card exists:', error);
+      throw error;
+    }
+  }
 }
 
 // Create and export a singleton instance

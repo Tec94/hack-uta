@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useAuth0 } from '@auth0/auth0-react'
 import { motion } from 'framer-motion'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -9,6 +10,7 @@ import { Loading } from '@/components/common/Loading'
 import { ApiCreditCard } from '@/types'
 import { useUserStore } from '@/store/userStore'
 import { CheckCircle, ChevronRight, CreditCard as CreditCardIcon, Loader2 } from 'lucide-react'
+import { addMultipleUserCards, getUserCards, UserCard } from '@/lib/user-cards'
 
 interface CardSelection {
   [cardId: string]: boolean
@@ -16,8 +18,10 @@ interface CardSelection {
 
 export function ChooseYourCardPage() {
   const navigate = useNavigate()
+  const { user } = useAuth0()
   const { setCurrentCards } = useUserStore()
   const [cards, setCards] = useState<ApiCreditCard[]>([])
+  const [userCards, setUserCards] = useState<UserCard[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [selectedCards, setSelectedCards] = useState<CardSelection>({})
@@ -25,7 +29,10 @@ export function ChooseYourCardPage() {
 
   useEffect(() => {
     fetchCards()
-  }, [])
+    if (user?.sub) {
+      fetchUserCards()
+    }
+  }, [user])
 
   const fetchCards = async () => {
     try {
@@ -43,6 +50,26 @@ export function ChooseYourCardPage() {
     }
   }
 
+  const fetchUserCards = async () => {
+    if (!user?.sub) return
+    
+    try {
+      const userCardsData = await getUserCards(user.sub)
+      setUserCards(userCardsData)
+      
+      // Pre-select cards that user already has
+      const existingCardIds = userCardsData.map(card => card.card_cat_id)
+      const preSelected: CardSelection = {}
+      existingCardIds.forEach(cardId => {
+        preSelected[cardId] = true
+      })
+      setSelectedCards(preSelected)
+    } catch (err) {
+      console.error('Error fetching user cards:', err)
+      // Don't show error for this, just continue without pre-selection
+    }
+  }
+
   const handleCardToggle = (cardId: string, checked: boolean) => {
     setSelectedCards(prev => ({
       ...prev,
@@ -51,12 +78,32 @@ export function ChooseYourCardPage() {
   }
 
   const handleSubmit = async () => {
+    if (!user?.sub) {
+      alert('Please log in to save your card selection.')
+      return
+    }
+
     const selectedCardIds = Object.keys(selectedCards).filter(id => selectedCards[id])
+    const selectedCardCatIds = selectedCardIds.map(id => parseInt(id))
 
     setIsSubmitting(true)
 
     try {
-      // Store selected card IDs in user store (can be empty)
+      // Get currently existing user cards
+      const existingCardCatIds = userCards.map(card => parseInt(card.card_cat_id))
+      
+      // Find cards to add (newly selected cards that user doesn't have)
+      const cardsToAdd = selectedCardCatIds.filter(cardCatId => 
+        !existingCardCatIds.includes(cardCatId)
+      )
+      
+      // Add new cards to user's collection
+      if (cardsToAdd.length > 0) {
+        await addMultipleUserCards(user.sub, cardsToAdd)
+        console.log(`Added ${cardsToAdd.length} new cards to user collection`)
+      }
+
+      // Store selected card IDs in user store for immediate use
       setCurrentCards(selectedCardIds)
 
       // Navigate to budget setup
@@ -142,51 +189,63 @@ export function ChooseYourCardPage() {
           transition={{ delay: 0.2 }}
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8"
         >
-          {cards.map((card, index) => (
-            <motion.div
-              key={card.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 * index }}
-              className={`relative group ${selectedCards[card.id] ? 'ring-2 ring-primary ring-offset-2' : ''}`}
-              onClick={() => handleCardToggle(card.id, !selectedCards[card.id])}
-            >
-              <Card className="h-full transition-all duration-200 hover:shadow-lg cursor-pointer">
-                <CardHeader className="pb-4">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex-1 min-w-0">
-                      <CardTitle className="text-lg font-semibold mb-1 truncate">
-                        {card.card_name}
-                      </CardTitle>
-                      <p className="text-sm text-muted-foreground">{card.bank_name}</p>
+          {cards.map((card, index) => {
+            const userHasCard = userCards.some(userCard => userCard.card_cat_id === card.id)
+            const isSelected = selectedCards[card.id] || false
+            
+            return (
+              <motion.div
+                key={card.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 * index }}
+                className={`relative group ${isSelected ? 'ring-2 ring-primary ring-offset-2' : ''}`}
+                onClick={() => handleCardToggle(card.id, !isSelected)}
+              >
+                <Card className={`h-full transition-all duration-200 hover:shadow-lg cursor-pointer ${
+                  userHasCard ? 'bg-green-50 border-green-200' : ''
+                }`}>
+                  <CardHeader className="pb-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1 min-w-0">
+                        <CardTitle className="text-lg font-semibold text-gray-900 mb-1 truncate">
+                          {card.card_name}
+                        </CardTitle>
+                        <p className="text-sm text-gray-600">{card.bank_name}</p>
+                        {userHasCard && (
+                          <Badge className="mt-1 bg-green-100 text-green-800 text-xs">
+                            Already in your collection
+                          </Badge>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        {isSelected && (
+                          <CheckCircle className="w-5 h-5 text-primary" />
+                        )}
+                        <Checkbox
+                          checked={isSelected}
+                          onCheckedChange={(checked: boolean) => handleCardToggle(card.id, checked)}
+                          className="w-5 h-5"
+                          onClick={(e: React.MouseEvent) => e.stopPropagation()}
+                        />
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2 flex-shrink-0">
-                      {selectedCards[card.id] && (
-                        <CheckCircle className="w-5 h-5 text-primary" />
-                      )}
-                      <Checkbox
-                        checked={selectedCards[card.id] || false}
-                        onCheckedChange={(checked: boolean) => handleCardToggle(card.id, checked)}
-                        className="w-5 h-5"
-                        onClick={(e: React.MouseEvent) => e.stopPropagation()}
-                      />
-                    </div>
-                  </div>
-                </CardHeader>
+                  </CardHeader>
 
-                <CardContent>
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <Badge className={getCategoryColor(card.category)}>
-                      {card.category}
-                    </Badge>
-                    <Badge variant="outline" className="text-xs">
-                      {card.network}
-                    </Badge>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
+                  <CardContent>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <Badge className={getCategoryColor(card.category)}>
+                        {card.category}
+                      </Badge>
+                      <Badge variant="outline" className="text-xs">
+                        {card.network}
+                      </Badge>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            )
+          })}
         </motion.div>
 
         {/* Action Buttons */}
