@@ -8,7 +8,6 @@ import { ManualSetupPage } from './pages/BudgetSetup'
 import { ChooseYourCardPage } from './pages/ChooseYourCard'
 import { CreditCardManagementPage } from './pages/CreditCardManagement'
 import { DashboardPage } from './pages/DashboardPage'
-import { RecommendationsPage } from './pages/RecommendationsPage'
 import { ProfilePage } from './pages/ProfilePage'
 import { Loading } from './components/common/Loading'
 import { Toaster } from './components/ui/toaster'
@@ -89,14 +88,6 @@ function App() {
           element={
             <ProtectedRoute>
               <DashboardPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/recommendations"
-          element={
-            <ProtectedRoute>
-              <RecommendationsPage />
             </ProtectedRoute>
           }
         />
