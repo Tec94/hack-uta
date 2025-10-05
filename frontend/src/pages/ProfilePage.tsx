@@ -5,29 +5,17 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
-import { Progress } from '@/components/ui/progress'
 import { Separator } from '@/components/ui/separator'
 import { Switch } from '@/components/ui/switch'
 import { Slider } from '@/components/ui/slider'
 import { useUserStore } from '@/store/userStore'
-import { Mail, CreditCard, DollarSign, LogOut, Settings, Shield, Bell, HelpCircle, Sparkles, RefreshCw, BellOff, Timer, Radius } from 'lucide-react'
-import { formatCurrency } from '@/lib/utils'
+import { Mail, CreditCard, LogOut, Settings, Shield, Bell, HelpCircle, Sparkles, RefreshCw, BellOff, Timer, Radius } from 'lucide-react'
 import { motion } from 'framer-motion'
-
-const categoryInfo: Record<string, { label: string; icon: string; group: string }> = {
-  groceries: { label: 'Groceries', icon: '🛒', group: 'Essential' },
-  gas: { label: 'Gas & Transportation', icon: '⛽', group: 'Essential' },
-  dining: { label: 'Dining & Restaurants', icon: '🍽️', group: 'Lifestyle' },
-  shopping: { label: 'Shopping & Retail', icon: '🛍️', group: 'Lifestyle' },
-  entertainment: { label: 'Entertainment', icon: '🎬', group: 'Lifestyle' },
-  travel: { label: 'Travel & Hotels', icon: '✈️', group: 'Lifestyle' },
-}
 
 export function ProfilePage() {
   const { user, logout } = useAuth0()
   const navigate = useNavigate()
   const { 
-    budget, 
     linkedBank, 
     onboardingCompleted, 
     notificationsEnabled, 
@@ -38,10 +26,6 @@ export function ProfilePage() {
     setDwellRadiusMeters,
     reset 
   } = useUserStore()
-
-  const totalMonthlySpending = budget
-    ? Object.values(budget).reduce((sum, val) => sum + val, 0)
-    : 0
 
   const handleNotificationToggle = (checked: boolean) => {
     setNotificationsEnabled(checked)
@@ -140,116 +124,11 @@ export function ProfilePage() {
           </Card>
         </motion.div>
 
-        {/* Spending Overview */}
-        {budget && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-          >
-            <Card className="shadow-sm">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-                      <DollarSign className="w-5 h-5 text-primary-foreground" />
-                    </div>
-                    <div>
-                      <CardTitle>Monthly Budget</CardTitle>
-                      <p className="text-sm text-muted-foreground">Spending allocation</p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-3xl font-bold">{formatCurrency(totalMonthlySpending)}</p>
-                    <p className="text-xs text-muted-foreground">Total budget</p>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                {/* Essential Expenses */}
-                <div className="mb-6">
-                  <h3 className="text-sm font-semibold mb-3">Essential Expenses</h3>
-                  <div className="space-y-3">
-                    {Object.entries(budget)
-                      .filter(([cat]) => categoryInfo[cat]?.group === 'Essential')
-                      .sort((a, b) => b[1] - a[1])
-                      .map(([category, amount], index) => {
-                        const percentage = (amount / totalMonthlySpending) * 100
-                        const info = categoryInfo[category]
-                        return (
-                          <motion.div
-                            key={category}
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: 0.3 + index * 0.05 }}
-                          >
-                            <div className="flex justify-between items-center mb-2">
-                              <div className="flex items-center gap-2">
-                                <span className="text-lg">{info.icon}</span>
-                                <span className="text-sm font-medium">{info.label}</span>
-                              </div>
-                              <div className="flex items-center gap-3">
-                                <span className="text-xs text-muted-foreground">{percentage.toFixed(0)}%</span>
-                                <span className="text-sm font-bold">{formatCurrency(amount)}</span>
-                              </div>
-                            </div>
-                            <Progress value={percentage} className="h-2" />
-                          </motion.div>
-                        )
-                      })}
-                  </div>
-                </div>
-
-                {/* Lifestyle & Discretionary */}
-                <div className="mb-6">
-                  <h3 className="text-sm font-semibold mb-3">Lifestyle & Discretionary</h3>
-                  <div className="space-y-3">
-                    {Object.entries(budget)
-                      .filter(([cat]) => categoryInfo[cat]?.group === 'Lifestyle')
-                      .sort((a, b) => b[1] - a[1])
-                      .map(([category, amount], index) => {
-                        const percentage = (amount / totalMonthlySpending) * 100
-                        const info = categoryInfo[category]
-                        return (
-                          <motion.div
-                            key={category}
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: 0.4 + index * 0.05 }}
-                          >
-                            <div className="flex justify-between items-center mb-2">
-                              <div className="flex items-center gap-2">
-                                <span className="text-lg">{info.icon}</span>
-                                <span className="text-sm font-medium">{info.label}</span>
-                              </div>
-                              <div className="flex items-center gap-3">
-                                <span className="text-xs text-muted-foreground">{percentage.toFixed(0)}%</span>
-                                <span className="text-sm font-bold">{formatCurrency(amount)}</span>
-                              </div>
-                            </div>
-                            <Progress value={percentage} className="h-2" />
-                          </motion.div>
-                        )
-                      })}
-                  </div>
-                </div>
-
-                <Separator className="my-6" />
-                
-                <Button variant="outline" className="w-full" size="lg" onClick={() => navigate('/budget')}>
-                  <Settings className="w-4 h-4 mr-2" />
-                  Manage Budget
-                </Button>
-              </CardContent>
-            </Card>
-          </motion.div>
-        )}
-
         {/* Actions */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
+          transition={{ delay: 0.2 }}
           className="grid md:grid-cols-2 gap-6"
         >
           <Card className="shadow-sm">
@@ -274,19 +153,19 @@ export function ProfilePage() {
               <Separator />
               
               {/* Smart Notifications Toggle */}
-              <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border border-green-200">
-                <div className="flex items-start justify-between gap-4 mb-4">
-                  <div className="flex items-start gap-3 flex-1">
-                    <div className={`w-10 h-10 ${notificationsEnabled ? 'bg-green-500' : 'bg-gray-400'} rounded-lg flex items-center justify-center transition-colors`}>
+              <div className="p-3 sm:p-4 bg-muted rounded-xl border">
+                <div className="flex items-start justify-between gap-3 sm:gap-4 mb-4">
+                  <div className="flex items-start gap-2 sm:gap-3 flex-1 min-w-0">
+                    <div className={`w-9 h-9 sm:w-10 sm:h-10 ${notificationsEnabled ? 'bg-primary' : 'bg-muted-foreground'} rounded-lg flex items-center justify-center transition-colors flex-shrink-0`}>
                       {notificationsEnabled ? (
-                        <Bell className="w-5 h-5 text-white" />
+                        <Bell className="w-4 h-4 sm:w-5 sm:h-5 text-primary-foreground" />
                       ) : (
-                        <BellOff className="w-5 h-5 text-white" />
+                        <BellOff className="w-4 h-4 sm:w-5 sm:h-5 text-primary-foreground" />
                       )}
                     </div>
-                    <div className="flex-1">
-                      <p className="font-semibold text-gray-900 mb-1">Smart Notifications</p>
-                      <p className="text-xs text-gray-600 leading-relaxed">
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold mb-1 text-sm sm:text-base">Smart Notifications</p>
+                      <p className="text-xs text-muted-foreground leading-relaxed">
                         Get card recommendations when you dwell at a location
                       </p>
                     </div>
@@ -294,7 +173,7 @@ export function ProfilePage() {
                   <Switch 
                     checked={notificationsEnabled}
                     onCheckedChange={handleNotificationToggle}
-                    className="mt-1"
+                    className="mt-1 flex-shrink-0"
                   />
                 </div>
 
@@ -304,18 +183,18 @@ export function ProfilePage() {
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: 'auto' }}
                     exit={{ opacity: 0, height: 0 }}
-                    className="space-y-4 pt-4 border-t border-green-200"
+                    className="space-y-3 sm:space-y-4 pt-3 sm:pt-4 border-t"
                   >
                     {/* Dwell Time Slider */}
                     <div className="space-y-2">
-                      <div className="flex items-center justify-between">
+                      <div className="flex items-center justify-between gap-2">
                         <div className="flex items-center gap-2">
-                          <Timer className="w-4 h-4 text-green-700" />
-                          <label className="text-sm font-medium text-gray-900">
+                          <Timer className="w-4 h-4 text-primary flex-shrink-0" />
+                          <label className="text-xs sm:text-sm font-medium">
                             Dwell Time
                           </label>
                         </div>
-                        <span className="text-sm font-bold text-green-700">
+                        <span className="text-xs sm:text-sm font-bold text-primary">
                           {formatTime(dwellTimeSeconds)}
                         </span>
                       </div>
@@ -327,21 +206,21 @@ export function ProfilePage() {
                         step={10}
                         className="w-full"
                       />
-                      <p className="text-xs text-gray-600">
+                      <p className="text-xs text-muted-foreground">
                         How long to stay at a location before notification
                       </p>
                     </div>
 
                     {/* Dwell Radius Slider */}
                     <div className="space-y-2">
-                      <div className="flex items-center justify-between">
+                      <div className="flex items-center justify-between gap-2">
                         <div className="flex items-center gap-2">
-                          <Radius className="w-4 h-4 text-green-700" />
-                          <label className="text-sm font-medium text-gray-900">
+                          <Radius className="w-4 h-4 text-primary flex-shrink-0" />
+                          <label className="text-xs sm:text-sm font-medium">
                             Detection Radius
                           </label>
                         </div>
-                        <span className="text-sm font-bold text-green-700">
+                        <span className="text-xs sm:text-sm font-bold text-primary">
                           {dwellRadiusMeters}m
                         </span>
                       </div>
@@ -353,7 +232,7 @@ export function ProfilePage() {
                         step={5}
                         className="w-full"
                       />
-                      <p className="text-xs text-gray-600">
+                      <p className="text-xs text-muted-foreground">
                         Maximum movement radius while dwelling
                       </p>
                     </div>

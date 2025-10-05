@@ -118,7 +118,7 @@ export function ChatbotAssistant() {
               <img 
                 src="/chatbot-icon.svg" 
                 alt="Chat Assistant" 
-                className="w-10 h-10"
+                className="w-8 h-8 sm:w-10 sm:h-10"
               />
             </button>
             {/* Unread Message Badge */}
@@ -127,7 +127,7 @@ export function ChatbotAssistant() {
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 exit={{ scale: 0 }}
-                className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white shadow-lg"
+                className="absolute -top-1 -right-1 w-4 h-4 bg-primary rounded-full border-2 border-background shadow-lg"
               />
             )}
           </motion.div>
@@ -142,34 +142,34 @@ export function ChatbotAssistant() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 100, scale: 0.8 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="fixed bottom-24 right-6 z-50 w-[380px] max-w-[calc(100vw-3rem)]"
+            className="fixed bottom-20 sm:bottom-24 right-4 sm:right-6 z-50 w-[calc(100vw-2rem)] sm:w-[380px] max-w-[380px]"
           >
             <Card className="shadow-2xl border-2 border-primary/20 overflow-hidden">
               <CardHeader className="bg-gradient-to-br from-green-600 to-emerald-600 text-white pb-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
-                      <Sparkles className="w-5 h-5" />
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 bg-primary-foreground/20 rounded-lg flex items-center justify-center">
+                      <Sparkles className="w-4 h-4 sm:w-5 sm:h-5" />
                     </div>
                     <div>
-                      <CardTitle className="text-lg">AI Assistant</CardTitle>
-                      <p className="text-xs text-white/80">Powered by Gemini</p>
+                      <CardTitle className="text-base sm:text-lg">AI Assistant</CardTitle>
+                      <p className="text-xs text-primary-foreground/80">Powered by Gemini</p>
                     </div>
                   </div>
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => setIsOpen(false)}
-                    className="h-8 w-8 p-0 hover:bg-white/20 text-white"
+                    className="h-8 w-8 p-0 hover:bg-primary-foreground/20 text-primary-foreground"
                   >
-                    <X className="w-5 h-5" />
+                    <X className="w-4 h-4 sm:w-5 sm:h-5" />
                   </Button>
                 </div>
               </CardHeader>
 
               <CardContent className="p-0">
                 {/* Messages Area */}
-                <div className="h-[400px] overflow-y-auto p-4 space-y-4 bg-gradient-to-b from-gray-50 to-white">
+                <div className="h-[350px] sm:h-[400px] overflow-y-auto p-3 sm:p-4 space-y-3 sm:space-y-4 bg-muted/30">
                   {messages.map((message) => (
                     <motion.div
                       key={message.id}
@@ -178,16 +178,16 @@ export function ChatbotAssistant() {
                       className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
                     >
                       <div
-                        className={`max-w-[85%] rounded-2xl px-4 py-2.5 ${
+                        className={`max-w-[85%] rounded-2xl px-3 sm:px-4 py-2 sm:py-2.5 ${
                           message.role === 'user'
                             ? 'bg-gradient-to-br from-green-600 to-emerald-600 text-white'
                             : 'bg-white border border-gray-200 text-gray-900 shadow-sm'
                         }`}
                       >
-                        <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
+                        <p className="text-xs sm:text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
                         <p
                           className={`text-xs mt-1 ${
-                            message.role === 'user' ? 'text-white/70' : 'text-gray-500'
+                            message.role === 'user' ? 'text-primary-foreground/70' : 'text-muted-foreground'
                           }`}
                         >
                           {message.timestamp.toLocaleTimeString([], {
@@ -205,10 +205,10 @@ export function ChatbotAssistant() {
                       animate={{ opacity: 1, y: 0 }}
                       className="flex justify-start"
                     >
-                      <div className="bg-white border border-gray-200 rounded-2xl px-4 py-3 shadow-sm">
+                      <div className="bg-card border rounded-2xl px-3 sm:px-4 py-2 sm:py-3 shadow-sm">
                         <div className="flex items-center gap-2">
                           <Loader2 className="w-4 h-4 animate-spin text-primary" />
-                          <span className="text-sm text-gray-600">Thinking...</span>
+                          <span className="text-xs sm:text-sm text-muted-foreground">Thinking...</span>
                         </div>
                       </div>
                     </motion.div>
@@ -218,7 +218,7 @@ export function ChatbotAssistant() {
                 </div>
 
                 {/* Input Area */}
-                <div className="p-4 bg-white border-t border-gray-200">
+                <div className="p-3 sm:p-4 bg-card border-t">
                   <div className="flex gap-2">
                     <Input
                       value={input}
@@ -226,7 +226,7 @@ export function ChatbotAssistant() {
                       onKeyPress={handleKeyPress}
                       placeholder="Ask me anything..."
                       disabled={isLoading}
-                      className="flex-1 border-gray-300 focus:border-primary"
+                      className="flex-1 text-sm"
                     />
                     <Button
                       onClick={handleSend}
@@ -236,7 +236,7 @@ export function ChatbotAssistant() {
                       <Send className="w-4 h-4" />
                     </Button>
                   </div>
-                  <p className="text-xs text-gray-500 mt-2 text-center">
+                  <p className="text-xs text-muted-foreground mt-2 text-center">
                     Ask about card recommendations, rewards optimization, or budgeting tips
                   </p>
                 </div>

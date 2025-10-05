@@ -326,7 +326,7 @@ export function CreditCardManagementPage() {
       className="group h-full"
     >
       <Card 
-        className="h-full transition-all duration-200 hover:shadow-lg flex flex-col cursor-pointer" 
+        className="h-full transition-all duration-200 hover:shadow-lg flex flex-col cursor-pointer bg-white" 
         onClick={() => handleCardClick(card)}
       >
         <CardHeader className="pb-3">
@@ -764,7 +764,7 @@ export function CreditCardManagementPage() {
 
       {/* Card Detail Modal */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-white">
           {selectedCard && (
             <>
               <DialogHeader>
@@ -804,8 +804,8 @@ export function CreditCardManagementPage() {
                         <div key={category} className="bg-muted rounded-lg p-4">
                           <div className="flex items-start justify-between">
                             <div className="flex-1">
-                              <p className="text-sm text-muted-foreground capitalize mb-1">{category}</p>
-                              <p className="text-2xl font-bold">{rate}%</p>
+                              <p className="text-sm text-muted-foreground capitalize mb-1">{category.replace(/_/g, ' ')}</p>
+                              <p className="text-2xl font-bold">{formatRewardRate(rate)}</p>
                             </div>
                             <TrendingUp className="w-5 h-5 text-primary mt-1" />
                           </div>

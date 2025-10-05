@@ -206,8 +206,8 @@ export function DashboardPage() {
                   <TestTube className="w-5 h-5 text-white" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-medium text-gray-900 mb-1 text-sm sm:text-base">Test Smart Notifications</p>
-                  <p className="text-xs sm:text-sm text-gray-600">
+                  <p className="font-medium mb-1 text-sm sm:text-base">Test Smart Notifications</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground">
                     Trigger a notification instantly using your current location
                   </p>
                 </div>

@@ -184,7 +184,7 @@ export function RecommendedCards({
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.1 }}
     >
-      <Card className="shadow-sm overflow-hidden">
+      <Card className="shadow-sm overflow-hidden bg-white">
         <CardHeader>
           <div className="flex items-center justify-between flex-wrap gap-4">
             <div className="flex items-center gap-2 sm:gap-3">
@@ -244,9 +244,9 @@ export function RecommendedCards({
                       className="flex-[0_0_280px] sm:flex-[0_0_320px] min-w-0"
                       onClick={() => onCardClick?.(card)}
                     >
-                      <Card className={`h-full border-2 transition-all hover:shadow-lg ${
+                      <Card className={`h-full border-2 transition-all hover:shadow-lg bg-white ${
                         !isOwned 
-                          ? 'border-primary bg-primary/5' 
+                          ? 'border-primary' 
                           : 'border-muted-foreground/20 opacity-75'
                       } ${onCardClick ? 'cursor-pointer' : ''}`}>
                         <CardHeader className="pb-3">
