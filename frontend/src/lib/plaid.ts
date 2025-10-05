@@ -1,31 +1,17 @@
 /**
- * Plaid Sandbox Integration
+ * Plaid Integration via Backend Server
  * Based on: https://plaid.com/docs/sandbox/
  * 
  * Sandbox credentials: user_good / pass_good
+ * 
+ * NOTE: All Plaid API calls go through the backend server for security.
+ * The backend server handles the Plaid API credentials.
  */
 
 import axios from 'axios';
 
-const PLAID_ENV = import.meta.env.VITE_PLAID_ENV || 'sandbox';
-const PLAID_CLIENT_ID = import.meta.env.VITE_PLAID_CLIENT_ID || '';
-const PLAID_SECRET = import.meta.env.VITE_PLAID_SECRET || '';
-
-// Plaid Sandbox endpoint
-const PLAID_API_URL = 'https://sandbox.plaid.com';
-
-interface PlaidConfig {
-  client_id: string;
-  secret: string;
-  client_name: string;
-  country_codes: string[];
-  language: string;
-  user: {
-    client_user_id: string;
-  };
-  products: string[];
-  redirect_uri?: string;
-}
+// Backend API URL
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
 
 /**
  * Create a Link token for Plaid Link
@@ -33,24 +19,15 @@ interface PlaidConfig {
  */
 export async function createLinkToken(userId: string): Promise<string> {
   try {
-    const response = await axios.post(`${PLAID_API_URL}/link/token/create`, {
-      client_id: PLAID_CLIENT_ID,
-      secret: PLAID_SECRET,
-      client_name: 'SwipeRight',
-      user: {
-        client_user_id: userId,
-      },
-      products: ['auth', 'transactions'],
-      country_codes: ['US'],
-      language: 'en',
-      webhook: '', // Optional: Add your webhook URL here
-      redirect_uri: window.location.origin, // For OAuth flow
+    const response = await axios.post(`${BACKEND_URL}/api/plaid/create_link_token`, {
+      userId: userId,
     });
 
     return response.data.link_token;
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error creating link token:', error);
-    throw new Error('Failed to create Plaid link token');
+    const errorMsg = error.response?.data?.error || 'Failed to create Plaid link token';
+    throw new Error(`${errorMsg}. Make sure your backend server is running on ${BACKEND_URL}`);
   }
 }
 
@@ -60,9 +37,7 @@ export async function createLinkToken(userId: string): Promise<string> {
  */
 export async function exchangePublicToken(publicToken: string) {
   try {
-    const response = await axios.post(`${PLAID_API_URL}/item/public_token/exchange`, {
-      client_id: PLAID_CLIENT_ID,
-      secret: PLAID_SECRET,
+    const response = await axios.post(`${BACKEND_URL}/api/plaid/exchange_public_token`, {
       public_token: publicToken,
     });
 
@@ -81,9 +56,7 @@ export async function exchangePublicToken(publicToken: string) {
  */
 export async function getBalance(accessToken: string) {
   try {
-    const response = await axios.post(`${PLAID_API_URL}/accounts/balance/get`, {
-      client_id: PLAID_CLIENT_ID,
-      secret: PLAID_SECRET,
+    const response = await axios.post(`${BACKEND_URL}/api/plaid/balance`, {
       access_token: accessToken,
     });
 
@@ -102,16 +75,10 @@ export async function getTransactions(accessToken: string, startDate?: string, e
   const end = endDate || new Date().toISOString().split('T')[0];
 
   try {
-    const response = await axios.post(`${PLAID_API_URL}/transactions/get`, {
-      client_id: PLAID_CLIENT_ID,
-      secret: PLAID_SECRET,
+    const response = await axios.post(`${BACKEND_URL}/api/plaid/transactions`, {
       access_token: accessToken,
       start_date: start,
       end_date: end,
-      options: {
-        count: 250,
-        offset: 0,
-      },
     });
 
     return {
@@ -125,54 +92,6 @@ export async function getTransactions(accessToken: string, startDate?: string, e
   }
 }
 
-/**
- * SANDBOX ONLY: Create a public token directly (bypass Link UI)
- * Useful for automated testing
- * Reference: https://plaid.com/docs/sandbox/#bypassing-link
- */
-export async function createSandboxPublicToken(
-  institutionId: string = 'ins_109508', // Chase
-  initialProducts: string[] = ['auth', 'transactions'],
-  options?: {
-    webhook?: string;
-    override_username?: string;
-    override_password?: string;
-  }
-) {
-  try {
-    const response = await axios.post(`${PLAID_API_URL}/sandbox/public_token/create`, {
-      client_id: PLAID_CLIENT_ID,
-      secret: PLAID_SECRET,
-      institution_id: institutionId,
-      initial_products: initialProducts,
-      options: options || {},
-    });
-
-    return response.data.public_token;
-  } catch (error) {
-    console.error('Error creating sandbox public token:', error);
-    throw new Error('Failed to create sandbox public token');
-  }
-}
-
-/**
- * SANDBOX ONLY: Reset login for testing update mode
- * Reference: https://plaid.com/docs/sandbox/#itemloginrequired
- */
-export async function resetItemLogin(accessToken: string) {
-  try {
-    const response = await axios.post(`${PLAID_API_URL}/sandbox/item/reset_login`, {
-      client_id: PLAID_CLIENT_ID,
-      secret: PLAID_SECRET,
-      access_token: accessToken,
-    });
-
-    return response.data;
-  } catch (error) {
-    console.error('Error resetting item login:', error);
-    throw new Error('Failed to reset item login');
-  }
-}
 
 /**
  * Calculate spending by category from transactions

@@ -32,7 +32,7 @@ npm install --legacy-peer-deps
 
 ### 2. Configure Auth0
 - Create **Single Page Application** at [auth0.com](https://auth0.com)
-- Add callback URL: `http://localhost:3000`
+- Add callback URL: `http://localhost:5173`
 
 ### 3. Get Mapbox Token
 - Sign up at [mapbox.com](https://www.mapbox.com/)
@@ -42,9 +42,10 @@ npm install --legacy-peer-deps
 ```env
 VITE_AUTH0_DOMAIN=your-tenant.auth0.com
 VITE_AUTH0_CLIENT_ID=your-client-id
-VITE_AUTH0_REDIRECT_URI=http://localhost:3000
+VITE_AUTH0_REDIRECT_URI=http://localhost:5173
 VITE_MAPBOX_TOKEN=your-mapbox-token
 VITE_GEMINI_API_KEY=optional-gemini-key
+VITE_BACKEND_URL=http://localhost:3000
 ```
 
 ### 5. Run
@@ -52,7 +53,7 @@ VITE_GEMINI_API_KEY=optional-gemini-key
 npm run dev
 ```
 
-Open http://localhost:3000
+Open http://localhost:5173
 
 ## 🎯 Demo Flow
 
