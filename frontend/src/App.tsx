@@ -10,6 +10,7 @@ import { RecommendationsPage } from './pages/RecommendationsPage'
 import { ProfilePage } from './pages/ProfilePage'
 import { Loading } from './components/common/Loading'
 import { Toaster } from './components/ui/toaster'
+import { ChatbotAssistant } from './components/chatbot/ChatbotAssistant'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -35,6 +36,8 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 }
 
 function App() {
+  const { isAuthenticated } = useAuth0()
+
   return (
     <QueryClientProvider client={queryClient}>
       <Routes>
@@ -89,6 +92,7 @@ function App() {
         />
       </Routes>
       <Toaster />
+      {isAuthenticated && <ChatbotAssistant />}
     </QueryClientProvider>
   )
 }

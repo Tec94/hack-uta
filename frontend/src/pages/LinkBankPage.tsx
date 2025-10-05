@@ -19,6 +19,7 @@ export function LinkBankPage() {
   const { user } = useAuth0();
   const navigate = useNavigate();
   const [linkToken, setLinkToken] = useState<string | null>(null);
+  // @ts-ignore - loading state used for future loading indicators
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [step, setStep] = useState<'setup' | 'connecting' | 'processing' | 'success'>('setup');
