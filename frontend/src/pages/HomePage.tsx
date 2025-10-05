@@ -101,17 +101,18 @@ export function HomePage() {
           </motion.div>
 
           <h1 className="text-5xl md:text-7xl font-bold text-gray-900 mb-6 leading-tight">
-            Maximize Every{' '}
-            <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-              Purchase
-            </span>
+            Maximize Every Purchase with
             <br />
-            with SwipeRight
+            <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+              CardWise
+            </span>
           </h1>
 
           <p className="text-xl md:text-2xl text-gray-600 mb-10 leading-relaxed max-w-3xl mx-auto">
             Stop leaving money on the table. Get instant, AI-powered credit card recommendations 
-            based on your location and spending patterns. <span className="font-semibold text-primary">Make every swipe count.</span>
+            based on your location and spending patterns.
+            <br />
+            <span className="font-semibold text-primary">Make every swipe count.</span>
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
