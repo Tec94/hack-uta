@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState } from 'react';
-import mapboxgl from 'mapbox-gl';
-import { Merchant, UserLocation } from '@/types';
-import { getCategoryIcon } from '@/lib/utils';
-import 'mapbox-gl/dist/mapbox-gl.css';
+import { useEffect, useRef, useState } from "react";
+import mapboxgl from "mapbox-gl";
+import { Merchant, UserLocation } from "@/types";
+import { getCategoryIcon } from "@/lib/utils";
+import "mapbox-gl/dist/mapbox-gl.css";
 
 interface InteractiveMapProps {
   userLocation: UserLocation;
@@ -15,7 +15,7 @@ export function InteractiveMap({
   userLocation,
   merchants,
   onMerchantSelect,
-  className = '',
+  className = "",
 }: InteractiveMapProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
@@ -26,7 +26,7 @@ export function InteractiveMap({
 
     const mapboxToken = import.meta.env.VITE_MAPBOX_TOKEN;
     if (!mapboxToken) {
-      console.error('Mapbox token not found');
+      console.error("Mapbox token not found");
       return;
     }
 
@@ -34,25 +34,27 @@ export function InteractiveMap({
 
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
-      style: 'mapbox://styles/mapbox/streets-v12',
+      style: "mapbox://styles/mapbox/streets-v12",
       center: [userLocation.lng, userLocation.lat],
-      zoom: 15.4,
+      zoom: 15,
       scrollZoom: false,
+      boxZoom: false,
       doubleClickZoom: false,
       touchZoomRotate: false,
       dragRotate: false,
-      boxZoom: false,
     });
 
-    map.current.on('load', () => {
+    map.current.on("load", () => {
       setMapLoaded(true);
     });
 
     // Add user location marker
-    new mapboxgl.Marker({ color: '#3b82f6' })
+    new mapboxgl.Marker({ color: "#3b82f6" })
       .setLngLat([userLocation.lng, userLocation.lat])
       .setPopup(
-        new mapboxgl.Popup().setHTML('<div class="p-2"><strong>Your Location</strong></div>')
+        new mapboxgl.Popup().setHTML(
+          '<div class="p-2"><strong>Your Location</strong></div>'
+        )
       )
       .addTo(map.current);
 
@@ -70,19 +72,19 @@ export function InteractiveMap({
     // Add merchant markers
     merchants.forEach((merchant) => {
       const icon = getCategoryIcon(merchant.category);
-      
-      const el = document.createElement('div');
-      el.className = 'merchant-marker';
+
+      const el = document.createElement("div");
+      el.className = "merchant-marker";
       el.style.backgroundColor = getCategoryColor(merchant.category);
-      el.style.width = '30px';
-      el.style.height = '30px';
-      el.style.borderRadius = '50%';
-      el.style.display = 'flex';
-      el.style.alignItems = 'center';
-      el.style.justifyContent = 'center';
-      el.style.cursor = 'pointer';
-      el.style.border = '2px solid white';
-      el.style.boxShadow = '0 2px 4px rgba(0,0,0,0.2)';
+      el.style.width = "30px";
+      el.style.height = "30px";
+      el.style.borderRadius = "50%";
+      el.style.display = "flex";
+      el.style.alignItems = "center";
+      el.style.justifyContent = "center";
+      el.style.cursor = "pointer";
+      el.style.border = "2px solid white";
+      el.style.boxShadow = "0 2px 4px rgba(0,0,0,0.2)";
       el.textContent = icon;
 
       new mapboxgl.Marker(el)
@@ -92,14 +94,22 @@ export function InteractiveMap({
             <div class="p-3">
               <strong class="text-base">${merchant.name}</strong>
               <p class="text-sm text-gray-600 mt-1">${merchant.category}</p>
-              ${merchant.address ? `<p class="text-xs text-gray-500 mt-1">${merchant.address}</p>` : ''}
-              ${merchant.estimatedSpend ? `<p class="text-xs text-gray-700 mt-2">Est: $${merchant.estimatedSpend}</p>` : ''}
+              ${
+                merchant.address
+                  ? `<p class="text-xs text-gray-500 mt-1">${merchant.address}</p>`
+                  : ""
+              }
+              ${
+                merchant.estimatedSpend
+                  ? `<p class="text-xs text-gray-700 mt-2">Est: $${merchant.estimatedSpend}</p>`
+                  : ""
+              }
             </div>
           `)
         )
         .addTo(map.current!);
 
-      el.addEventListener('click', () => {
+      el.addEventListener("click", () => {
         if (onMerchantSelect) {
           onMerchantSelect(merchant);
         }
@@ -117,13 +127,12 @@ export function InteractiveMap({
 
 function getCategoryColor(category: string): string {
   const colors: Record<string, string> = {
-    dining: '#ef4444',
-    gas: '#f59e0b',
-    groceries: '#10b981',
-    travel: '#3b82f6',
-    shopping: '#8b5cf6',
-    entertainment: '#ec4899',
+    dining: "#ef4444",
+    gas: "#f59e0b",
+    groceries: "#10b981",
+    travel: "#3b82f6",
+    shopping: "#8b5cf6",
+    entertainment: "#ec4899",
   };
-  return colors[category.toLowerCase()] || '#6b7280';
+  return colors[category.toLowerCase()] || "#6b7280";
 }
-

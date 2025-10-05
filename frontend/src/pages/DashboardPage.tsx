@@ -198,16 +198,16 @@ export function DashboardPage() {
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-lg p-3 sm:p-4"
+            className="bg-muted border rounded-lg p-3 sm:p-4"
           >
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
               <div className="flex items-start gap-3 flex-1">
-                <div className="w-10 h-10 sm:w-10 sm:h-10 bg-purple-500 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <TestTube className="w-5 h-5 text-white" />
+                <div className="w-10 h-10 sm:w-10 sm:h-10 bg-primary rounded-lg flex items-center justify-center flex-shrink-0">
+                  <TestTube className="w-5 h-5 text-primary-foreground" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-medium text-gray-900 mb-1 text-sm sm:text-base">Test Smart Notifications</p>
-                  <p className="text-xs sm:text-sm text-gray-600">
+                  <p className="font-medium mb-1 text-sm sm:text-base">Test Smart Notifications</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground">
                     Trigger a notification instantly using your current location
                   </p>
                 </div>
@@ -215,7 +215,7 @@ export function DashboardPage() {
               <Button
                 onClick={handleTestNotification}
                 size="sm"
-                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 w-full sm:w-auto flex-shrink-0"
+                className="w-full sm:w-auto flex-shrink-0"
               >
                 <TestTube className="w-4 h-4 mr-2" />
                 Test Now
