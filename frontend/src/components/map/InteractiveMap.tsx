@@ -36,15 +36,17 @@ export function InteractiveMap({
       container: mapContainer.current,
       style: 'mapbox://styles/mapbox/streets-v12',
       center: [userLocation.lng, userLocation.lat],
-      zoom: 13,
+      zoom: 15.4,
+      scrollZoom: false,
+      doubleClickZoom: false,
+      touchZoomRotate: false,
+      dragRotate: false,
+      boxZoom: false,
     });
 
     map.current.on('load', () => {
       setMapLoaded(true);
     });
-
-    // Add navigation controls
-    map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
 
     // Add user location marker
     new mapboxgl.Marker({ color: '#3b82f6' })
