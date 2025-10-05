@@ -303,7 +303,6 @@ export function ChooseYourCardPage() {
                 onClick={handleSubmit}
                 disabled={isSubmitting}
                 className="flex-1 text-base sm:text-lg"
-                size="lg"
               >
                 {isSubmitting ? (
                   <>

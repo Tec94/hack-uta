@@ -533,46 +533,19 @@ export function DashboardPage() {
 
         {/* Monthly Budget Breakdown */}
         {budget && (
-          <div className="space-y-4">
-            <div className="flex justify-end">
-              <Button
-                onClick={linkedBank ? refreshSpending : () => navigate('/onboarding/link-bank')}
-                disabled={spendingLoading}
-                variant="outline"
-                size="sm"
-              >
-                {spendingLoading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Updating...
-                  </>
-                ) : linkedBank ? (
-                  <>
-                    <RefreshCw className="w-4 h-4 mr-2" />
-                    Refresh Spending
-                  </>
-                ) : (
-                  <>
-                    <RefreshCw className="w-4 h-4 mr-2" />
-                    Link Bank to Track Spending
-                  </>
-                )}
-              </Button>
-            </div>
-            <MonthlyBudgetBreakdown
-              budget={budget}
-              spending={spending}
-              title={linkedBank ? "Current Month Spending vs Budget" : "Monthly Budget Breakdown"}
-              description={linkedBank ? "Track your progress this month" : "View and track your spending categories"}
-              showTotal={true}
-              actionButton={{
-                label: 'Manage',
-                icon: <Edit className="w-4 h-4 mr-2" />,
-                onClick: () => navigate('/budget')
-              }}
-              animationDelay={0.3}
-            />
-          </div>
+          <MonthlyBudgetBreakdown
+            budget={budget}
+            spending={spending}
+            title={linkedBank ? "Current Month Spending vs Budget" : "Monthly Budget Breakdown"}
+            description={linkedBank ? "Track your progress this month" : "View and track your spending categories"}
+            showTotal={true}
+            actionButton={{
+              label: 'Manage',
+              icon: <Edit className="w-4 h-4 mr-2" />,
+              onClick: () => navigate('/budget')
+            }}
+            animationDelay={0.3}
+          />
         )}
       </div>
 
