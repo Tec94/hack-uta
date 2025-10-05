@@ -56,7 +56,7 @@ export function ProfilePage() {
             </p>
             <Badge variant="secondary" className="bg-white/20 text-white border-white/30 backdrop-blur-sm">
               <Sparkles className="w-3 h-3 mr-1" />
-              Premium Member
+              Testing Member
             </Badge>
           </motion.div>
         </div>
