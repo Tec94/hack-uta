@@ -4,7 +4,7 @@ import { useAuth0 } from '@auth0/auth0-react'
 import { HomePage } from './pages/HomePage'
 import { OnboardingChoice } from './pages/OnboardingChoice'
 import { LinkBankPage } from './pages/LinkBankPage'
-import { ManualSetupPage } from './pages/ManualSetupPage'
+import { ManualSetupPage } from './pages/BudgetSetup'
 import { DashboardPage } from './pages/DashboardPage'
 import { RecommendationsPage } from './pages/RecommendationsPage'
 import { ProfilePage } from './pages/ProfilePage'
@@ -56,7 +56,7 @@ function App() {
           }
         />
         <Route
-          path="/onboarding/manual-setup"
+          path="/onboarding/budget-setup"
           element={
             <ProtectedRoute>
               <ManualSetupPage />

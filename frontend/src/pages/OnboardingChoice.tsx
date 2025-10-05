@@ -111,7 +111,7 @@ export function OnboardingChoice() {
                   ))}
                 </ul>
                 <Button
-                  onClick={() => navigate('/onboarding/manual-setup')}
+                  onClick={() => navigate('/onboarding/budget-setup')}
                   className="w-full"
                   size="lg"
                   variant="outline"

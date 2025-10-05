@@ -12,6 +12,15 @@ import { Mail, CreditCard, DollarSign, LogOut, Settings, Shield, Bell, HelpCircl
 import { formatCurrency } from '@/lib/utils'
 import { motion } from 'framer-motion'
 
+const categoryInfo: Record<string, { label: string; icon: string; group: string }> = {
+  groceries: { label: 'Groceries', icon: '🛒', group: 'Essential' },
+  gas: { label: 'Gas & Transportation', icon: '⛽', group: 'Essential' },
+  dining: { label: 'Dining & Restaurants', icon: '🍽️', group: 'Lifestyle' },
+  shopping: { label: 'Shopping & Retail', icon: '🛍️', group: 'Lifestyle' },
+  entertainment: { label: 'Entertainment', icon: '🎬', group: 'Lifestyle' },
+  travel: { label: 'Travel & Hotels', icon: '✈️', group: 'Lifestyle' },
+}
+
 export function ProfilePage() {
   const { user, logout } = useAuth0()
   const navigate = useNavigate()
@@ -53,36 +62,7 @@ export function ProfilePage() {
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 -mt-12 relative z-10 space-y-6">
-        {/* Quick Stats */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="grid grid-cols-3 gap-4"
-        >
-          <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
-            <CardContent className="pt-6 text-center">
-              <DollarSign className="w-8 h-8 mx-auto mb-2 text-green-600" />
-              <p className="text-2xl font-bold text-gray-900">${totalMonthlySpending}</p>
-              <p className="text-sm text-muted-foreground">Monthly Budget</p>
-            </CardContent>
-          </Card>
-          <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
-            <CardContent className="pt-6 text-center">
-              <Award className="w-8 h-8 mx-auto mb-2 text-purple-600" />
-              <p className="text-2xl font-bold text-gray-900">12</p>
-              <p className="text-sm text-muted-foreground">Tracked Cards</p>
-            </CardContent>
-          </Card>
-          <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
-            <CardContent className="pt-6 text-center">
-              <TrendingUp className="w-8 h-8 mx-auto mb-2 text-blue-600" />
-              <p className="text-2xl font-bold text-gray-900">3.2x</p>
-              <p className="text-sm text-muted-foreground">Avg. Rewards</p>
-            </CardContent>
-          </Card>
-        </motion.div>
-
+      <div className="max-w-4xl mx-auto px-4 -mt-8 relative z-10 space-y-6">
         {/* Account Info */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -156,33 +136,74 @@ export function ProfilePage() {
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-4">
-                {Object.entries(budget)
-                  .sort((a, b) => b[1] - a[1])
-                  .map(([category, amount], index) => {
-                    const percentage = (amount / totalMonthlySpending) * 100
-                    const colors = ['bg-blue-500', 'bg-purple-500', 'bg-pink-500', 'bg-indigo-500', 'bg-green-500', 'bg-orange-500']
-                    return (
-                      <motion.div
-                        key={category}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.3 + index * 0.05 }}
-                      >
-                        <div className="flex justify-between items-center mb-2">
-                          <div className="flex items-center gap-2">
-                            <div className={`w-3 h-3 rounded-full ${colors[index % colors.length]}`}></div>
-                            <span className="text-sm font-medium capitalize">{category}</span>
-                          </div>
-                          <div className="flex items-center gap-3">
-                            <span className="text-xs text-muted-foreground">{percentage.toFixed(0)}%</span>
-                            <span className="text-sm font-bold">{formatCurrency(amount)}</span>
-                          </div>
-                        </div>
-                        <Progress value={percentage} className="h-2" />
-                      </motion.div>
-                    )
-                  })}
+              <CardContent>
+                {/* Essential Expenses */}
+                <div className="mb-6">
+                  <h3 className="text-sm font-semibold text-gray-700 mb-3">Essential Expenses</h3>
+                  <div className="space-y-3">
+                    {Object.entries(budget)
+                      .filter(([cat]) => categoryInfo[cat]?.group === 'Essential')
+                      .sort((a, b) => b[1] - a[1])
+                      .map(([category, amount], index) => {
+                        const percentage = (amount / totalMonthlySpending) * 100
+                        const info = categoryInfo[category]
+                        return (
+                          <motion.div
+                            key={category}
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.3 + index * 0.05 }}
+                          >
+                            <div className="flex justify-between items-center mb-2">
+                              <div className="flex items-center gap-2">
+                                <span className="text-lg">{info.icon}</span>
+                                <span className="text-sm font-medium">{info.label}</span>
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <span className="text-xs text-muted-foreground">{percentage.toFixed(0)}%</span>
+                                <span className="text-sm font-bold">{formatCurrency(amount)}</span>
+                              </div>
+                            </div>
+                            <Progress value={percentage} className="h-2" />
+                          </motion.div>
+                        )
+                      })}
+                  </div>
+                </div>
+
+                {/* Lifestyle & Discretionary */}
+                <div className="mb-6">
+                  <h3 className="text-sm font-semibold text-gray-700 mb-3">Lifestyle & Discretionary</h3>
+                  <div className="space-y-3">
+                    {Object.entries(budget)
+                      .filter(([cat]) => categoryInfo[cat]?.group === 'Lifestyle')
+                      .sort((a, b) => b[1] - a[1])
+                      .map(([category, amount], index) => {
+                        const percentage = (amount / totalMonthlySpending) * 100
+                        const info = categoryInfo[category]
+                        return (
+                          <motion.div
+                            key={category}
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.4 + index * 0.05 }}
+                          >
+                            <div className="flex justify-between items-center mb-2">
+                              <div className="flex items-center gap-2">
+                                <span className="text-lg">{info.icon}</span>
+                                <span className="text-sm font-medium">{info.label}</span>
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <span className="text-xs text-muted-foreground">{percentage.toFixed(0)}%</span>
+                                <span className="text-sm font-bold">{formatCurrency(amount)}</span>
+                              </div>
+                            </div>
+                            <Progress value={percentage} className="h-2" />
+                          </motion.div>
+                        )
+                      })}
+                  </div>
+                </div>
 
                 <Separator className="my-6" />
                 
