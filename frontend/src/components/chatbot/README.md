@@ -31,7 +31,7 @@ An intelligent chatbot assistant powered by Google's Gemini API that helps users
 - Responsive design for mobile and desktop
 
 #### API Integration
-- Uses Gemini Pro model for intelligent responses
+- Uses Gemini 2.5 Flash model for intelligent responses
 - Includes user budget context in prompts
 - Maintains last 5 messages for conversation context
 - Graceful fallback when API is unavailable

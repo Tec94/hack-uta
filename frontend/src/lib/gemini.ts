@@ -14,7 +14,7 @@ export async function getLocationBasedRecommendation(
   }
 
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
     const prompt = `
 You are a credit card rewards optimization expert. A user is currently at ${merchant.name}, which is a ${merchant.category} establishment.
@@ -53,7 +53,7 @@ export async function getProfileBasedRecommendations(
   }
 
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
     const prompt = `
 You are a credit card rewards optimization expert. Analyze this user's spending profile and recommend the top 3 credit cards they should consider applying for.
@@ -126,7 +126,7 @@ export async function getChatbotResponse(
   }
 
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
     // Build context from conversation history (last 5 messages)
     const recentHistory = conversationHistory.slice(-5);
