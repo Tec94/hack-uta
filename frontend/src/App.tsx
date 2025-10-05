@@ -10,6 +10,7 @@ import { ChooseYourCardPage } from './pages/ChooseYourCard'
 import { CreditCardManagementPage } from './pages/CreditCardManagement'
 import { DashboardPage } from './pages/DashboardPage'
 import { ProfilePage } from './pages/ProfilePage'
+import { BudgetManagementPage } from './pages/BudgetManagementPage'
 import { Loading } from './components/common/Loading'
 import { Toaster } from './components/ui/toaster'
 import { ChatbotAssistant } from './components/chatbot/ChatbotAssistant'
@@ -98,6 +99,7 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
+<<<<<<< Updated upstream
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route
@@ -164,6 +166,84 @@ function App() {
           <SmartNotificationProvider />
         </>
       )}
+=======
+      <NotificationProvider>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route
+            path="/onboarding/choice"
+            element={
+              <ProtectedRoute>
+                <OnboardingChoice />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/onboarding/link-bank"
+            element={
+              <ProtectedRoute>
+                <LinkBankPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/onboarding/choose-card"
+            element={
+              <ProtectedRoute>
+                <ChooseYourCardPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/onboarding/budget-setup"
+            element={
+              <ProtectedRoute>
+                <ManualSetupPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/cards"
+            element={
+              <ProtectedRoute>
+                <CreditCardManagementPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <DashboardPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <ProfilePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/budget"
+            element={
+              <ProtectedRoute>
+                <BudgetManagementPage />
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+        <Toaster />
+        {isAuthenticated && (
+          <>
+            <ChatbotAssistant />
+            <SmartNotificationProvider />
+          </>
+        )}
+      </NotificationProvider>
+>>>>>>> Stashed changes
     </QueryClientProvider>
   )
 }

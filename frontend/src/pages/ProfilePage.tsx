@@ -243,9 +243,9 @@ export function ProfilePage() {
 
                 <Separator className="my-6" />
                 
-                <Button variant="outline" className="w-full" size="lg">
+                <Button variant="outline" className="w-full" size="lg" onClick={() => navigate('/budget')}>
                   <Settings className="w-4 h-4 mr-2" />
-                  Update Budget Categories
+                  Manage Budget
                 </Button>
               </CardContent>
             </Card>
