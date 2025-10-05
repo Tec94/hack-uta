@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth0 } from '@auth0/auth0-react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
@@ -24,7 +24,9 @@ import {
   Filter,
   Sparkles,
   Star,
-  Loader2
+  Loader2,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 
@@ -54,6 +56,8 @@ export function CreditCardManagementPage() {
   // Modal state
   const [selectedCard, setSelectedCard] = useState<ApiCreditCard | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  // Card stack state
+  const [currentStackIndex, setCurrentStackIndex] = useState(0)
 
   useEffect(() => {
     fetchCards()
@@ -160,6 +164,11 @@ export function CreditCardManagementPage() {
 
   const myCards = allCards.filter(card => currentCards.includes(card.id))
   const availableCards = allCards.filter(card => !currentCards.includes(card.id))
+
+  // Reset stack index when cards change
+  useEffect(() => {
+    setCurrentStackIndex(0)
+  }, [myCards.length])
 
   const handleAddCard = async (cardId: string) => {
     if (!user?.sub) {
@@ -445,6 +454,257 @@ export function CreditCardManagementPage() {
     </motion.div>
   )
 
+  // Card Stack Component
+  const CardStack = ({ cards, origins }: { cards: ApiCreditCard[], origins: Record<string, 'manual' | 'bank'> }) => {
+    const [dragStart, setDragStart] = useState(0)
+    const [dragOffset, setDragOffset] = useState(0)
+    const [isDraggingStack, setIsDraggingStack] = useState(false)
+    const containerRef = useRef<HTMLDivElement>(null)
+    
+    const handleDragStart = (event: React.MouseEvent | React.TouchEvent) => {
+      event.preventDefault()
+      setIsDraggingStack(true)
+      const clientX = 'touches' in event ? event.touches[0].clientX : event.clientX
+      setDragStart(clientX)
+    }
+
+    const handleDragMove = (event: React.MouseEvent | React.TouchEvent) => {
+      if (!isDraggingStack) return
+      event.preventDefault()
+      const clientX = 'touches' in event ? event.touches[0].clientX : event.clientX
+      const delta = clientX - dragStart
+      setDragOffset(delta)
+    }
+
+    const handleDragEnd = () => {
+      if (!isDraggingStack) return
+      setIsDraggingStack(false)
+      
+      // Much more sensitive threshold - only 50px needed
+      const threshold = 50
+      if (Math.abs(dragOffset) > threshold) {
+        if (dragOffset > 0 && currentStackIndex > 0) {
+          setCurrentStackIndex(currentStackIndex - 1)
+        } else if (dragOffset < 0 && currentStackIndex < cards.length - 1) {
+          setCurrentStackIndex(currentStackIndex + 1)
+        }
+      }
+      setDragOffset(0)
+    }
+
+    const nextCard = () => {
+      if (currentStackIndex < cards.length - 1) {
+        setCurrentStackIndex(currentStackIndex + 1)
+      }
+    }
+
+    const prevCard = () => {
+      if (currentStackIndex > 0) {
+        setCurrentStackIndex(currentStackIndex - 1)
+      }
+    }
+
+    if (cards.length === 0) return null
+
+    return (
+      <div className="relative w-full max-w-sm mx-auto">
+        {/* Card Stack Container */}
+        <div 
+          ref={containerRef}
+          className={`relative h-64 w-full cursor-grab active:cursor-grabbing select-none transition-all duration-200 ${
+            isDraggingStack ? 'scale-105' : 'scale-100'
+          }`}
+          onMouseDown={handleDragStart}
+          onMouseMove={handleDragMove}
+          onMouseUp={handleDragEnd}
+          onMouseLeave={handleDragEnd}
+          onTouchStart={handleDragStart}
+          onTouchMove={handleDragMove}
+          onTouchEnd={handleDragEnd}
+          style={{ touchAction: 'pan-y' }}
+        >
+          {cards.map((card, index) => {
+            const isActive = index === currentStackIndex
+            const isNext = index === currentStackIndex + 1
+            const isPrev = index === currentStackIndex - 1
+            const isVisible = isActive || isNext || isPrev || Math.abs(index - currentStackIndex) <= 2
+
+            if (!isVisible) return null
+
+            const offset = index - currentStackIndex
+            const scale = isActive ? 1 : 0.95 - Math.abs(offset) * 0.05
+            const y = isActive ? 0 : Math.abs(offset) * 8
+            const zIndex = cards.length - Math.abs(offset)
+            const opacity = isActive ? 1 : 0.8 - Math.abs(offset) * 0.2
+            // More responsive rotation and movement
+            const rotate = isActive ? dragOffset * 0.15 : offset * 2
+            const x = isActive ? dragOffset * 0.5 : 0
+
+            return (
+              <motion.div
+                key={card.id}
+                className="absolute inset-0"
+                style={{ zIndex }}
+                animate={{
+                  scale,
+                  y,
+                  rotate,
+                  opacity,
+                  x,
+                }}
+                transition={{
+                  type: "spring",
+                  stiffness: 400,
+                  damping: 25,
+                  mass: 0.8,
+                }}
+                onClick={() => !isDraggingStack && handleCardClick(card)}
+              >
+                <Card className="h-full w-full bg-gradient-to-br from-primary to-primary/80 text-primary-foreground shadow-2xl border-0 overflow-hidden">
+                  {/* Card Background Pattern */}
+                  <div className="absolute inset-0 opacity-10">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-white rounded-full -translate-y-16 translate-x-16" />
+                    <div className="absolute bottom-0 left-0 w-24 h-24 bg-white rounded-full translate-y-12 -translate-x-12" />
+                  </div>
+                  
+                  <CardContent className="relative z-10 h-full flex flex-col justify-between p-6">
+                    {/* Top Section */}
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center gap-2">
+                        <CreditCardIcon className="w-6 h-6" />
+                        <CheckCircle className="w-5 h-5" />
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
+                          {card.network}
+                        </Badge>
+                        {origins[card.id] && (
+                          <Badge 
+                            variant="secondary" 
+                            className="bg-white/20 text-white border-white/30 text-xs"
+                          >
+                            {origins[card.id] === 'bank' ? '🏦' : '✋'}
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Middle Section */}
+                    <div className="flex-1 flex flex-col justify-center">
+                      <h3 className="text-xl font-bold mb-2">{card.card_name}</h3>
+                      <p className="text-sm opacity-90 mb-4">{card.bank_name}</p>
+                      
+                      {/* Top Reward Rate */}
+                      {Object.keys(card.reward_summary).length > 0 && (
+                        <div className="bg-white/20 rounded-lg p-3 backdrop-blur-sm">
+                          <p className="text-xs opacity-80 mb-1">Top Reward</p>
+                          <p className="text-2xl font-bold">
+                            {formatRewardRate(Math.max(...Object.values(card.reward_summary)))}
+                          </p>
+                          <p className="text-xs opacity-80">
+                            {Object.entries(card.reward_summary)
+                              .sort((a, b) => b[1] - a[1])[0][0]
+                              .replace(/_/g, ' ')}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Bottom Section */}
+                    <div className="flex items-center justify-between">
+                      <div className="text-xs opacity-80">
+                        {index + 1} of {cards.length}
+                      </div>
+                      <div className="flex gap-1">
+                        {cards.map((_, dotIndex) => (
+                          <div
+                            key={dotIndex}
+                            className={`w-2 h-2 rounded-full transition-colors ${
+                              dotIndex === currentStackIndex ? 'bg-white' : 'bg-white/40'
+                            }`}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            )
+          })}
+        </div>
+
+        {/* Navigation Controls */}
+        {cards.length > 1 && (
+          <div className="flex items-center justify-between mt-6">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={prevCard}
+              disabled={currentStackIndex === 0}
+              className="rounded-full w-10 h-10 p-0"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </Button>
+            
+            <div className="flex flex-col items-center gap-1">
+              <span className="text-sm text-muted-foreground">
+                {currentStackIndex + 1} of {cards.length}
+              </span>
+              <span className="text-xs text-muted-foreground/70">
+                Swipe to navigate
+              </span>
+            </div>
+            
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={nextCard}
+              disabled={currentStackIndex === cards.length - 1}
+              className="rounded-full w-10 h-10 p-0"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </Button>
+          </div>
+        )}
+
+        {/* Card Actions */}
+        {cards[currentStackIndex] && (
+          <div className="flex gap-3 mt-4">
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex-1"
+              onClick={(e) => {
+                e.stopPropagation()
+                handleRemoveCard(cards[currentStackIndex].id)
+              }}
+              disabled={removingCard === cards[currentStackIndex].id}
+            >
+              {removingCard === cards[currentStackIndex].id ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Removing...
+                </>
+              ) : (
+                <>
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Remove
+                </>
+              )}
+            </Button>
+            <Button
+              size="sm"
+              className="flex-1"
+              onClick={() => handleCardClick(cards[currentStackIndex])}
+            >
+              View Details
+            </Button>
+          </div>
+        )}
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-background pb-24">
       {/* Header */}
@@ -599,21 +859,21 @@ export function CreditCardManagementPage() {
                       {myCards.length} {myCards.length === 1 ? 'card' : 'cards'}
                     </Badge>
                   </div>
-                  <AnimatePresence mode="popLayout">
-                    <motion.div 
-                      layout
-                      className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-                    >
-                      {filterCards(myCards).map((card) => (
-                        <CardItem 
-                          key={card.id} 
-                          card={card} 
-                          isOwned={true} 
-                          origin={cardOriginMap[card.id]}
-                        />
-                      ))}
-                    </motion.div>
-                  </AnimatePresence>
+                  
+                  {/* Card Stack Display */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                    className="mb-8"
+                  >
+                    <CardStack 
+                      cards={filterCards(myCards)} 
+                      origins={cardOriginMap}
+                    />
+                  </motion.div>
+
+                  {/* Fallback for filtered results */}
                   {filterCards(myCards).length === 0 && (
                     <Card className="text-center py-8">
                       <CardContent>
