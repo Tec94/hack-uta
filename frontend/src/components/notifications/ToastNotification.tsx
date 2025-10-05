@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { SmartNotification } from '@/types';
+import { SmartNotification, CreditCard } from '@/types';
 import { X, MapPin, TrendingUp } from 'lucide-react';
 
 interface ToastNotificationProps {
   notification: SmartNotification | null;
   onDismiss: () => void;
   onTap?: () => void;
+  onCardClick?: (card: CreditCard) => void;
   autoHideDuration?: number; // milliseconds, default 8000
 }
 
@@ -14,6 +15,7 @@ export function ToastNotification({
   notification,
   onDismiss,
   onTap,
+  onCardClick,
   autoHideDuration = 8000,
 }: ToastNotificationProps) {
   const [visible, setVisible] = useState(false);
@@ -64,6 +66,31 @@ export function ToastNotification({
 
   const emoji = categoryEmoji[notification.merchant.category.toLowerCase()] || '📍';
 
+  // Extract cashback rate from card's rewards structure
+  const getCashbackRate = () => {
+    const category = notification.merchant.category.toLowerCase();
+    const categoryReward = notification.recommendedCard.rewardsStructure.find(r => {
+      const rCat = r.category.toLowerCase();
+      return rCat.includes(category) || 
+             (category === 'dining' && (rCat.includes('restaurant') || rCat.includes('dining'))) ||
+             (category === 'groceries' && (rCat.includes('grocer') || rCat.includes('supermarket'))) ||
+             (category === 'gas' && (rCat.includes('gas') || rCat.includes('fuel'))) ||
+             (category === 'personal_care' && (rCat.includes('salon') || rCat.includes('spa') || rCat.includes('beauty'))) ||
+             (category === 'auto_services' && (rCat.includes('auto') || rCat.includes('car'))) ||
+             (category === 'healthcare' && (rCat.includes('health') || rCat.includes('medical') || rCat.includes('pharmacy')));
+    });
+    
+    return categoryReward?.rate || '1% cash back';
+  };
+
+  const handleCardClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onCardClick) {
+      onCardClick(notification.recommendedCard);
+      handleDismiss();
+    }
+  };
+
   return (
     <AnimatePresence>
       {visible && (
@@ -73,8 +100,8 @@ export function ToastNotification({
           exit={{ y: -150, opacity: 0 }}
           transition={{ 
             type: 'spring', 
-            damping: 20, 
-            stiffness: 300,
+            damping: 25, 
+            stiffness: 400,
             mass: 0.8
           }}
           className="fixed top-4 left-4 right-4 z-[9999] mx-auto max-w-md pointer-events-auto"
@@ -112,33 +139,31 @@ export function ToastNotification({
                         Great rewards nearby!
                       </p>
                     </div>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDismiss();
-                      }}
-                      className="flex-shrink-0 ml-2 text-gray-400 hover:text-gray-600 transition-colors p-1 -mt-1"
-                      aria-label="Dismiss"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1 text-xs text-gray-600">
+                        <MapPin className="w-3 h-3 text-blue-600" />
+                        <span className="font-medium truncate max-w-[120px]">{notification.merchant.name}</span>
+                      </div>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDismiss();
+                        }}
+                        className="flex-shrink-0 text-gray-400 hover:text-gray-600 transition-colors p-1"
+                        aria-label="Dismiss"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
 
-              {/* Merchant & Location */}
-              <div className="mb-3">
-                <div className="flex items-center gap-1.5 text-sm text-gray-700 mb-1">
-                  <MapPin className="w-3.5 h-3.5 text-blue-600" />
-                  <span className="font-semibold">{notification.merchant.name}</span>
-                </div>
-                <p className="text-xs text-gray-600 capitalize ml-5">
-                  {notification.merchant.category}
-                </p>
-              </div>
-
               {/* Card Recommendation */}
-              <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-[14px] p-3 border border-purple-100">
+              <div 
+                onClick={handleCardClick}
+                className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-[14px] p-3 border border-purple-100 cursor-pointer hover:border-purple-200 transition-all active:scale-[0.98]"
+              >
                 <div className="flex items-center gap-3">
                   {/* Card Logo */}
                   <div className="flex-shrink-0 w-10 h-10 bg-white rounded-lg shadow-sm flex items-center justify-center overflow-hidden border border-gray-100">
@@ -161,7 +186,7 @@ export function ToastNotification({
                     <div className="flex items-center gap-1 mt-1">
                       <TrendingUp className="w-3 h-3 text-green-600" />
                       <span className="text-xs font-bold text-green-700">
-                        {notification.estimatedEarnings}
+                        {getCashbackRate()}
                       </span>
                     </div>
                   </div>

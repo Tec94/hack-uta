@@ -102,7 +102,6 @@ export function ChooseYourCardPage() {
       // Add new cards to user's collection
       if (cardsToAdd.length > 0) {
         await addMultipleUserCards(user.sub, cardsToAdd)
-        console.log(`Added ${cardsToAdd.length} new cards to user collection`)
       }
 
       // Store selected card IDs in user store for immediate use

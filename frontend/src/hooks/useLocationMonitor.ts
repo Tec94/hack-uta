@@ -84,10 +84,6 @@ export function useLocationMonitor({
     ) {
       dwellNotifiedRef.current = true;
       onDwellDetected(anchorLocationRef.current, dwellSeconds);
-      console.log(
-        `🏠 Dwelling detected: ${dwellSeconds}s at location`,
-        anchorLocationRef.current
-      );
     }
   }, [dwellThresholdSeconds, onDwellDetected]);
 
@@ -112,7 +108,6 @@ export function useLocationMonitor({
         anchorLocationRef.current = location;
         dwellStartTimeRef.current = now;
         dwellNotifiedRef.current = false;
-        console.log('📍 Initial location set as anchor', location);
       } else {
         // Calculate distance from anchor
         const distance = getDistance(
@@ -127,9 +122,6 @@ export function useLocationMonitor({
           updateDwellTime();
         } else {
           // Moved outside dwelling radius - reset
-          console.log(
-            `🚶 Moved ${distance.toFixed(0)}m from anchor - resetting dwell timer`
-          );
           anchorLocationRef.current = location;
           dwellStartTimeRef.current = now;
           dwellNotifiedRef.current = false;

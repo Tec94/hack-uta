@@ -32,7 +32,7 @@ export function DashboardPage() {
   const { user } = useAuth0()
   const navigate = useNavigate()
   const { showNotification } = useNotification()
-  const { location: storedLocation, budget, onboardingCompleted, setLocation, currentCards } = useUserStore()
+  const { location: storedLocation, budget, onboardingCompleted, setLocation, currentCards, dwellRadiusMeters } = useUserStore()
   const { location: geoLocation, error: geoError, loading: geoLoading, refetch } = useGeolocation()
   const [selectedCard, setSelectedCard] = useState<CreditCard | null>(null)
   const [modalOpen, setModalOpen] = useState(false)
@@ -94,15 +94,13 @@ export function DashboardPage() {
       showNotification('Location not available. Please enable location services.', 'error')
       return
     }
-
-    console.log('🧪 Testing notification system...')
     
     try {
-      // Fetch nearby places
+      // Fetch nearby places using custom radius from user settings
       const nearbyPlaces = await fetchNearbyPlaces(
         currentLocation.lat,
         currentLocation.lng,
-        100
+        dwellRadiusMeters
       )
 
       if (nearbyPlaces.length === 0) {
@@ -112,7 +110,6 @@ export function DashboardPage() {
 
       // Get the closest merchant
       const testMerchant = nearbyPlaces[0]
-      console.log('🏪 Test merchant:', testMerchant.name)
 
       // Get recommended cards
       const recommendedCards = recommendCardsForMerchant(testMerchant, mockCreditCards)
@@ -138,11 +135,8 @@ export function DashboardPage() {
         window.dispatchEvent(new CustomEvent('smart-notification', { 
           detail: testNotification 
         }))
-
-        console.log('✅ Test notification sent!')
-        showNotification('Test notification triggered successfully!', 'success')
     } catch (error) {
-      console.error('❌ Test notification failed:', error)
+      console.error('Test notification failed:', error)
       showNotification('Failed to test notification. Check console for details.', 'error')
     }
   }

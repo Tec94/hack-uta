@@ -41,23 +41,13 @@ export function useSmartNotifications({
 
   const handleDwellDetected = useCallback(
     async (location: UserLocation, dwellTime: number) => {
-      console.log('🏠 Dwell detected, checking for notifications...', {
-        location,
-        dwellTime,
-        enabled,
-        notificationsEnabled,
-        cardsCount: cards.length,
-      });
-
       // Check if notifications are enabled
       if (!enabled || !notificationsEnabled) {
-        console.log('⏸️ Notifications disabled');
         return;
       }
 
       // Check if we have cards to recommend
       if (cards.length === 0) {
-        console.log('⚠️ No cards available for recommendations');
         return;
       }
 
@@ -67,35 +57,26 @@ export function useSmartNotifications({
         lastNotificationTimestamp &&
         now - lastNotificationTimestamp < COOLDOWN_MILLISECONDS
       ) {
-        const remainingMinutes = Math.ceil(
-          (COOLDOWN_MILLISECONDS - (now - lastNotificationTimestamp)) / 60000
-        );
-        console.log(
-          `⏰ Cooldown active: ${remainingMinutes} minutes remaining`
-        );
         return;
       }
 
       setState((prev) => ({ ...prev, isProcessing: true }));
 
       try {
-        // Fetch nearby places
-        console.log('🔍 Fetching nearby places...');
+        // Fetch nearby places using custom radius from user settings
         const nearbyPlaces = await fetchNearbyPlaces(
           location.lat,
           location.lng,
-          100 // 100m radius for nearby check
+          dwellRadiusMeters
         );
 
         if (nearbyPlaces.length === 0) {
-          console.log('📍 No nearby places found');
           setState((prev) => ({ ...prev, isProcessing: false }));
           return;
         }
 
         // Get the closest merchant
         const closestMerchant = nearbyPlaces[0];
-        console.log('🏪 Found nearby merchant:', closestMerchant.name);
 
         // Get recommended cards for this merchant
         const recommendedCards = recommendCardsForMerchant(
@@ -104,7 +85,6 @@ export function useSmartNotifications({
         );
 
         if (recommendedCards.length === 0) {
-          console.log('⚠️ No card recommendations available');
           setState((prev) => ({ ...prev, isProcessing: false }));
           return;
         }
@@ -114,12 +94,6 @@ export function useSmartNotifications({
           closestMerchant,
           bestCard
         );
-
-        console.log('💳 Best card recommendation:', {
-          merchant: closestMerchant.name,
-          card: bestCard.name,
-          earnings,
-        });
 
         // Create notification object
         const notification: SmartNotification = {
@@ -139,10 +113,8 @@ export function useSmartNotifications({
 
         // Update last notification timestamp
         setLastNotificationTimestamp(now);
-
-        console.log('✅ Notification created successfully');
       } catch (error) {
-        console.error('❌ Error processing smart notification:', error);
+        console.error('Error processing smart notification:', error);
         setState((prev) => ({ ...prev, isProcessing: false }));
       }
     },
@@ -152,6 +124,7 @@ export function useSmartNotifications({
       cards,
       lastNotificationTimestamp,
       setLastNotificationTimestamp,
+      dwellRadiusMeters,
     ]
   );
 
@@ -163,19 +136,6 @@ export function useSmartNotifications({
     enabled: enabled && notificationsEnabled,
   });
 
-  // Log dwelling status
-  useEffect(() => {
-    if (isDwelling) {
-      console.log(`🏠 Currently dwelling: ${currentDwellTime}s`);
-    }
-  }, [isDwelling, currentDwellTime]);
-
-  // Log errors
-  useEffect(() => {
-    if (error) {
-      console.error('Location monitoring error:', error);
-    }
-  }, [error]);
 
   return state;
 }

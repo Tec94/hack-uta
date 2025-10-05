@@ -45,21 +45,14 @@ export function ProfilePage() {
 
   const handleNotificationToggle = (checked: boolean) => {
     setNotificationsEnabled(checked)
-    if (checked) {
-      console.log('✅ Notifications enabled')
-    } else {
-      console.log('🔕 Notifications disabled')
-    }
   }
 
   const handleDwellTimeChange = (value: number[]) => {
     setDwellTimeSeconds(value[0])
-    console.log(`⏱️ Dwell time set to ${value[0]} seconds (${Math.floor(value[0] / 60)} min ${value[0] % 60} sec)`)
   }
 
   const handleRadiusChange = (value: number[]) => {
     setDwellRadiusMeters(value[0])
-    console.log(`📏 Dwell radius set to ${value[0]} meters`)
   }
 
   const formatTime = (seconds: number) => {
@@ -356,53 +349,13 @@ export function ProfilePage() {
                         value={[dwellRadiusMeters]}
                         onValueChange={handleRadiusChange}
                         min={10}
-                        max={100}
+                        max={300}
                         step={5}
                         className="w-full"
                       />
                       <p className="text-xs text-gray-600">
                         Maximum movement radius while dwelling
                       </p>
-                    </div>
-
-                    {/* Quick Presets */}
-                    <div className="flex gap-2 pt-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => {
-                          setDwellTimeSeconds(10)
-                          setDwellRadiusMeters(10)
-                        }}
-                        className="flex-1 text-xs"
-                      >
-                        🚀 Quick Test
-                        <span className="block text-[10px] text-muted-foreground">10s / 10m</span>
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => {
-                          setDwellTimeSeconds(300)
-                          setDwellRadiusMeters(30)
-                        }}
-                        className="flex-1 text-xs"
-                      >
-                        🎯 Default
-                        <span className="block text-[10px] text-muted-foreground">5m / 30m</span>
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => {
-                          setDwellTimeSeconds(600)
-                          setDwellRadiusMeters(50)
-                        }}
-                        className="flex-1 text-xs"
-                      >
-                        🏠 Relaxed
-                        <span className="block text-[10px] text-muted-foreground">10m / 50m</span>
-                      </Button>
                     </div>
                   </motion.div>
                 )}

@@ -11,20 +11,16 @@ export async function fetchNearbyPlaces(
   lng: number,
   radiusMeters: number = 300
 ): Promise<Merchant[]> {
-  console.log(`🔍 Fetching ALL nearby places within ${radiusMeters}m for location: ${lat}, ${lng}`);
-
   try {
     const places = await fetchNearbyPlacesGoogle(lat, lng, radiusMeters);
     
     if (places.length > 0) {
-      console.log(`✅ Successfully fetched ${places.length} places`);
       return places;
     }
     
-    console.warn('⚠️ No places found in this area');
     return [];
   } catch (error) {
-    console.error('❌ Failed to fetch places:', error);
+    console.error('Failed to fetch places:', error);
     return [];
   }
 }

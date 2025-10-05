@@ -14,9 +14,10 @@ import { Loading } from './components/common/Loading'
 import { Toaster } from './components/ui/toaster'
 import { ChatbotAssistant } from './components/chatbot/ChatbotAssistant'
 import { ToastNotification } from './components/notifications/ToastNotification'
+import { CardDetailModal } from './components/cards/CardDetailModal'
 import { useSmartNotifications } from './hooks/useSmartNotifications'
 import { mockCreditCards } from './data/mock-cards'
-import type { SmartNotification } from './types'
+import type { SmartNotification, CreditCard } from './types'
 import { NotificationProvider } from './contexts/NotificationContext'
 
 const queryClient = new QueryClient({
@@ -52,6 +53,8 @@ function SmartNotificationProvider() {
   })
 
   const [notificationToShow, setNotificationToShow] = useState<SmartNotification | null>(null)
+  const [selectedCard, setSelectedCard] = useState<CreditCard | null>(null)
+  const [cardModalOpen, setCardModalOpen] = useState(false)
 
   // Update notification state when new notification arrives from location monitoring
   useEffect(() => {
@@ -84,13 +87,26 @@ function SmartNotificationProvider() {
     }
   }
 
+  const handleCardClick = (card: CreditCard) => {
+    setSelectedCard(card)
+    setCardModalOpen(true)
+  }
+
   return (
-    <ToastNotification
-      notification={notificationToShow}
-      onDismiss={handleDismissNotification}
-      onTap={handleNotificationTap}
-      autoHideDuration={8000}
-    />
+    <>
+      <ToastNotification
+        notification={notificationToShow}
+        onDismiss={handleDismissNotification}
+        onTap={handleNotificationTap}
+        onCardClick={handleCardClick}
+        autoHideDuration={8000}
+      />
+      <CardDetailModal
+        card={selectedCard}
+        isOpen={cardModalOpen}
+        onClose={() => setCardModalOpen(false)}
+      />
+    </>
   )
 }
 
