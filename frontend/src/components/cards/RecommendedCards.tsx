@@ -245,9 +245,9 @@ export function RecommendedCards({
                       onClick={() => onCardClick?.(card)}
                     >
                       <Card className={`h-full border-2 transition-all hover:shadow-lg ${
-                        isOwned 
-                          ? 'border-primary bg-muted/30' 
-                          : 'hover:border-primary/50'
+                        !isOwned 
+                          ? 'border-primary bg-primary/5' 
+                          : 'border-muted-foreground/20 opacity-75'
                       } ${onCardClick ? 'cursor-pointer' : ''}`}>
                         <CardHeader className="pb-3">
                           <div className="flex items-start justify-between mb-2">

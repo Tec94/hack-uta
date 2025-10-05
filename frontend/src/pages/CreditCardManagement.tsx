@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Separator } from '@/components/ui/separator'
 import { Loading } from '@/components/common/Loading'
 import { BottomNav } from '@/components/navigation/BottomNav'
 import { RecommendedCards } from '@/components/cards/RecommendedCards'
@@ -47,6 +49,9 @@ export function CreditCardManagementPage() {
     topRecommendation: string
   } | null>(null)
   const [loadingInsights, setLoadingInsights] = useState(false)
+  // Modal state
+  const [selectedCard, setSelectedCard] = useState<ApiCreditCard | null>(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
   useEffect(() => {
     fetchCards()
@@ -307,17 +312,23 @@ export function CreditCardManagementPage() {
     )
   }
 
+  const handleCardClick = (card: ApiCreditCard) => {
+    setSelectedCard(card)
+    setIsModalOpen(true)
+  }
+
   const CardItem = ({ card, isOwned }: { card: ApiCreditCard, isOwned: boolean }) => (
     <motion.div
       layout
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.95 }}
-      className="group"
+      className="group h-full"
     >
-      <Card className={`h-full transition-all duration-200 hover:shadow-lg ${
-        isOwned ? 'border-2 border-primary bg-muted/30' : 'hover:border-primary/50'
-      }`}>
+      <Card 
+        className="h-full transition-all duration-200 hover:shadow-lg flex flex-col cursor-pointer" 
+        onClick={() => handleCardClick(card)}
+      >
         <CardHeader className="pb-3">
           <div className="flex items-start justify-between">
             <div className="flex-1">
@@ -341,75 +352,79 @@ export function CreditCardManagementPage() {
           </div>
         </CardHeader>
 
-        <CardContent>
-          <div className="space-y-3">
-            <div>
-              <h4 className="font-medium text-sm mb-2 flex items-center gap-1">
-                <TrendingUp className="w-4 h-4" />
-                Reward Rates
-              </h4>
-              <div className="space-y-1.5">
-                {Object.entries(card.reward_summary).slice(0, 3).map(([category, rate]) => (
-                  <div key={category} className="flex justify-between items-center text-sm bg-muted rounded px-2 py-1">
-                    <span className="text-muted-foreground capitalize text-xs">
-                      {category.replace(/_/g, ' ')}
-                    </span>
-                    <span className="font-bold">
-                      {formatRewardRate(rate)}
-                    </span>
-                  </div>
-                ))}
-                {Object.entries(card.reward_summary).length > 3 && (
-                  <p className="text-xs text-muted-foreground text-center pt-1">
-                    +{Object.entries(card.reward_summary).length - 3} more categories
-                  </p>
-                )}
-              </div>
-            </div>
-
-            <div className="pt-2">
-              {isOwned ? (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-full"
-                  onClick={() => handleRemoveCard(card.id)}
-                  disabled={removingCard === card.id}
-                >
-                  {removingCard === card.id ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Removing...
-                    </>
-                  ) : (
-                    <>
-                      <Trash2 className="w-4 h-4 mr-2" />
-                      Remove Card
-                    </>
-                  )}
-                </Button>
-              ) : (
-                <Button
-                  variant="default"
-                  size="sm"
-                  className="w-full"
-                  onClick={() => handleAddCard(card.id)}
-                  disabled={addingCard === card.id}
-                >
-                  {addingCard === card.id ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Adding...
-                    </>
-                  ) : (
-                    <>
-                      <Plus className="w-4 h-4 mr-2" />
-                      Add to Wallet
-                    </>
-                  )}
-                </Button>
+        <CardContent className="flex-1 flex flex-col">
+          <div className="flex-1">
+            <h4 className="font-medium text-sm mb-2 flex items-center gap-1">
+              <TrendingUp className="w-4 h-4" />
+              Reward Rates
+            </h4>
+            <div className="space-y-1.5">
+              {Object.entries(card.reward_summary).slice(0, 3).map(([category, rate]) => (
+                <div key={category} className="flex justify-between items-center text-sm bg-muted rounded px-2 py-1">
+                  <span className="text-muted-foreground capitalize text-xs">
+                    {category.replace(/_/g, ' ')}
+                  </span>
+                  <span className="font-bold">
+                    {formatRewardRate(rate)}
+                  </span>
+                </div>
+              ))}
+              {Object.entries(card.reward_summary).length > 3 && (
+                <p className="text-xs text-muted-foreground text-center pt-1">
+                  +{Object.entries(card.reward_summary).length - 3} more categories
+                </p>
               )}
             </div>
+          </div>
+
+          <div className="mt-4">
+            {isOwned ? (
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  handleRemoveCard(card.id)
+                }}
+                disabled={removingCard === card.id}
+              >
+                {removingCard === card.id ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Removing...
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Remove Card
+                  </>
+                )}
+              </Button>
+            ) : (
+              <Button
+                variant="default"
+                size="sm"
+                className="w-full"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  handleAddCard(card.id)
+                }}
+                disabled={addingCard === card.id}
+              >
+                {addingCard === card.id ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Adding...
+                  </>
+                ) : (
+                  <>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add to Wallet
+                  </>
+                )}
+              </Button>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -483,6 +498,7 @@ export function CreditCardManagementPage() {
             budget={budget ?? undefined}
             onAddCard={handleAddCard}
             showAddButton={true}
+            onCardClick={handleCardClick}
           />
         </div>
 
@@ -745,6 +761,140 @@ export function CreditCardManagementPage() {
 
  
       </div>
+
+      {/* Card Detail Modal */}
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          {selectedCard && (
+            <>
+              <DialogHeader>
+                <DialogTitle className="text-2xl">{selectedCard.card_name}</DialogTitle>
+                <p className="text-sm text-muted-foreground">{selectedCard.bank_name}</p>
+              </DialogHeader>
+
+              {/* Card Visual */}
+              <div className="w-full h-48 bg-primary rounded-xl p-6 text-primary-foreground mb-6 relative overflow-hidden shadow-lg">
+                <div className="absolute inset-0 opacity-10">
+                  <div className="absolute top-0 right-0 w-48 h-48 bg-white rounded-full -translate-y-24 translate-x-24" />
+                  <div className="absolute bottom-0 left-0 w-32 h-32 bg-white rounded-full translate-y-16 -translate-x-16" />
+                </div>
+                <div className="relative z-10 h-full flex flex-col justify-between">
+                  <div className="flex items-center gap-2">
+                    <Badge variant="secondary">{selectedCard.network}</Badge>
+                    <Badge variant="secondary">{selectedCard.category}</Badge>
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-bold mb-2">{selectedCard.card_name}</h3>
+                    <p className="text-sm opacity-90">{selectedCard.bank_name}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Reward Categories */}
+              {Object.keys(selectedCard.reward_summary).length > 0 && (
+                <div className="mb-6">
+                  <h4 className="font-semibold text-lg mb-3 flex items-center gap-2">
+                    <Sparkles className="w-5 h-5" />
+                    Rewards Breakdown
+                  </h4>
+                  <div className="grid grid-cols-2 gap-3">
+                    {Object.entries(selectedCard.reward_summary)
+                      .sort((a, b) => b[1] - a[1])
+                      .map(([category, rate]) => (
+                        <div key={category} className="bg-muted rounded-lg p-4">
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <p className="text-sm text-muted-foreground capitalize mb-1">{category}</p>
+                              <p className="text-2xl font-bold">{rate}%</p>
+                            </div>
+                            <TrendingUp className="w-5 h-5 text-primary mt-1" />
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                </div>
+              )}
+
+              <Separator className="my-4" />
+
+              {/* Card Info */}
+              <div className="space-y-4">
+                <div>
+                  <h4 className="font-semibold mb-2">Card Network</h4>
+                  <p className="text-sm text-muted-foreground">{selectedCard.network}</p>
+                </div>
+                <div>
+                  <h4 className="font-semibold mb-2">Primary Category</h4>
+                  <Badge className="bg-secondary text-secondary-foreground">
+                    {selectedCard.category}
+                  </Badge>
+                </div>
+              </div>
+
+              <Separator className="my-4" />
+
+              {/* Action Buttons */}
+              <div className="flex gap-3 pt-4">
+                {currentCards.includes(selectedCard.id) ? (
+                  <Button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      handleRemoveCard(selectedCard.id)
+                      setIsModalOpen(false)
+                    }}
+                    variant="outline"
+                    className="flex-1 border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
+                    size="lg"
+                    disabled={removingCard === selectedCard.id}
+                  >
+                    {removingCard === selectedCard.id ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Removing...
+                      </>
+                    ) : (
+                      <>
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Remove Card
+                      </>
+                    )}
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      handleAddCard(selectedCard.id)
+                      setIsModalOpen(false)
+                    }}
+                    className="flex-1"
+                    size="lg"
+                    disabled={addingCard === selectedCard.id}
+                  >
+                    {addingCard === selectedCard.id ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Adding...
+                      </>
+                    ) : (
+                      <>
+                        <Plus className="w-4 h-4 mr-2" />
+                        Add to My Cards
+                      </>
+                    )}
+                  </Button>
+                )}
+                <Button 
+                  onClick={() => setIsModalOpen(false)} 
+                  variant="outline" 
+                  size="lg"
+                >
+                  Close
+                </Button>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* Bottom Navigation */}
       <BottomNav />
