@@ -52,7 +52,7 @@ export function HomePage() {
         <div className="text-center">
           <img 
             src="/credify-logo.png" 
-            alt="Credify" 
+            alt="Credily" 
             className="w-24 h-24 mx-auto mb-6 object-contain animate-pulse"
           />
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
@@ -79,7 +79,7 @@ export function HomePage() {
           >
             <img 
               src="/credify-logo.png" 
-              alt="Credify Logo" 
+              alt="Credily Logo" 
               className="w-32 h-32 object-contain"
             />
           </motion.div>
@@ -108,7 +108,7 @@ export function HomePage() {
             Smart Credit Card Rewards with
             <br />
             <span className="text-primary">
-              Credify
+              Credily
             </span>
           </h1>
 
@@ -189,7 +189,7 @@ export function HomePage() {
           className="text-center mb-12"
         >
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Why SwipeRight?
+            Why Credily?
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             Make every swipe count with intelligent, personalized recommendations
@@ -280,11 +280,13 @@ export function HomePage() {
         <div className="max-w-4xl mx-auto">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
-                <CreditCard className="w-5 h-5 text-primary-foreground" />
-              </div>
+              <img 
+                src="/credify-logo.png" 
+                alt="Credily" 
+                className="w-10 h-10 object-contain"
+              />
               <span className="text-xl font-bold">
-                SwipeRight
+                Credily
               </span>
             </div>
             <div className="flex gap-6 text-sm text-muted-foreground">
@@ -294,7 +296,7 @@ export function HomePage() {
             </div>
           </div>
           <div className="text-center text-muted-foreground text-sm mt-8">
-            <p>&copy; 2024 SwipeRight. All rights reserved. Made with ❤️ for smart spenders.</p>
+            <p>&copy; 2024 Credily. All rights reserved. Made with ❤️ for smart spenders.</p>
           </div>
         </div>
       </footer>

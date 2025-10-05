@@ -124,7 +124,7 @@ export function ToastNotification({
               {/* Header */}
               <div className="flex items-start gap-3 mb-3">
                 {/* App Icon / Emoji */}
-                <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-[12px] flex items-center justify-center text-2xl shadow-lg">
+                <div className="flex-shrink-0 w-12 h-12 bg-primary rounded-[12px] flex items-center justify-center text-2xl shadow-lg">
                   {emoji}
                 </div>
 
@@ -133,7 +133,7 @@ export function ToastNotification({
                   <div className="flex items-start justify-between mb-1">
                     <div className="flex-1 min-w-0">
                       <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                        SwipeRight
+                        Credily
                       </p>
                       <p className="text-sm font-bold truncate mt-0.5">
                         Great rewards nearby!
@@ -162,7 +162,7 @@ export function ToastNotification({
               {/* Card Recommendation */}
               <div 
                 onClick={handleCardClick}
-                className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-[14px] p-3 border border-green-100 cursor-pointer hover:border-green-200 transition-all active:scale-[0.98]"
+                className="bg-muted rounded-[14px] p-3 border cursor-pointer hover:border-primary transition-all active:scale-[0.98]"
               >
                 <div className="flex items-center gap-3">
                   {/* Card Logo */}
@@ -180,12 +180,12 @@ export function ToastNotification({
 
                   {/* Card Details */}
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-semibold text-green-900 truncate">
+                    <p className="text-xs font-semibold text-foreground truncate">
                       {notification.recommendedCard.name}
                     </p>
                     <div className="flex items-center gap-1 mt-1">
-                      <TrendingUp className="w-3 h-3 text-green-600" />
-                      <span className="text-xs font-bold text-green-700">
+                      <TrendingUp className="w-3 h-3 text-primary" />
+                      <span className="text-xs font-bold text-primary">
                         {getCashbackRate()}
                       </span>
                     </div>

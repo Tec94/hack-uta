@@ -6,7 +6,7 @@ export function Loading() {
       <div className="text-center">
         <img 
           src="/credify-logo.png" 
-          alt="Credify" 
+          alt="Credily" 
           className="w-24 h-24 mx-auto mb-6 object-contain animate-pulse"
         />
         <Loader2 className="w-12 h-12 text-primary animate-spin mx-auto mb-4" />

@@ -1,11 +1,11 @@
-# SwipeRight - Credit Card Optimization App
+# Credily - Credit Card Optimization App
 
 > **React + Vite + TypeScript fintech application for optimizing credit card rewards**
 
 ## 🚀 Quick Start
 
 ```bash
-cd SwipeRight
+cd Credily
 npm install --legacy-peer-deps
 # Create .env file (see below)
 npm run dev

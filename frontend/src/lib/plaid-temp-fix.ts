@@ -41,7 +41,7 @@ export async function createLinkToken(userId: string): Promise<string> {
       const response = await axios.post(`${PLAID_API_URL}/link/token/create`, {
         client_id: PLAID_CLIENT_ID,
         secret: PLAID_SECRET,
-        client_name: 'SwipeRight',
+        client_name: 'Credily',
         user: {
           client_user_id: userId,
         },

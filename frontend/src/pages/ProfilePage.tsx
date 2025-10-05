@@ -62,12 +62,12 @@ export function ProfilePage() {
                 {user?.name?.split(' ').map(n => n[0]).join('') || 'U'}
               </AvatarFallback>
             </Avatar>
-            <h1 className="text-2xl sm:text-3xl font-bold mb-2">{user?.name}</h1>
-            <p className="text-sm sm:text-base text-muted-foreground flex items-center gap-2 mb-4">
+            <h1 className="text-xl sm:text-2xl font-bold mb-2">{user?.name}</h1>
+            <p className="text-xs sm:text-sm text-muted-foreground flex items-center gap-2 mb-4">
               <Mail className="w-4 h-4" />
               <span className="break-all">{user?.email}</span>
             </p>
-            <Badge variant="secondary">
+            <Badge variant="secondary" className="text-xs">
               <Sparkles className="w-3 h-3 mr-1" />
               Testing Member
             </Badge>

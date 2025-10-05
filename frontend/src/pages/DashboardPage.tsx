@@ -296,14 +296,21 @@ export function DashboardPage() {
       {/* Header */}
       <div className="border-b bg-card text-card-foreground">
         <div className="max-w-7xl mx-auto px-4 py-4 sm:py-6">
-          <div className="flex flex-col sm:flex-row items-start sm:justify-between gap-3 sm:gap-4 mb-4">
-            <div className="min-w-0">
-              <h1 className="text-xl sm:text-2xl font-bold mb-1">Welcome back, {user?.name?.split(' ')[0]}! 👋</h1>
-              <p className="text-xs sm:text-sm text-muted-foreground">Here are your personalized insights</p>
+          <div className="flex items-center justify-between gap-3 mb-4">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <img 
+                src="/credify-logo.png" 
+                alt="Credily" 
+                className="w-8 h-8 sm:w-10 sm:h-10 object-contain flex-shrink-0"
+              />
+              <div className="min-w-0">
+                <h1 className="text-base sm:text-xl font-bold">Welcome back, {user?.name?.split(' ')[0]}! 👋</h1>
+                <p className="text-[10px] sm:text-xs text-muted-foreground hidden sm:block">Here are your personalized insights</p>
+              </div>
             </div>
-            <Badge variant="outline" className="gap-1 flex-shrink-0">
+            <Badge variant="outline" className="gap-1 flex-shrink-0 text-xs">
               <Sparkles className="w-3 h-3" />
-              Testing Member
+              <span className="hidden sm:inline">Testing Member</span>
             </Badge>
           </div>
           

@@ -308,12 +308,14 @@ export function BudgetManagementPage() {
             animate={{ opacity: 1, y: 0 }}
           >
             <div className="flex items-center gap-2 sm:gap-3 mb-4">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary rounded-xl flex items-center justify-center flex-shrink-0">
-                <DollarSign className="w-5 h-5 sm:w-6 sm:h-6 text-primary-foreground" />
-              </div>
+              <img 
+                src="/credify-logo.png" 
+                alt="Credily" 
+                className="w-8 h-8 sm:w-10 sm:h-10 object-contain flex-shrink-0"
+              />
               <div className="min-w-0">
-                <h1 className="text-xl sm:text-2xl md:text-3xl font-bold">Budget Manager</h1>
-                <p className="text-xs sm:text-sm text-muted-foreground">Track and optimize your spending</p>
+                <h1 className="text-lg sm:text-xl md:text-2xl font-bold">Budget Manager</h1>
+                <p className="text-[10px] sm:text-xs text-muted-foreground">Track and optimize your spending</p>
               </div>
             </div>
 

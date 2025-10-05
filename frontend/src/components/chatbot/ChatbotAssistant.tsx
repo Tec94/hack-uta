@@ -117,8 +117,8 @@ export function ChatbotAssistant() {
             >
               <img 
                 src="/chatbot-icon.svg" 
-                alt="Chat Assistant" 
-                className="w-8 h-8 sm:w-10 sm:h-10"
+                alt="Credily Assistant" 
+                className="w-8 h-8 sm:w-10 sm:h-10 object-contain"
               />
             </button>
              {/* Unread Message Badge */}
