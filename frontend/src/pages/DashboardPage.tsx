@@ -24,7 +24,7 @@ export function DashboardPage() {
   const { user } = useAuth0()
   const navigate = useNavigate()
   const { showNotification } = useNotification()
-  const { location: storedLocation, budget, spending, onboardingCompleted, setLocation, currentCards, dwellRadiusMeters, linkedBank, setSpending } = useUserStore()
+  const { location: storedLocation, budget, spending, onboardingCompleted, setLocation, currentCards, dwellRadiusMeters, linkedBank, setSpending, setLinkedBank } = useUserStore()
   const { location: geoLocation, error: geoError, loading: geoLoading, refetch } = useGeolocation()
   const [selectedCard, setSelectedCard] = useState<CreditCard | null>(null)
   const [modalOpen, setModalOpen] = useState(false)
@@ -105,10 +105,37 @@ export function DashboardPage() {
     fetchUserCardsOrigins()
   }, [user?.sub])
 
+  // Check if user has a bank link and update the store
+  useEffect(() => {
+    const checkBankLink = async () => {
+      if (!user?.sub) return
+
+      try {
+        const response = await fetch(`http://localhost:3000/api/plaid/access_token/${user.sub}`)
+        if (response.ok) {
+          const data = await response.json()
+          console.log('Bank link status:', data)
+          if (data.has_bank_link && !linkedBank) {
+            console.log('Setting linkedBank to true')
+            setLinkedBank(true)
+          }
+        }
+      } catch (error) {
+        console.error('Error checking bank link:', error)
+      }
+    }
+
+    checkBankLink()
+  }, [user?.sub, linkedBank, setLinkedBank])
+
   // Fetch current month spending if user has linked bank
   useEffect(() => {
     const fetchCurrentMonthSpending = async () => {
-      if (!user?.sub || !linkedBank) return
+      console.log('Fetch spending check:', { 'user.sub': user?.sub, linkedBank })
+      if (!user?.sub || !linkedBank) {
+        console.log('Skipping spending fetch - no user or bank not linked')
+        return
+      }
       
       setSpendingLoading(true)
       try {
@@ -495,28 +522,31 @@ export function DashboardPage() {
         {/* Monthly Budget Breakdown */}
         {budget && (
           <div className="space-y-4">
-            {linkedBank && (
-              <div className="flex justify-end">
-                <Button
-                  onClick={refreshSpending}
-                  disabled={spendingLoading}
-                  variant="outline"
-                  size="sm"
-                >
-                  {spendingLoading ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Updating...
-                    </>
-                  ) : (
-                    <>
-                      <RefreshCw className="w-4 h-4 mr-2" />
-                      Refresh Spending
-                    </>
-                  )}
-                </Button>
-              </div>
-            )}
+            <div className="flex justify-end">
+              <Button
+                onClick={linkedBank ? refreshSpending : () => navigate('/onboarding/link-bank')}
+                disabled={spendingLoading}
+                variant="outline"
+                size="sm"
+              >
+                {spendingLoading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Updating...
+                  </>
+                ) : linkedBank ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 mr-2" />
+                    Refresh Spending
+                  </>
+                ) : (
+                  <>
+                    <RefreshCw className="w-4 h-4 mr-2" />
+                    Link Bank to Track Spending
+                  </>
+                )}
+              </Button>
+            </div>
             <MonthlyBudgetBreakdown
               budget={budget}
               spending={spending}

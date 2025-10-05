@@ -128,7 +128,8 @@ export function MonthlyBudgetBreakdown({
                       </div>
                       <Progress 
                         value={Math.min(percentage, 100)} 
-                        className={`h-1.5 sm:h-2 ${progressColor}`}
+                        className="h-1.5 sm:h-2"
+                        indicatorClassName={progressColor}
                       />
                     </motion.div>
                   )
@@ -186,7 +187,8 @@ export function MonthlyBudgetBreakdown({
                       </div>
                       <Progress 
                         value={Math.min(percentage, 100)} 
-                        className={`h-1.5 sm:h-2 ${progressColor}`}
+                        className="h-1.5 sm:h-2"
+                        indicatorClassName={progressColor}
                       />
                     </motion.div>
                   )

@@ -368,7 +368,6 @@ export function ManualSetupPage() {
                     <Button 
                       type="submit" 
                       className="flex-1 text-base sm:text-lg" 
-                      size="lg"
                       disabled={loading}
                     >
                       {loading ? (

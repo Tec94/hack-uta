@@ -132,6 +132,9 @@ export async function getTransactions(accessToken?: string, userId?: string, sta
  * Calculate spending by category from transactions
  */
 export function calculateSpendingFromTransactions(transactions: any[]) {
+  console.log('=== Processing Transactions ===');
+  console.log('Total transactions:', transactions.length);
+  
   const spending = {
     dining: 0,
     gas: 0,
@@ -141,25 +144,61 @@ export function calculateSpendingFromTransactions(transactions: any[]) {
     entertainment: 0,
   };
 
-  transactions.forEach((tx) => {
+  let categorizedCount = 0;
+  let uncategorizedCount = 0;
+
+  transactions.forEach((tx, index) => {
+    // Log first 5 transactions for debugging
+    if (index < 5) {
+      console.log(`Transaction ${index + 1}:`, {
+        name: tx.name,
+        amount: tx.amount,
+        category: tx.category,
+        date: tx.date
+      });
+    }
+
     if (tx.amount > 0) { // Only count outflows
       const category = tx.category?.[0]?.toLowerCase() || '';
+      const allCategories = tx.category?.map((c: string) => c.toLowerCase()).join(', ') || 'none';
       
-      if (category.includes('food') || category.includes('restaurant')) {
+      let matched = false;
+      
+      if (category.includes('food') || category.includes('restaurant') || allCategories.includes('dining')) {
         spending.dining += tx.amount;
-      } else if (category.includes('gas') || category.includes('fuel')) {
+        matched = true;
+      } else if (category.includes('gas') || category.includes('fuel') || category.includes('transportation')) {
         spending.gas += tx.amount;
-      } else if (category.includes('groceries') || category.includes('supermarket')) {
+        matched = true;
+      } else if (category.includes('groceries') || category.includes('supermarket') || category.includes('grocery')) {
         spending.groceries += tx.amount;
+        matched = true;
       } else if (category.includes('travel') || category.includes('airline') || category.includes('hotel')) {
         spending.travel += tx.amount;
-      } else if (category.includes('shopping') || category.includes('retail')) {
+        matched = true;
+      } else if (category.includes('shopping') || category.includes('retail') || category.includes('shops')) {
         spending.shopping += tx.amount;
+        matched = true;
       } else if (category.includes('entertainment') || category.includes('recreation')) {
         spending.entertainment += tx.amount;
+        matched = true;
+      }
+      
+      if (matched) {
+        categorizedCount++;
+      } else {
+        uncategorizedCount++;
+        if (uncategorizedCount <= 3) {
+          console.log('Uncategorized transaction:', tx.name, 'Category:', allCategories, 'Amount:', tx.amount);
+        }
       }
     }
   });
+
+  console.log('Categorized transactions:', categorizedCount);
+  console.log('Uncategorized transactions:', uncategorizedCount);
+  console.log('Spending by category:', spending);
+  console.log('=== End Processing ===');
 
   return spending;
 }
