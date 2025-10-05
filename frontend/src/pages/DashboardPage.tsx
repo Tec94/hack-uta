@@ -207,16 +207,16 @@ export function DashboardPage() {
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-lg p-4"
+            className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-lg p-3 sm:p-4"
           >
-            <div className="flex items-center justify-between">
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 bg-purple-500 rounded-lg flex items-center justify-center">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
+              <div className="flex items-start gap-3 flex-1">
+                <div className="w-10 h-10 sm:w-10 sm:h-10 bg-purple-500 rounded-lg flex items-center justify-center flex-shrink-0">
                   <TestTube className="w-5 h-5 text-white" />
                 </div>
-                <div>
-                  <p className="font-medium text-gray-900 mb-1">Test Smart Notifications</p>
-                  <p className="text-sm text-gray-600">
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-gray-900 mb-1 text-sm sm:text-base">Test Smart Notifications</p>
+                  <p className="text-xs sm:text-sm text-gray-600">
                     Trigger a notification instantly using your current location
                   </p>
                 </div>
@@ -224,7 +224,7 @@ export function DashboardPage() {
               <Button
                 onClick={handleTestNotification}
                 size="sm"
-                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 w-full sm:w-auto flex-shrink-0"
               >
                 <TestTube className="w-4 h-4 mr-2" />
                 Test Now
@@ -273,17 +273,17 @@ export function DashboardPage() {
           >
             <Card className="shadow-sm">
               <CardHeader>
-                <div className="flex justify-between items-center">
-                  <div className="flex items-center gap-2">
-                    <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
+                  <div className="flex items-start sm:items-center gap-2 sm:gap-3 flex-1">
+                    <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center flex-shrink-0">
                       <MapPin className="w-5 h-5 text-primary-foreground" />
                     </div>
-                    <div>
-                      <CardTitle className="text-xl">Nearby Merchants</CardTitle>
-                      <p className="text-sm text-muted-foreground">Discover best cards for each location</p>
+                    <div className="flex-1 min-w-0">
+                      <CardTitle className="text-lg sm:text-xl">Nearby Merchants</CardTitle>
+                      <p className="text-xs sm:text-sm text-muted-foreground">Discover best cards for each location</p>
                     </div>
                   </div>
-                  <Badge variant="outline" className="ml-2">
+                  <Badge variant="outline" className="flex-shrink-0">
                     {merchants.length} locations
                   </Badge>
                 </div>
