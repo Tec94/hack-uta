@@ -48,6 +48,7 @@ app.listen(PORT, async () => {
   console.log(`🔄 Transfer rates: http://localhost:${PORT}/api/transfer-rates`);
   console.log(`✨ AI Insights: http://localhost:${PORT}/api/insights/cards`);
   console.log(`🎯 AI Recommendations: http://localhost:${PORT}/api/insights/recommend-cards`);
+  console.log(`💰 AI Budget Insights: http://localhost:${PORT}/api/insights/budget`);
   console.log(`🌐 API endpoint: http://localhost:${PORT}/`);
   
   // Test database connection on startup

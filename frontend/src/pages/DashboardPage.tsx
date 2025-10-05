@@ -4,29 +4,20 @@ import { useNavigate } from 'react-router-dom'
 import { InteractiveMap } from '@/components/map/InteractiveMap'
 import { RecommendedCards } from '@/components/cards/RecommendedCards'
 import { CardDetailModal } from '@/components/cards/CardDetailModal'
+import { MonthlyBudgetBreakdown } from '@/components/budget/MonthlyBudgetBreakdown'
 import { BottomNav } from '@/components/navigation/BottomNav'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Progress } from '@/components/ui/progress'
 import { useGeolocation } from '@/hooks/useGeolocation'
 import { useUserStore } from '@/store/userStore'
 import { CreditCard, Merchant, ApiCreditCard } from '@/types'
 import { mockCreditCards } from '@/data/mock-cards'
 import { fetchNearbyPlaces } from '@/lib/places'
 import { recommendCardsForMerchant, calculatePotentialEarnings, getRecommendationReason } from '@/lib/recommendations'
-import { MapPin, AlertCircle, Loader2, TrendingUp, DollarSign, Award, Sparkles, Star, TestTube } from 'lucide-react'
+import { MapPin, AlertCircle, Loader2, TrendingUp, DollarSign, Award, Sparkles, Star, TestTube, Edit } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { useNotification } from '@/contexts/NotificationContext'
-
-const categoryInfo: Record<string, { label: string; icon: string; group: string }> = {
-  groceries: { label: 'Groceries', icon: '🛒', group: 'Essential' },
-  gas: { label: 'Gas & Transportation', icon: '⛽', group: 'Essential' },
-  dining: { label: 'Dining & Restaurants', icon: '🍽️', group: 'Lifestyle' },
-  shopping: { label: 'Shopping & Retail', icon: '🛍️', group: 'Lifestyle' },
-  entertainment: { label: 'Entertainment', icon: '🎬', group: 'Lifestyle' },
-  travel: { label: 'Travel & Hotels', icon: '✈️', group: 'Lifestyle' },
-}
 
 export function DashboardPage() {
   const { user } = useAuth0()
@@ -378,109 +369,20 @@ export function DashboardPage() {
           />
         )}
 
-        {/* Quick Stats */}
+        {/* Monthly Budget Breakdown */}
         {budget && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-          >
-            <Card className="shadow-sm">
-              <CardHeader>
-                <div className="flex items-center gap-2">
-                  <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-                    <DollarSign className="w-5 h-5 text-primary-foreground" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-xl">Spending Breakdown</CardTitle>
-                    <p className="text-sm text-muted-foreground">Monthly budget allocation</p>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                {/* Essential Expenses */}
-                <div className="mb-6">
-                  <h3 className="text-sm font-semibold mb-3">Essential Expenses</h3>
-                  <div className="space-y-3">
-                    {Object.entries(budget)
-                      .filter(([cat]) => categoryInfo[cat]?.group === 'Essential')
-                      .sort((a, b) => b[1] - a[1])
-                      .map(([category, amount], index) => {
-                        const percentage = totalBudget > 0 ? (amount / totalBudget) * 100 : 0
-                        const info = categoryInfo[category]
-                        return (
-                          <motion.div
-                            key={category}
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: index * 0.05 }}
-                            className="group"
-                          >
-                            <div className="flex items-center justify-between mb-2">
-                              <div className="flex items-center gap-2">
-                                <span className="text-lg">{info.icon}</span>
-                                <span className="text-sm font-medium group-hover:text-primary transition-colors">
-                                  {info.label}
-                                </span>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <span className="text-sm text-muted-foreground">{percentage.toFixed(0)}%</span>
-                                <span className="text-lg font-bold">${amount}</span>
-                              </div>
-                            </div>
-                            <Progress value={percentage} className="h-2" />
-                          </motion.div>
-                        )
-                      })}
-                  </div>
-                </div>
-
-                {/* Lifestyle & Discretionary */}
-                <div>
-                  <h3 className="text-sm font-semibold mb-3">Lifestyle & Discretionary</h3>
-                  <div className="space-y-3">
-                    {Object.entries(budget)
-                      .filter(([cat]) => categoryInfo[cat]?.group === 'Lifestyle')
-                      .sort((a, b) => b[1] - a[1])
-                      .map(([category, amount], index) => {
-                        const percentage = totalBudget > 0 ? (amount / totalBudget) * 100 : 0
-                        const info = categoryInfo[category]
-                        return (
-                          <motion.div
-                            key={category}
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: (2 + index) * 0.05 }}
-                            className="group"
-                          >
-                            <div className="flex items-center justify-between mb-2">
-                              <div className="flex items-center gap-2">
-                                <span className="text-lg">{info.icon}</span>
-                                <span className="text-sm font-medium group-hover:text-primary transition-colors">
-                                  {info.label}
-                                </span>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <span className="text-sm text-muted-foreground">{percentage.toFixed(0)}%</span>
-                                <span className="text-lg font-bold">${amount}</span>
-                              </div>
-                            </div>
-                            <Progress value={percentage} className="h-2" />
-                          </motion.div>
-                        )
-                      })}
-                  </div>
-                </div>
-                
-                <div className="mt-6 pt-6 border-t">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium text-muted-foreground">Total Monthly Budget</span>
-                    <span className="text-2xl font-bold">${totalBudget}</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
+          <MonthlyBudgetBreakdown
+            budget={budget}
+            title="Spending Breakdown"
+            description="Monthly budget allocation"
+            showTotal={true}
+            actionButton={{
+              label: 'Manage',
+              icon: <Edit className="w-4 h-4 mr-2" />,
+              onClick: () => navigate('/budget')
+            }}
+            animationDelay={0.3}
+          />
         )}
       </div>
 

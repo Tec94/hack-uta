@@ -1,12 +1,13 @@
-import { Link, useLocation } from 'react-router-dom';
-import { Home, CreditCard, User, ArrowRightLeft } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { Link, useLocation } from "react-router-dom";
+import { Home, CreditCard, User, ArrowRightLeft, Wallet } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const navItems = [
-  { icon: Home, label: 'Home', route: '/dashboard' },
-  { icon: CreditCard, label: 'Cards', route: '/cards' },
-  { icon: ArrowRightLeft, label: 'Transfers', route: '/transfer-rates' },
-  { icon: User, label: 'Profile', route: '/profile' },
+  { icon: Home, label: "Home", route: "/dashboard" },
+  { icon: CreditCard, label: "Cards", route: "/cards" },
+  { icon: ArrowRightLeft, label: "Transfers", route: "/transfer-rates" },
+  { icon: Wallet, label: "Budget", route: "/budget" },
+  { icon: User, label: "Profile", route: "/profile" },
 ];
 
 export function BottomNav() {
@@ -27,8 +28,9 @@ export function BottomNav() {
                 key={item.route}
                 to={item.route}
                 className={cn(
-                  'flex items-center justify-center rounded-full p-3 transition-all duration-200 hover:bg-accent',
-                  isActive && 'bg-primary text-primary-foreground hover:bg-primary/90'
+                  "flex items-center justify-center rounded-full p-3 transition-all duration-200 hover:bg-accent",
+                  isActive &&
+                    "bg-primary text-primary-foreground hover:bg-primary/90"
                 )}
                 title={item.label}
               >
@@ -41,4 +43,3 @@ export function BottomNav() {
     </nav>
   );
 }
-

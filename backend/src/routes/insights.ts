@@ -278,4 +278,152 @@ Return exactly ${limit} card IDs from the list above.`;
   }
 });
 
+/**
+ * Generate AI-powered budget insights and recommendations
+ * POST /api/insights/budget
+ */
+router.post('/budget', async (req: Request, res: Response) => {
+  try {
+    const { budget, monthlyIncome } = req.body;
+
+    // Validate input
+    if (!budget || typeof budget !== 'object') {
+      return res.status(400).json({
+        success: false,
+        error: 'Budget data is required',
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    // Calculate budget statistics
+    const budgetEntries = Object.entries(budget).sort((a: any, b: any) => b[1] - a[1]);
+    const totalSpending = Object.values(budget).reduce((sum: number, val: any) => sum + val, 0);
+    const hasIncome = monthlyIncome && monthlyIncome > 0;
+    
+    const topCategories = budgetEntries.slice(0, 3).map((entry: any) => ({
+      category: entry[0],
+      amount: entry[1],
+      percentage: ((entry[1] / totalSpending) * 100).toFixed(1)
+    }));
+
+    // Build detailed breakdown for AI
+    const categoryBreakdown = budgetEntries
+      .map((entry: any) => `${entry[0]}: $${entry[1]} (${((entry[1] / totalSpending) * 100).toFixed(1)}%)`)
+      .join('\n');
+
+    const incomeContext = hasIncome
+      ? `Monthly Income: $${monthlyIncome}\nRemaining: $${monthlyIncome - totalSpending}\nSavings Rate: ${(((monthlyIncome - totalSpending) / monthlyIncome) * 100).toFixed(1)}%`
+      : 'Income not provided';
+
+    const prompt = `You are a personal finance advisor specializing in budget optimization. Analyze this user's budget and provide actionable insights.
+
+Monthly Budget:
+${categoryBreakdown}
+Total Spending: $${totalSpending}
+${incomeContext}
+
+Top Spending Categories:
+${topCategories.map((c: any) => `- ${c.category}: $${c.amount} (${c.percentage}%)`).join('\n')}
+
+Task: Provide personalized budget insights and recommendations. Format your response as JSON:
+{
+  "summary": "2-3 sentence overview of their budget health",
+  "strengths": ["2-3 positive aspects of their budget"],
+  "improvements": ["2-3 specific actionable suggestions"],
+  "categoryInsights": {
+    "${topCategories[0]?.category || 'dining'}": "Specific insight about their top spending category",
+    "${topCategories[1]?.category || 'groceries'}": "Specific insight about their second category"
+  },
+  "savingsOpportunity": number (estimated monthly savings potential in dollars),
+  "healthScore": number (0-100 score of budget health)
+}
+
+Be encouraging but realistic. Focus on practical, achievable improvements. If they have good spending habits, acknowledge them.`;
+
+    const result = await geminiConfig.generateContent(prompt);
+
+    if (!result.success) {
+      // Fallback insights
+      return res.json({
+        success: true,
+        data: {
+          summary: `Your monthly spending is $${totalSpending}, with ${topCategories[0]?.category} as your top category at ${topCategories[0]?.percentage}%.`,
+          strengths: [
+            'You have a clear view of your spending across categories',
+            'You\'re tracking your expenses regularly'
+          ],
+          improvements: [
+            `Consider reviewing your ${topCategories[0]?.category} spending for optimization opportunities`,
+            'Set specific savings goals for each category'
+          ],
+          categoryInsights: {
+            [topCategories[0]?.category || 'general']: `This is your highest spending area at $${topCategories[0]?.amount}.`,
+            [topCategories[1]?.category || 'general']: `This accounts for ${topCategories[1]?.percentage}% of your budget.`
+          },
+          savingsOpportunity: Math.round(totalSpending * 0.15),
+          healthScore: hasIncome ? Math.min(95, Math.max(50, 100 - (totalSpending / monthlyIncome * 100))) : 75,
+          aiPowered: false
+        },
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    // Parse AI response
+    let insights;
+    try {
+      const responseText = result.data.response;
+      const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+      
+      if (jsonMatch) {
+        insights = JSON.parse(jsonMatch[0]);
+        insights.aiPowered = true;
+      } else {
+        // Fallback
+        insights = {
+          summary: responseText.substring(0, 200),
+          strengths: ['You have a structured budget', 'You\'re tracking expenses'],
+          improvements: ['Review high spending categories', 'Set savings goals'],
+          categoryInsights: {},
+          savingsOpportunity: Math.round(totalSpending * 0.15),
+          healthScore: 75,
+          aiPowered: false
+        };
+      }
+    } catch (parseError) {
+      // Fallback
+      insights = {
+        summary: `Your budget totals $${totalSpending} monthly with focus on ${topCategories[0]?.category}.`,
+        strengths: ['Clear spending tracking', 'Organized budget categories'],
+        improvements: [`Optimize ${topCategories[0]?.category} spending`, 'Increase savings rate'],
+        categoryInsights: {
+          [topCategories[0]?.category || 'general']: `Represents ${topCategories[0]?.percentage}% of spending`
+        },
+        savingsOpportunity: Math.round(totalSpending * 0.15),
+        healthScore: 70,
+        aiPowered: false
+      };
+    }
+
+    return res.json({
+      success: true,
+      data: insights,
+      metadata: {
+        totalSpending,
+        topCategories: topCategories.map((c: any) => c.category),
+        hasIncome
+      },
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error: any) {
+    console.error('Error generating budget insights:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to generate insights',
+      details: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
 export default router;

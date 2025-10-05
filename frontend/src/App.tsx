@@ -11,6 +11,7 @@ import { CreditCardManagementPage } from './pages/CreditCardManagement'
 import { TransferRatesPage } from './pages/TransferRatesPage'
 import { DashboardPage } from './pages/DashboardPage'
 import { ProfilePage } from './pages/ProfilePage'
+import { BudgetManagementPage } from './pages/BudgetManagementPage'
 import { Loading } from './components/common/Loading'
 import { Toaster } from './components/ui/toaster'
 import { ChatbotAssistant } from './components/chatbot/ChatbotAssistant'
@@ -197,4 +198,3 @@ function App() {
 }
 
 export default App
-
