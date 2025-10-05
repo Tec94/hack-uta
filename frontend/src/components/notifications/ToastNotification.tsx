@@ -112,7 +112,7 @@ export function ToastNotification({
           <motion.div
             whileTap={{ scale: 0.98 }}
             onClick={handleTap}
-            className="relative bg-white rounded-[20px] shadow-2xl overflow-hidden cursor-pointer backdrop-blur-xl border border-gray-100"
+            className="relative bg-card rounded-[20px] shadow-2xl overflow-hidden cursor-pointer backdrop-blur-xl border"
             style={{
               boxShadow: '0 20px 60px rgba(0, 0, 0, 0.15), 0 8px 20px rgba(0, 0, 0, 0.08)',
             }}
@@ -132,15 +132,15 @@ export function ToastNotification({
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between mb-1">
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
                         SwipeRight
                       </p>
-                      <p className="text-sm font-bold text-gray-900 truncate mt-0.5">
+                      <p className="text-sm font-bold truncate mt-0.5">
                         Great rewards nearby!
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
-                      <div className="flex items-center gap-1 text-xs text-gray-600">
+                      <div className="flex items-center gap-1 text-xs">
                         <MapPin className="w-3 h-3 text-primary" />
                         <span className="font-medium truncate max-w-[120px]">{notification.merchant.name}</span>
                       </div>
@@ -149,7 +149,7 @@ export function ToastNotification({
                           e.stopPropagation();
                           handleDismiss();
                         }}
-                        className="flex-shrink-0 text-gray-400 hover:text-gray-600 transition-colors p-1"
+                        className="flex-shrink-0 text-muted-foreground hover:text-foreground transition-colors p-1"
                         aria-label="Dismiss"
                       >
                         <X className="w-4 h-4" />
@@ -166,7 +166,7 @@ export function ToastNotification({
               >
                 <div className="flex items-center gap-3">
                   {/* Card Logo */}
-                  <div className="flex-shrink-0 w-10 h-10 bg-white rounded-lg shadow-sm flex items-center justify-center overflow-hidden border border-gray-100">
+                  <div className="flex-shrink-0 w-10 h-10 bg-card rounded-lg shadow-sm flex items-center justify-center overflow-hidden border">
                     {notification.recommendedCard.logoUrl ? (
                       <img
                         src={notification.recommendedCard.logoUrl}

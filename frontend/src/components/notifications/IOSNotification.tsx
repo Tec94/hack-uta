@@ -121,7 +121,7 @@ export function IOSNotification({
 
                 {/* Message */}
                 <div className="flex-1 min-w-0 pt-1">
-                  <p className="text-sm font-medium text-gray-900 leading-relaxed">
+                  <p className="text-sm font-medium leading-relaxed">
                     {notification.message}
                   </p>
                 </div>
@@ -132,7 +132,7 @@ export function IOSNotification({
                     e.stopPropagation();
                     handleDismiss();
                   }}
-                  className="flex-shrink-0 text-gray-400 hover:text-gray-600 transition-colors p-1 -mt-1"
+                  className="flex-shrink-0 text-muted-foreground hover:text-foreground transition-colors p-1 -mt-1"
                   aria-label="Dismiss"
                 >
                   <X className="w-4 h-4" />

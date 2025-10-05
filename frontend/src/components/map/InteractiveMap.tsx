@@ -93,15 +93,15 @@ export function InteractiveMap({
           new mapboxgl.Popup({ offset: 25 }).setHTML(`
             <div class="p-3">
               <strong class="text-base">${merchant.name}</strong>
-              <p class="text-sm text-gray-600 mt-1">${merchant.category}</p>
+              <p class="text-sm mt-1">${merchant.category}</p>
               ${
                 merchant.address
-                  ? `<p class="text-xs text-gray-500 mt-1">${merchant.address}</p>`
+                  ? `<p class="text-xs mt-1 opacity-80">${merchant.address}</p>`
                   : ""
               }
               ${
                 merchant.estimatedSpend
-                  ? `<p class="text-xs text-gray-700 mt-2">Est: $${merchant.estimatedSpend}</p>`
+                  ? `<p class="text-xs mt-2 font-medium">Est: $${merchant.estimatedSpend}</p>`
                   : ""
               }
             </div>

@@ -119,15 +119,15 @@ export function NotificationBanner({
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <CreditCardIcon className="w-6 h-6 text-gray-500" />
+                        <CreditCardIcon className="w-6 h-6 text-muted-foreground" />
                       )}
                     </div>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-gray-900 text-sm truncate">
+                    <p className="font-semibold text-sm truncate">
                       {notification.recommendedCard.name}
                     </p>
-                    <p className="text-xs text-gray-600 mb-1 capitalize">
+                    <p className="text-xs text-muted-foreground mb-1 capitalize">
                       {notification.merchant.category} rewards
                     </p>
                     <div className="flex items-center gap-1 text-green-700">
