@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Loading } from '@/components/common/Loading'
 import { BottomNav } from '@/components/navigation/BottomNav'
 import { getAllTransferRates, TransferRate } from '@/lib/transfer-rates'
@@ -13,8 +14,29 @@ import {
   Building2,
   TrendingUp,
   Info,
-  Filter
+  Filter,
+  Plane,
+  Hotel as HotelIcon
 } from 'lucide-react'
+
+// Helper function to categorize transfer programs
+const isAirlineProgram = (program: string): boolean => {
+  const airlines = [
+    'mileageplus', 'aadvantage', 'skymiles', 'rapid rewards', 'flying blue', 
+    'avios', 'skywards', 'miles & more', 'velocity', 'lifemiles', 
+    'aeromexico', 'air canada', 'alaska', 'jetblue', 'southwest', 'united', 
+    'american', 'delta', 'singapore', 'cathay', 'qantas', 'virgin', 'etihad'
+  ]
+  return airlines.some(airline => program.toLowerCase().includes(airline))
+}
+
+const isHotelProgram = (program: string): boolean => {
+  const hotels = [
+    'marriott', 'bonvoy', 'hilton', 'honors', 'hyatt', 'ihg', 'choice', 
+    'wyndham', 'accor', 'radisson', 'best western'
+  ]
+  return hotels.some(hotel => program.toLowerCase().includes(hotel))
+}
 
 export function TransferRatesPage() {
   const [transferRates, setTransferRates] = useState<TransferRate[]>([])
@@ -23,6 +45,7 @@ export function TransferRatesPage() {
   const [error, setError] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedIssuer, setSelectedIssuer] = useState<string>('all')
+  const [selectedTab, setSelectedTab] = useState<'airline' | 'hotel'>('airline')
 
   useEffect(() => {
     fetchTransferRates()
@@ -30,7 +53,7 @@ export function TransferRatesPage() {
 
   useEffect(() => {
     filterRates()
-  }, [searchQuery, selectedIssuer, transferRates])
+  }, [searchQuery, selectedIssuer, selectedTab, transferRates])
 
   const fetchTransferRates = async () => {
     try {
@@ -47,6 +70,15 @@ export function TransferRatesPage() {
 
   const filterRates = () => {
     let filtered = [...transferRates]
+
+    // Filter by category (airline or hotel)
+    filtered = filtered.filter(rate => {
+      if (selectedTab === 'airline') {
+        return isAirlineProgram(rate.to_program)
+      } else {
+        return isHotelProgram(rate.to_program)
+      }
+    })
 
     // Filter by search query
     if (searchQuery) {
@@ -162,7 +194,23 @@ export function TransferRatesPage() {
           </Card>
         </motion.div>
 
-        {/* Transfer Rates Table */}
+        {/* Tabs for Airlines and Hotels */}
+        <Tabs value={selectedTab} onValueChange={(value) => setSelectedTab(value as 'airline' | 'hotel')} className="w-full">
+          <TabsList className="grid w-full grid-cols-2 mb-6">
+            <TabsTrigger value="airline" className="flex items-center gap-2">
+              <Plane className="w-4 h-4" />
+              <span className="hidden sm:inline">Airlines</span>
+              <span className="sm:hidden">✈️</span>
+            </TabsTrigger>
+            <TabsTrigger value="hotel" className="flex items-center gap-2">
+              <HotelIcon className="w-4 h-4" />
+              <span className="hidden sm:inline">Hotels</span>
+              <span className="sm:hidden">🏨</span>
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value={selectedTab} className="mt-0">
+            {/* Transfer Rates Table */}
         {filteredRates.length === 0 ? (
           <Card className="text-center py-12">
             <CardContent>
@@ -272,6 +320,8 @@ export function TransferRatesPage() {
             </Card>
           </motion.div>
         )}
+          </TabsContent>
+        </Tabs>
       </div>
 
       <BottomNav />
