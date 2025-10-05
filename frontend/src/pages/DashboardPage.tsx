@@ -14,16 +14,17 @@ import { useUserStore } from '@/store/userStore'
 import { CreditCard, Merchant, ApiCreditCard } from '@/types'
 import { fetchNearbyPlaces } from '@/lib/places'
 import { recommendCardsForMerchant, calculatePotentialEarnings, getRecommendationReason } from '@/lib/recommendations'
-import { MapPin, AlertCircle, Loader2, TrendingUp, DollarSign, Award, Sparkles, Star, TestTube, Edit } from 'lucide-react'
+import { MapPin, AlertCircle, Loader2, TrendingUp, DollarSign, Award, Sparkles, Star, TestTube, Edit, RefreshCw } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { useNotification } from '@/contexts/NotificationContext'
 import { getUserCards } from '@/lib/user-cards'
+import { getTransactions, calculateSpendingFromTransactions } from '@/lib/plaid'
 
 export function DashboardPage() {
   const { user } = useAuth0()
   const navigate = useNavigate()
   const { showNotification } = useNotification()
-  const { location: storedLocation, budget, onboardingCompleted, setLocation, currentCards, dwellRadiusMeters } = useUserStore()
+  const { location: storedLocation, budget, spending, onboardingCompleted, setLocation, currentCards, dwellRadiusMeters, linkedBank, setSpending } = useUserStore()
   const { location: geoLocation, error: geoError, loading: geoLoading, refetch } = useGeolocation()
   const [selectedCard, setSelectedCard] = useState<CreditCard | null>(null)
   const [modalOpen, setModalOpen] = useState(false)
@@ -33,6 +34,7 @@ export function DashboardPage() {
   const [cardsLoading, setCardsLoading] = useState(true)
   const [userCards, setUserCards] = useState<CreditCard[]>([])
   const [cardOriginMap, setCardOriginMap] = useState<Record<string, 'manual' | 'bank'>>({})
+  const [spendingLoading, setSpendingLoading] = useState(false)
 
   // Redirect to onboarding if not completed
   useEffect(() => {
@@ -102,6 +104,78 @@ export function DashboardPage() {
     
     fetchUserCardsOrigins()
   }, [user?.sub])
+
+  // Fetch current month spending if user has linked bank
+  useEffect(() => {
+    const fetchCurrentMonthSpending = async () => {
+      if (!user?.sub || !linkedBank) return
+      
+      setSpendingLoading(true)
+      try {
+        // Get first day of current month
+        const now = new Date()
+        const firstDay = new Date(now.getFullYear(), now.getMonth(), 1)
+        const startDate = firstDay.toISOString().split('T')[0]
+        const endDate = now.toISOString().split('T')[0]
+
+        // Fetch transactions for current month
+        const { transactions } = await getTransactions(undefined, user.sub, startDate, endDate)
+        console.log(`Retrieved ${transactions.length} transactions for current month`)
+
+        // Calculate spending by category
+        const currentSpending = calculateSpendingFromTransactions(transactions)
+        console.log('Current month spending:', currentSpending)
+
+        // Update spending in store
+        setSpending({
+          dining: Math.round(currentSpending.dining),
+          gas: Math.round(currentSpending.gas),
+          groceries: Math.round(currentSpending.groceries),
+          travel: Math.round(currentSpending.travel),
+          shopping: Math.round(currentSpending.shopping),
+          entertainment: Math.round(currentSpending.entertainment),
+        })
+      } catch (err) {
+        console.error('Error fetching current month spending:', err)
+      } finally {
+        setSpendingLoading(false)
+      }
+    }
+
+    fetchCurrentMonthSpending()
+  }, [user?.sub, linkedBank, setSpending])
+
+  // Manual refresh spending function
+  const refreshSpending = async () => {
+    if (!user?.sub || !linkedBank) return
+    
+    setSpendingLoading(true)
+    try {
+      const now = new Date()
+      const firstDay = new Date(now.getFullYear(), now.getMonth(), 1)
+      const startDate = firstDay.toISOString().split('T')[0]
+      const endDate = now.toISOString().split('T')[0]
+
+      const { transactions } = await getTransactions(undefined, user.sub, startDate, endDate)
+      const currentSpending = calculateSpendingFromTransactions(transactions)
+
+      setSpending({
+        dining: Math.round(currentSpending.dining),
+        gas: Math.round(currentSpending.gas),
+        groceries: Math.round(currentSpending.groceries),
+        travel: Math.round(currentSpending.travel),
+        shopping: Math.round(currentSpending.shopping),
+        entertainment: Math.round(currentSpending.entertainment),
+      })
+
+      showNotification('Spending data refreshed successfully!', 'success')
+    } catch (err) {
+      console.error('Error refreshing spending:', err)
+      showNotification('Failed to refresh spending data', 'error')
+    } finally {
+      setSpendingLoading(false)
+    }
+  }
 
   // Update stored location when geolocation succeeds
   useEffect(() => {
@@ -418,18 +492,43 @@ export function DashboardPage() {
 
         {/* Monthly Budget Breakdown */}
         {budget && (
-          <MonthlyBudgetBreakdown
-            budget={budget}
-            title="Spending Breakdown"
-            description="Monthly budget allocation"
-            showTotal={true}
-            actionButton={{
-              label: 'Manage',
-              icon: <Edit className="w-4 h-4 mr-2" />,
-              onClick: () => navigate('/budget')
-            }}
-            animationDelay={0.3}
-          />
+          <div className="space-y-4">
+            {linkedBank && (
+              <div className="flex justify-end">
+                <Button
+                  onClick={refreshSpending}
+                  disabled={spendingLoading}
+                  variant="outline"
+                  size="sm"
+                >
+                  {spendingLoading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Updating...
+                    </>
+                  ) : (
+                    <>
+                      <RefreshCw className="w-4 h-4 mr-2" />
+                      Refresh Spending
+                    </>
+                  )}
+                </Button>
+              </div>
+            )}
+            <MonthlyBudgetBreakdown
+              budget={budget}
+              spending={spending}
+              title={linkedBank ? "Current Month Spending vs Budget" : "Budget Breakdown"}
+              description={linkedBank ? "Track your progress this month" : "Monthly budget allocation"}
+              showTotal={true}
+              actionButton={{
+                label: 'Manage',
+                icon: <Edit className="w-4 h-4 mr-2" />,
+                onClick: () => navigate('/budget')
+              }}
+              animationDelay={0.3}
+            />
+          </div>
         )}
       </div>
 

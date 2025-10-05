@@ -5,6 +5,7 @@ import { UserBudget, UserLocation } from '@/types';
 interface UserState {
   location: UserLocation | null;
   budget: UserBudget | null;
+  spending: UserBudget | null; // Actual spending from transactions
   currentCards: string[];
   onboardingCompleted: boolean;
   linkedBank: boolean;
@@ -14,6 +15,7 @@ interface UserState {
   dwellRadiusMeters: number; // Custom dwell radius for testing (default: 30 meters)
   setLocation: (location: UserLocation) => void;
   setBudget: (budget: UserBudget) => void;
+  setSpending: (spending: UserBudget) => void;
   setCurrentCards: (cards: string[]) => void;
   setOnboardingCompleted: (completed: boolean) => void;
   setLinkedBank: (linked: boolean) => void;
@@ -27,6 +29,7 @@ interface UserState {
 const initialState = {
   location: null,
   budget: null,
+  spending: null,
   currentCards: [],
   onboardingCompleted: false,
   linkedBank: false,
@@ -42,6 +45,7 @@ export const useUserStore = create<UserState>()(
       ...initialState,
       setLocation: (location) => set({ location }),
       setBudget: (budget) => set({ budget }),
+      setSpending: (spending) => set({ spending }),
       setCurrentCards: (cards) => set({ currentCards: cards }),
       setOnboardingCompleted: (completed) => set({ onboardingCompleted: completed }),
       setLinkedBank: (linked) => set({ linkedBank: linked }),

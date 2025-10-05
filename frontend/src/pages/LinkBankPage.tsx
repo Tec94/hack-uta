@@ -22,7 +22,7 @@ export function LinkBankPage() {
   const [linkToken, setLinkToken] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [step, setStep] = useState<'setup' | 'connecting' | 'processing' | 'success' | 'already_connected'>('setup');
-  const { setBudget, setLinkedBank, setOnboardingCompleted } = useUserStore();
+  const { setSpending, setLinkedBank } = useUserStore();
 
   // Check for existing bank link and create link token on component mount
   useEffect(() => {
@@ -73,8 +73,8 @@ export function LinkBankPage() {
       const spending = calculateSpendingFromTransactions(transactions);
       console.log('Calculated spending:', spending);
 
-      // Store budget in user store
-      setBudget({
+      // Store spending data in user store (separate from budget)
+      setSpending({
         dining: Math.round(spending.dining),
         gas: Math.round(spending.gas),
         groceries: Math.round(spending.groceries),
@@ -86,10 +86,9 @@ export function LinkBankPage() {
       setLinkedBank(true);
       setStep('success');
 
-      // Navigate to dashboard after short delay
+      // Navigate to budget setup after short delay
       setTimeout(() => {
-        setOnboardingCompleted(true);
-        navigate('/dashboard');
+        navigate('/onboarding/budget-setup');
       }, 2000);
     } catch (err) {
       console.error('Error processing Plaid data:', err);
@@ -223,7 +222,7 @@ export function LinkBankPage() {
                 </div>
                 <h2 className="text-2xl font-semibold mb-2">Successfully Connected!</h2>
                 <p className="text-muted-foreground">Your bank account is linked via Plaid</p>
-                <p className="text-sm text-muted-foreground mt-2">Redirecting to your dashboard...</p>
+                <p className="text-sm text-muted-foreground mt-2">Taking you to budget setup...</p>
               </CardContent>
             </Card>
           </motion.div>
@@ -242,18 +241,15 @@ export function LinkBankPage() {
                 </div>
                 <h2 className="text-2xl font-semibold mb-2">Bank Already Connected!</h2>
                 <p className="text-muted-foreground">Your bank account is already linked via Plaid</p>
-                <p className="text-sm text-muted-foreground mt-2">You can proceed to your dashboard</p>
+                <p className="text-sm text-muted-foreground mt-2">Continue to budget setup</p>
                 
                 <div className="mt-6 space-y-3">
                   <Button
-                    onClick={() => {
-                      setOnboardingCompleted(true);
-                      navigate('/dashboard');
-                    }}
+                    onClick={() => navigate('/onboarding/budget-setup')}
                     className="w-full"
                     size="lg"
                   >
-                    Go to Dashboard
+                    Continue to Budget Setup
                   </Button>
                   
                   <Button

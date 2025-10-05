@@ -298,8 +298,7 @@ export function ManualSetupPage() {
                   {monthlyIncome > 0 || totalBudget > 0 ? (
                     <Button 
                       type="submit" 
-                      className="flex-1 text-base sm:text-lg" 
-                      size="lg"
+                      className="flex-1"
                     >
                       Complete Setup
                     </Button>
@@ -307,8 +306,7 @@ export function ManualSetupPage() {
                     <Button 
                       type="submit"
                       variant="ghost"
-                      className="flex-1 text-muted-foreground text-sm"
-                      size="sm"
+                      className="flex-1 text-muted-foreground"
                     >
                       Skip for now
                     </Button>
