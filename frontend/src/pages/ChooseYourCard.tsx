@@ -19,6 +19,8 @@ interface CardSelection {
 
 export function ChooseYourCardPage() {
   const navigate = useNavigate()
+  const { user } = useAuth0()
+  const { showNotification } = useNotification()
   const { setCurrentCards } = useUserStore()
   const [cards, setCards] = useState<ApiCreditCard[]>([])
   const [userCards, setUserCards] = useState<UserCard[]>([])
