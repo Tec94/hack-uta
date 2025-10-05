@@ -14,6 +14,7 @@ export interface UserCard {
   user_id: string;
   card_cat_id: string;
   is_active: boolean;
+  origin: 'manual' | 'bank';
   bank_name: string;
   card_name: string;
   network: string;

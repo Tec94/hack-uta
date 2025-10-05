@@ -41,6 +41,8 @@ export function CreditCardManagementPage() {
   const [removingCard, setRemovingCard] = useState<string | null>(null)
   // Map catalog IDs to database user_card IDs
   const [userCardIdMap, setUserCardIdMap] = useState<Record<string, number>>({})
+  // Map catalog IDs to card origins
+  const [cardOriginMap, setCardOriginMap] = useState<Record<string, 'manual' | 'bank'>>({})
   // AI Insights
   const [aiInsights, setAiInsights] = useState<{
     insight: string
@@ -98,19 +100,23 @@ export function CreditCardManagementPage() {
       }
       const data = await response.json()
       
-      // Build a map of card_cat_id to user_card id
+      // Build a map of card_cat_id to user_card id and origin
       const idMap: Record<string, number> = {}
+      const originMap: Record<string, 'manual' | 'bank'> = {}
       const catalogIds: string[] = []
       
       if (data.data && Array.isArray(data.data)) {
         data.data.forEach((userCard: any) => {
           // Map catalog ID (card_cat_id) to database ID (id)
           idMap[String(userCard.card_cat_id)] = userCard.id
+          // Map catalog ID to origin
+          originMap[String(userCard.card_cat_id)] = userCard.origin || 'manual'
           catalogIds.push(String(userCard.card_cat_id))
         })
       }
       
       setUserCardIdMap(idMap)
+      setCardOriginMap(originMap)
       setCurrentCards(catalogIds)
     } catch (err) {
       console.error('Error fetching user cards:', err)
@@ -317,7 +323,7 @@ export function CreditCardManagementPage() {
     setIsModalOpen(true)
   }
 
-  const CardItem = ({ card, isOwned }: { card: ApiCreditCard, isOwned: boolean }) => (
+  const CardItem = ({ card, isOwned, origin }: { card: ApiCreditCard, isOwned: boolean, origin?: 'manual' | 'bank' }) => (
     <motion.div
       layout
       initial={{ opacity: 0, scale: 0.95 }}
@@ -349,6 +355,14 @@ export function CreditCardManagementPage() {
             <Badge variant="outline" className="text-xs">
               {card.network}
             </Badge>
+            {isOwned && origin && (
+              <Badge 
+                variant={origin === 'bank' ? 'default' : 'secondary'} 
+                className="text-xs"
+              >
+                {origin === 'bank' ? '🏦 From Bank' : '✋ Manual'}
+              </Badge>
+            )}
           </div>
         </CardHeader>
 
@@ -537,6 +551,7 @@ export function CreditCardManagementPage() {
             onAddCard={handleAddCard}
             showAddButton={true}
             onCardClick={handleCardClick}
+            cardOrigins={cardOriginMap}
           />
         </div>
 
@@ -590,7 +605,12 @@ export function CreditCardManagementPage() {
                       className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
                     >
                       {filterCards(myCards).map((card) => (
-                        <CardItem key={card.id} card={card} isOwned={true} />
+                        <CardItem 
+                          key={card.id} 
+                          card={card} 
+                          isOwned={true} 
+                          origin={cardOriginMap[card.id]}
+                        />
                       ))}
                     </motion.div>
                   </AnimatePresence>

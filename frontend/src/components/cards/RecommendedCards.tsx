@@ -22,6 +22,7 @@ interface RecommendedCardsProps {
   onAddCard?: (cardId: string) => void
   showAddButton?: boolean
   onCardClick?: (card: ApiCreditCard) => void
+  cardOrigins?: Record<string, 'manual' | 'bank'>
 }
 
 export function RecommendedCards({
@@ -30,7 +31,8 @@ export function RecommendedCards({
   budget,
   onAddCard,
   showAddButton = false,
-  onCardClick
+  onCardClick,
+  cardOrigins = {}
 }: RecommendedCardsProps) {
   // Carousel for recommendations
   const [emblaRef, emblaApi] = useEmblaCarousel({
@@ -228,6 +230,7 @@ export function RecommendedCards({
               <div className="flex gap-4">
                 {recommendedCards.map((card, index) => {
                   const isOwned = currentCards.includes(card.id)
+                  const cardOrigin = cardOrigins[card.id]
                   const topReward = Object.entries(card.reward_summary).sort((a, b) => b[1] - a[1])[0]
                   
                   return (
@@ -258,11 +261,19 @@ export function RecommendedCards({
                           </div>
                           <CardTitle className="text-lg line-clamp-1 text-foreground">{card.card_name}</CardTitle>
                           <p className="text-sm text-foreground">{card.bank_name}</p>
-                          <div className="flex items-center gap-2 mt-2">
+                          <div className="flex items-center gap-2 mt-2 flex-wrap">
                             <Badge className={getCategoryColor(card.category)} variant="outline">
                               {card.category}
                             </Badge>
                             <Badge variant="outline" className="text-xs">{card.network}</Badge>
+                            {isOwned && cardOrigin && (
+                              <Badge 
+                                variant={cardOrigin === 'bank' ? 'default' : 'secondary'} 
+                                className="text-xs"
+                              >
+                                {cardOrigin === 'bank' ? '🏦 From Bank' : '✋ Manual'}
+                              </Badge>
+                            )}
                           </div>
                         </CardHeader>
                         <CardContent>

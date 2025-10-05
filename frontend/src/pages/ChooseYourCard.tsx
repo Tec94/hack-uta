@@ -191,8 +191,10 @@ export function ChooseYourCardPage() {
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8"
         >
           {cards.map((card, index) => {
-            const userHasCard = userCards.some(userCard => userCard.card_cat_id === card.id)
+            const userCard = userCards.find(userCard => userCard.card_cat_id === card.id)
+            const userHasCard = !!userCard
             const isSelected = selectedCards[card.id] || false
+            const cardOrigin = userCard?.origin
             
             return (
               <motion.div
@@ -214,9 +216,19 @@ export function ChooseYourCardPage() {
                         </CardTitle>
                         <p className="text-sm text-muted-foreground">{card.bank_name}</p>
                         {userHasCard && (
-                          <Badge className="mt-1 bg-green-100 text-green-800 text-xs">
-                            Already in your collection
-                          </Badge>
+                          <div className="flex gap-2 mt-1 flex-wrap">
+                            <Badge className="bg-green-100 text-green-800 text-xs">
+                              Already in your collection
+                            </Badge>
+                            {cardOrigin && (
+                              <Badge 
+                                variant={cardOrigin === 'bank' ? 'default' : 'secondary'} 
+                                className="text-xs"
+                              >
+                                {cardOrigin === 'bank' ? '🏦 From Bank' : '✋ Manual'}
+                              </Badge>
+                            )}
+                          </div>
                         )}
                       </div>
                       <div className="flex items-center gap-2 flex-shrink-0">

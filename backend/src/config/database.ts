@@ -210,6 +210,30 @@ class Database {
     }
   }
 
+  async getCardByOfficialName(officialName: string): Promise<any> {
+    try {
+      // Try to parse officialName as an ID (number)
+      const cardId = parseInt(officialName);
+      
+      if (isNaN(cardId)) {
+        // If not a valid number, return null
+        console.log(`Invalid card ID format: ${officialName}`);
+        return null;
+      }
+      
+      const query = `
+        SELECT id, created_at, bank_name, card_name, network, category, reward_summary
+        FROM card_catalog
+        WHERE id = $1
+      `;
+      const result = await this.query(query, [cardId]);
+      return result.rows[0] || null;
+    } catch (error) {
+      console.error('Error getting card by official name:', error);
+      throw error;
+    }
+  }
+
   // User Cards operations
   async addUserCard(userId: string, cardCatId: number, isActive: boolean = true): Promise<any> {
     try {
@@ -226,6 +250,21 @@ class Database {
     }
   }
 
+  async addUserCardWithOrigin(userId: string, cardCatId: number, origin: 'manual' | 'bank', isActive: boolean = true): Promise<any> {
+    try {
+      const query = `
+        INSERT INTO cards (user_id, card_cat_id, is_active, origin)
+        VALUES ($1, $2, $3, $4)
+        RETURNING id, created_at, user_id, card_cat_id, is_active, origin
+      `;
+      const result = await this.query(query, [userId, cardCatId, isActive, origin]);
+      return result.rows[0];
+    } catch (error) {
+      console.error('Error adding user card with origin:', error);
+      throw error;
+    }
+  }
+
   async getUserCards(userId: string): Promise<any[]> {
     try {
       const query = `
@@ -235,6 +274,7 @@ class Database {
           c.user_id,
           c.card_cat_id,
           c.is_active,
+          c.origin,
           cc.bank_name,
           cc.card_name,
           cc.network,
@@ -262,6 +302,7 @@ class Database {
           c.user_id,
           c.card_cat_id,
           c.is_active,
+          c.origin,
           cc.bank_name,
           cc.card_name,
           cc.network,

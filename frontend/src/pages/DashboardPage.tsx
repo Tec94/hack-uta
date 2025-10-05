@@ -17,6 +17,7 @@ import { recommendCardsForMerchant, calculatePotentialEarnings, getRecommendatio
 import { MapPin, AlertCircle, Loader2, TrendingUp, DollarSign, Award, Sparkles, Star, TestTube, Edit } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { useNotification } from '@/contexts/NotificationContext'
+import { getUserCards } from '@/lib/user-cards'
 
 export function DashboardPage() {
   const { user } = useAuth0()
@@ -31,6 +32,7 @@ export function DashboardPage() {
   const [apiCards, setApiCards] = useState<ApiCreditCard[]>([])
   const [cardsLoading, setCardsLoading] = useState(true)
   const [userCards, setUserCards] = useState<CreditCard[]>([])
+  const [cardOriginMap, setCardOriginMap] = useState<Record<string, 'manual' | 'bank'>>({})
 
   // Redirect to onboarding if not completed
   useEffect(() => {
@@ -57,35 +59,48 @@ export function DashboardPage() {
     fetchCards()
   }, [])
 
-  // Fetch user cards for recommendations
+  // Fetch user cards to get origins
   useEffect(() => {
-    const fetchUserCards = async () => {
+    const fetchUserCardsOrigins = async () => {
       if (!user?.sub) return
-      
+
       try {
-        const response = await fetch(`http://localhost:3000/api/user-cards/${user.sub}`)
-        if (response.ok) {
-          const data = await response.json()
-          if (data.success && data.data) {
-            // Convert API cards to CreditCard format for recommendations
-            const cards: CreditCard[] = data.data.map((card: any) => ({
-              id: card.card_cat_id.toString(),
-              name: card.card_name,
-              issuer: card.bank_name,
-              network: card.network,
-              rewardRates: card.reward_summary || {},
-              annualFee: 0, // Default value
-              signupBonus: '', // Default value
-              features: [] // Default value
-            }))
-            setUserCards(cards)
-          }
-        }
+        const userCardsData = await getUserCards(user.sub)
+
+        // Convert API cards to CreditCard format for recommendations
+        const cards: CreditCard[] = userCardsData.map((card: any) => ({
+          id: card.card_cat_id.toString(),
+          name: card.card_name,
+          issuer: card.bank_name,
+          network: card.network,
+          logoUrl: '',
+          imageUrl: '',
+          primaryBenefit: '',
+          secondaryBenefits: [],
+          rewardsStructure: [],
+          creditScoreRequired: '',
+          fullDescription: '',
+          applicationUrl: '',
+          rewardRates: card.reward_summary || {},
+          annualFee: 0, // Default value
+          signupBonus: '', // Default value
+          features: [] // Default value
+        }))
+        setUserCards(cards)
+
+        const originMap: Record<string, 'manual' | 'bank'> = {}
+        
+        userCardsData.forEach(userCard => {
+          originMap[userCard.card_cat_id] = userCard.origin || 'manual'
+        })
+        
+        setCardOriginMap(originMap)
       } catch (err) {
-        console.error('Error fetching user cards:', err)
+        console.error('Error fetching user cards origins:', err)
       }
     }
-    fetchUserCards()
+    
+    fetchUserCardsOrigins()
   }, [user?.sub])
 
   // Update stored location when geolocation succeeds
@@ -397,6 +412,7 @@ export function DashboardPage() {
             currentCards={currentCards}
             budget={budget ?? undefined}
             showAddButton={false}
+            cardOrigins={cardOriginMap}
           />
         )}
 
