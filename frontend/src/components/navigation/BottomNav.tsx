@@ -1,12 +1,13 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Home, CreditCard, User } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { Home, CreditCard, User, ArrowRightLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState, useEffect, useRef } from 'react';
 
 const navItems = [
   { icon: Home, label: 'Home', route: '/dashboard' },
   { icon: CreditCard, label: 'Cards', route: '/cards' },
+  { icon: ArrowRightLeft, label: 'Transfers', route: '/transfer-rates' },
   { icon: User, label: 'Profile', route: '/profile' },
 ];
 

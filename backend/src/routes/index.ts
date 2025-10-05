@@ -8,6 +8,7 @@ import geminiRoutes from './gemini';
 import cardsRoutes from './cards';
 import userCardsRoutes from './user-cards';
 import insightsRoutes from './insights';
+import transferRatesRoutes from './transfer-rates';
 
 const router = Router();
 
@@ -20,6 +21,7 @@ router.use('/api/places', placesRoutes);
 router.use('/api/cards', cardsRoutes);
 router.use('/api/user-cards', userCardsRoutes);
 router.use('/api/insights', insightsRoutes);
+router.use('/api/transfer-rates', transferRatesRoutes);
 router.use('/', geminiRoutes);
 
 export default router;
