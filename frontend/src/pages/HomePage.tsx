@@ -50,6 +50,11 @@ export function HomePage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
+          <img 
+            src="/credify-logo.png" 
+            alt="Credify" 
+            className="w-24 h-24 mx-auto mb-6 object-contain animate-pulse"
+          />
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
         </div>
       </div>
@@ -72,9 +77,11 @@ export function HomePage() {
             transition={{ duration: 0.5 }}
             className="flex justify-center mb-8"
           >
-            <div className="w-24 h-24 bg-primary rounded-3xl flex items-center justify-center shadow-lg">
-              <CreditCard className="w-12 h-12 text-primary-foreground" />
-            </div>
+            <img 
+              src="/credify-logo.png" 
+              alt="Credify Logo" 
+              className="w-32 h-32 object-contain"
+            />
           </motion.div>
 
           <motion.div
@@ -98,10 +105,10 @@ export function HomePage() {
           </motion.div>
 
           <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
-            Maximize Every Purchase with
+            Smart Credit Card Rewards with
             <br />
             <span className="text-primary">
-              CardWise
+              Credify
             </span>
           </h1>
 

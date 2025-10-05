@@ -121,15 +121,15 @@ export function ChatbotAssistant() {
                 className="w-8 h-8 sm:w-10 sm:h-10"
               />
             </button>
-            {/* Unread Message Badge */}
-            {hasUnreadMessages && (
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                exit={{ scale: 0 }}
-                className="absolute -top-1 -right-1 w-4 h-4 bg-primary rounded-full border-2 border-background shadow-lg"
-              />
-            )}
+             {/* Unread Message Badge */}
+             {hasUnreadMessages && (
+               <motion.div
+                 initial={{ scale: 0 }}
+                 animate={{ scale: 1 }}
+                 exit={{ scale: 0 }}
+                 className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full border-2 border-background shadow-lg"
+               />
+             )}
           </motion.div>
         )}
       </AnimatePresence>

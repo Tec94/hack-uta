@@ -5,13 +5,18 @@
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#0a0a0a",
+  "theme_color": "#10b981",
   "orientation": "portrait",
   "icons": [
     {
-      "src": "/vite.svg",
-      "sizes": "any",
-      "type": "image/svg+xml"
+      "src": "/credify-logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/credify-logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
     }
   ]
 }
