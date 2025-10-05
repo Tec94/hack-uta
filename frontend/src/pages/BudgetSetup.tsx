@@ -265,7 +265,27 @@ export function ManualSetupPage() {
                   </ul>
                 </div>
 
-                <div className="flex gap-3 pt-4">
+                {/* Warning when no budget entered */}
+                {monthlyIncome === 0 && totalBudget === 0 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-muted border rounded-lg p-4 mt-6"
+                  >
+                    <div className="flex items-start gap-3">
+                      <AlertCircle className="w-5 h-5 text-muted-foreground mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="font-medium text-sm mb-1">Budget information not provided</p>
+                        <p className="text-xs text-muted-foreground">
+                          Without your income and spending data, we cannot provide personalized card recommendations 
+                          or analyze which cards will maximize your rewards. Your dashboard insights will be significantly limited.
+                        </p>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+
+                <div className="flex flex-col sm:flex-row gap-3 pt-4">
                   <Button
                     type="button"
                     variant="outline"
@@ -274,13 +294,25 @@ export function ManualSetupPage() {
                   >
                     Back
                   </Button>
-                  <Button 
-                    type="submit" 
-                    className="flex-1 text-lg" 
-                    size="lg"
-                  >
-                    {monthlyIncome === 0 && totalBudget === 0 ? 'Skip & Continue' : 'Complete Setup'}
-                  </Button>
+                  
+                  {monthlyIncome > 0 || totalBudget > 0 ? (
+                    <Button 
+                      type="submit" 
+                      className="flex-1 text-base sm:text-lg" 
+                      size="lg"
+                    >
+                      Complete Setup
+                    </Button>
+                  ) : (
+                    <Button 
+                      type="submit"
+                      variant="ghost"
+                      className="flex-1 text-muted-foreground text-sm"
+                      size="sm"
+                    >
+                      Skip for now
+                    </Button>
+                  )}
                 </div>
               </form>
             </CardContent>

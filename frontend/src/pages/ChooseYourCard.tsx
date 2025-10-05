@@ -255,41 +255,82 @@ export function ChooseYourCardPage() {
           transition={{ delay: 0.4 }}
           className="flex flex-col gap-4 items-center"
         >
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center w-full max-w-md">
+          {/* Warning when no cards selected */}
+          {selectedCount === 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="w-full max-w-2xl bg-muted border rounded-lg p-4"
+            >
+              <div className="flex items-start gap-3">
+                <CreditCardIcon className="w-5 h-5 text-muted-foreground mt-0.5 flex-shrink-0" />
+                <div>
+                  <p className="font-medium text-sm mb-1">No cards selected</p>
+                  <p className="text-xs text-muted-foreground">
+                    Selecting your current cards helps us provide personalized recommendations and better reward analysis. 
+                    Without this information, our AI insights will be limited.
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          <div className="flex flex-col sm:flex-row gap-3 w-full max-w-md">
             <Button
               variant="outline"
               onClick={() => navigate('/onboarding/choice')}
-              className="w-full sm:w-auto min-w-[140px]"
+              className="flex-1"
               disabled={isSubmitting}
             >
               Back
             </Button>
 
-            <Button
-              onClick={handleSubmit}
-              disabled={isSubmitting}
-              className="w-full sm:w-auto min-w-[140px]"
-              size="lg"
-            >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Saving...
-                </>
-              ) : (
-                <>
-                  {selectedCount > 0 ? 'Continue' : 'Skip'}
-                  <ChevronRight className="w-4 h-4 ml-2" />
-                </>
-              )}
-            </Button>
+            {selectedCount > 0 ? (
+              <Button
+                onClick={handleSubmit}
+                disabled={isSubmitting}
+                className="flex-1 text-base sm:text-lg"
+                size="lg"
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    Continue
+                    <ChevronRight className="w-4 h-4 ml-2" />
+                  </>
+                )}
+              </Button>
+            ) : (
+              <Button
+                variant="ghost"
+                onClick={handleSubmit}
+                disabled={isSubmitting}
+                className="flex-1 text-muted-foreground text-sm"
+                size="sm"
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    Skip for now
+                  </>
+                )}
+              </Button>
+            )}
           </div>
 
           {selectedCount === 0 && (
             <motion.p
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="text-sm text-muted-foreground text-center"
+              className="text-xs text-muted-foreground text-center"
             >
               You can add cards later from your profile
             </motion.p>

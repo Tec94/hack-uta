@@ -13,7 +13,7 @@ export function BottomNav() {
   const pathname = location.pathname;
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 pb-6 safe-area-bottom">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 pb-6 mb-5 safe-area-bottom">
       <div className="max-w-md mx-auto px-4">
         {/* Dock Container */}
         <div className="flex items-center justify-center gap-2 mx-auto w-fit px-4 py-3 bg-background/95 backdrop-blur-sm border rounded-full shadow-lg">
