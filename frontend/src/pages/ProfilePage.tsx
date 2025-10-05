@@ -228,7 +228,12 @@ export function ProfilePage() {
               <CardTitle className="text-lg">Quick Actions</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <Button variant="outline" className="w-full justify-start hover:bg-blue-50 hover:border-blue-300 transition-colors" size="lg">
+              <Button 
+                variant="outline" 
+                className="w-full justify-start hover:bg-blue-50 hover:border-blue-300 transition-colors" 
+                size="lg"
+                onClick={() => navigate('/cards')}
+              >
                 <CreditCard className="w-5 h-5 mr-3 text-blue-600" />
                 <span>Manage Cards</span>
               </Button>

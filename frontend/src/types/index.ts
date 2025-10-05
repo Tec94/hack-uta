@@ -76,3 +76,14 @@ export interface Recommendation {
 
 export type SpendingCategory = 'dining' | 'gas' | 'groceries' | 'travel' | 'shopping' | 'entertainment';
 
+// API Credit Card type from the cards API
+export interface ApiCreditCard {
+  id: string;
+  created_at: string;
+  bank_name: string;
+  card_name: string;
+  network: string;
+  category: string;
+  reward_summary: Record<string, number>;
+}
+

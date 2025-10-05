@@ -5,6 +5,8 @@ import { HomePage } from './pages/HomePage'
 import { OnboardingChoice } from './pages/OnboardingChoice'
 import { LinkBankPage } from './pages/LinkBankPage'
 import { ManualSetupPage } from './pages/BudgetSetup'
+import { ChooseYourCardPage } from './pages/ChooseYourCard'
+import { CreditCardManagementPage } from './pages/CreditCardManagement'
 import { DashboardPage } from './pages/DashboardPage'
 import { RecommendationsPage } from './pages/RecommendationsPage'
 import { ProfilePage } from './pages/ProfilePage'
@@ -59,10 +61,26 @@ function App() {
           }
         />
         <Route
+          path="/onboarding/choose-card"
+          element={
+            <ProtectedRoute>
+              <ChooseYourCardPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/onboarding/budget-setup"
           element={
             <ProtectedRoute>
               <ManualSetupPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/cards"
+          element={
+            <ProtectedRoute>
+              <CreditCardManagementPage />
             </ProtectedRoute>
           }
         />
