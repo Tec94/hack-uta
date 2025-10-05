@@ -431,6 +431,79 @@ class Database {
       throw error;
     }
   }
+
+  // Budget operations
+  async createBudget(userId: string, income: number, budget: any): Promise<any> {
+    try {
+      const query = `
+        INSERT INTO budget (user_id, income, budget)
+        VALUES ($1, $2, $3)
+        RETURNING id, created_at, user_id, income, budget
+      `;
+      const result = await this.query(query, [userId, income, JSON.stringify(budget)]);
+      return result.rows[0];
+    } catch (error) {
+      console.error('Error creating budget:', error);
+      throw error;
+    }
+  }
+
+  async getBudgetByUserId(userId: string): Promise<any> {
+    try {
+      const query = `
+        SELECT id, created_at, user_id, income, budget
+        FROM budget
+        WHERE user_id = $1
+        ORDER BY created_at DESC
+        LIMIT 1
+      `;
+      const result = await this.query(query, [userId]);
+      return result.rows[0] || null;
+    } catch (error) {
+      console.error('Error getting budget by user ID:', error);
+      throw error;
+    }
+  }
+
+  async updateBudget(userId: string, income: number, budget: any): Promise<any> {
+    try {
+      // Check if budget exists
+      const existingBudget = await this.getBudgetByUserId(userId);
+      
+      if (existingBudget) {
+        // Update existing budget
+        const query = `
+          UPDATE budget
+          SET income = $1, budget = $2, created_at = NOW()
+          WHERE user_id = $3
+          RETURNING id, created_at, user_id, income, budget
+        `;
+        const result = await this.query(query, [income, JSON.stringify(budget), userId]);
+        return result.rows[0];
+      } else {
+        // Create new budget if doesn't exist
+        return await this.createBudget(userId, income, budget);
+      }
+    } catch (error) {
+      console.error('Error updating budget:', error);
+      throw error;
+    }
+  }
+
+  async deleteBudget(userId: string): Promise<boolean> {
+    try {
+      const query = `
+        DELETE FROM budget
+        WHERE user_id = $1
+        RETURNING id
+      `;
+      const result = await this.query(query, [userId]);
+      return result.rows.length > 0;
+    } catch (error) {
+      console.error('Error deleting budget:', error);
+      throw error;
+    }
+  }
 }
 
 // Create and export a singleton instance

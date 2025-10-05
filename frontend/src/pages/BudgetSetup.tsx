@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useAuth0 } from '@auth0/auth0-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -9,31 +10,35 @@ import { motion } from 'framer-motion'
 import { formatCurrency } from '@/lib/utils'
 import { useUserStore } from '@/store/userStore'
 import { UserBudget } from '@/types'
-import { DollarSign, TrendingUp, AlertCircle } from 'lucide-react'
+import { DollarSign, TrendingUp, AlertCircle, Loader2 } from 'lucide-react'
+import { saveBudget, getBudget } from '@/lib/budget'
+import { useToast } from '@/hooks/use-toast'
 
 const categoryGroups = [
   {
     title: 'Essential Expenses',
     categories: [
-      { key: 'rent', label: 'Rent/Mortgage', icon: '🏠', max: 5000, suggestedRatio: 0.3 },
-      { key: 'utilities', label: 'Utilities & Bills', icon: '💡', max: 500, suggestedRatio: 0.08 },
-      { key: 'groceries', label: 'Groceries', icon: '🛒', max: 1000, suggestedRatio: 0.12 },
-      { key: 'gas', label: 'Gas & Transportation', icon: '⛽', max: 500, suggestedRatio: 0.1 },
+      { key: 'rent', label: 'Rent/Mortgage', icon: '🏠', suggestedRatio: 0.3 },
+      { key: 'utilities', label: 'Utilities & Bills', icon: '💡', suggestedRatio: 0.08 },
+      { key: 'groceries', label: 'Groceries', icon: '🛒', suggestedRatio: 0.12 },
+      { key: 'gas', label: 'Gas & Transportation', icon: '⛽', suggestedRatio: 0.1 },
     ]
   },
   {
     title: 'Lifestyle & Discretionary',
     categories: [
-      { key: 'dining', label: 'Dining & Restaurants', icon: '🍽️', max: 1000, suggestedRatio: 0.08 },
-      { key: 'shopping', label: 'Shopping & Retail', icon: '🛍️', max: 1000, suggestedRatio: 0.08 },
-      { key: 'entertainment', label: 'Entertainment', icon: '🎬', max: 500, suggestedRatio: 0.06 },
-      { key: 'travel', label: 'Travel & Hotels', icon: '✈️', max: 2000, suggestedRatio: 0.06 },
+      { key: 'dining', label: 'Dining & Restaurants', icon: '🍽️', suggestedRatio: 0.08 },
+      { key: 'shopping', label: 'Shopping & Retail', icon: '🛍️', suggestedRatio: 0.08 },
+      { key: 'entertainment', label: 'Entertainment', icon: '🎬', suggestedRatio: 0.06 },
+      { key: 'travel', label: 'Travel & Hotels', icon: '✈️', suggestedRatio: 0.06 },
     ]
   }
 ]
 
 export function ManualSetupPage() {
   const navigate = useNavigate()
+  const { user } = useAuth0()
+  const { toast } = useToast()
   const { setBudget, setLinkedBank, setOnboardingCompleted } = useUserStore()
   const [monthlyIncome, setMonthlyIncome] = useState<number>(0)
   const [budgets, setBudgets] = useState<Record<string, number>>({
@@ -46,19 +51,37 @@ export function ManualSetupPage() {
     entertainment: 0,
     travel: 0,
   })
+  const [loading, setLoading] = useState(false)
+  const [initialLoading, setInitialLoading] = useState(true)
+
+  // Load existing budget on mount
+  useEffect(() => {
+    const loadBudget = async () => {
+      if (!user?.sub) {
+        setInitialLoading(false)
+        return
+      }
+
+      try {
+        const existingBudget = await getBudget(user.sub)
+        if (existingBudget) {
+          setMonthlyIncome(existingBudget.income)
+          setBudgets(existingBudget.budget)
+        }
+      } catch (error) {
+        console.error('Error loading budget:', error)
+      } finally {
+        setInitialLoading(false)
+      }
+    }
+
+    loadBudget()
+  }, [user?.sub])
 
   const handleInputChange = (key: string, value: string) => {
     const numValue = parseInt(value) || 0
-    // Find the max for this category
-    let maxValue = 5000 // default max
-    for (const group of categoryGroups) {
-      const category = group.categories.find(cat => cat.key === key)
-      if (category) {
-        maxValue = category.max
-        break
-      }
-    }
-    const clampedValue = Math.max(0, Math.min(maxValue, numValue))
+    // Only ensure non-negative values
+    const clampedValue = Math.max(0, numValue)
     setBudgets((prev) => ({ ...prev, [key]: clampedValue }))
   }
 
@@ -73,31 +96,76 @@ export function ManualSetupPage() {
   }
 
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    // Map to UserBudget format for existing system
-    const userBudget: UserBudget = {
-      dining: budgets.dining || 0,
-      gas: budgets.gas || 0,
-      groceries: budgets.groceries || 0,
-      travel: budgets.travel || 0,
-      shopping: budgets.shopping || 0,
-      entertainment: budgets.entertainment || 0,
+    if (!user?.sub) {
+      toast({
+        title: 'Error',
+        description: 'You must be logged in to save budget',
+        variant: 'destructive',
+      })
+      return
     }
-    
-    // Save to store
-    setBudget(userBudget)
-    setLinkedBank(false)
-    setOnboardingCompleted(true)
-    
-    // Navigate to dashboard
-    navigate('/dashboard')
+
+    setLoading(true)
+
+    try {
+      // Save budget to API
+      await saveBudget({
+        user_id: user.sub,
+        income: monthlyIncome,
+        budget: budgets,
+      })
+
+      // Map to UserBudget format for existing system
+      const userBudget: UserBudget = {
+        dining: budgets.dining || 0,
+        gas: budgets.gas || 0,
+        groceries: budgets.groceries || 0,
+        travel: budgets.travel || 0,
+        shopping: budgets.shopping || 0,
+        entertainment: budgets.entertainment || 0,
+      }
+      
+      // Save to store
+      setBudget(userBudget)
+      setLinkedBank(false)
+      setOnboardingCompleted(true)
+
+      toast({
+        title: 'Budget Saved',
+        description: 'Your budget has been saved successfully',
+      })
+      
+      // Navigate to dashboard
+      navigate('/dashboard')
+    } catch (error: any) {
+      console.error('Error saving budget:', error)
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to save budget',
+        variant: 'destructive',
+      })
+    } finally {
+      setLoading(false)
+    }
   }
 
   const totalBudget = Object.values(budgets).reduce((sum, val) => sum + val, 0)
   const remaining = monthlyIncome - totalBudget
   const percentageUsed = monthlyIncome > 0 ? Math.round((totalBudget / monthlyIncome) * 100) : 0
+
+  if (initialLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-12 h-12 animate-spin mx-auto mb-4" />
+          <p className="text-muted-foreground">Loading your budget...</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-background py-12 px-4 pb-24">
@@ -236,7 +304,6 @@ export function ManualSetupPage() {
                                 value={budgets[category.key] || ''}
                                 onChange={(e) => handleInputChange(category.key, e.target.value)}
                                 min={0}
-                                max={category.max}
                                 aria-label={`${category.label} budget amount`}
                                 className="w-24 sm:w-28 px-2 sm:px-3 py-1.5 text-right font-bold border rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
                               />
@@ -298,17 +365,35 @@ export function ManualSetupPage() {
                   {monthlyIncome > 0 || totalBudget > 0 ? (
                     <Button 
                       type="submit" 
-                      className="flex-1"
+                      className="flex-1 text-base sm:text-lg" 
+                      size="lg"
+                      disabled={loading}
                     >
-                      Complete Setup
+                      {loading ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Saving...
+                        </>
+                      ) : (
+                        'Complete Setup'
+                      )}
                     </Button>
                   ) : (
                     <Button 
                       type="submit"
                       variant="ghost"
-                      className="flex-1 text-muted-foreground"
+                      className="flex-1 text-muted-foreground text-sm"
+                      size="sm"
+                      disabled={loading}
                     >
-                      Skip for now
+                      {loading ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Saving...
+                        </>
+                      ) : (
+                        'Skip for now'
+                      )}
                     </Button>
                   )}
                 </div>
