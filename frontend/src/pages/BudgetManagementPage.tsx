@@ -47,9 +47,13 @@ interface AIInsights {
   strengths: string[]
   improvements: string[]
   categoryInsights: Record<string, string>
+  spendingPatterns?: string[]
   savingsOpportunity: number
   healthScore: number
+  priorityActions?: string[]
+  longTermAdvice?: string
   aiPowered?: boolean
+  usedActualSpending?: boolean
 }
 
 export function BudgetManagementPage() {
@@ -120,10 +124,16 @@ export function BudgetManagementPage() {
   useEffect(() => {
     if (budget) {
       setTempBudget(budget)
-      fetchAIInsights()
       fetchActualSpending()
     }
   }, [budget])
+
+  // Fetch AI insights when budget, income, or actual spending changes
+  useEffect(() => {
+    if (budget) {
+      fetchAIInsights()
+    }
+  }, [budget, monthlyIncome, actualSpending])
 
   const fetchActualSpending = async () => {
     if (!user?.sub) return
@@ -173,15 +183,26 @@ export function BudgetManagementPage() {
 
     setLoadingInsights(true)
     try {
+      // Prepare request body with budget, income, and actual spending
+      const requestBody: any = {
+        budget: budget,
+        monthlyIncome: monthlyIncome > 0 ? monthlyIncome : null,
+      }
+
+      // Include actual spending if available (from bank transactions)
+      if (actualSpending && Object.values(actualSpending).some(val => val > 0)) {
+        requestBody.actualSpending = actualSpending
+        console.log('AI Budget Insights: Using actual spending data from transactions')
+      } else {
+        console.log('AI Budget Insights: Using planned budget only')
+      }
+
       const response = await fetch('http://localhost:3000/api/insights/budget', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          budget: budget,
-          monthlyIncome: monthlyIncome > 0 ? monthlyIncome : null,
-        }),
+        body: JSON.stringify(requestBody),
       })
 
       const data = await response.json()
@@ -462,6 +483,55 @@ export function BudgetManagementPage() {
                           </div>
                         </div>
                       ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Spending Patterns */}
+                {aiInsights.spendingPatterns && aiInsights.spendingPatterns.length > 0 && (
+                  <div className="bg-muted/50 rounded-lg p-3 sm:p-4">
+                    <div className="flex items-center gap-2 mb-3">
+                      <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
+                      <h3 className="text-sm sm:text-base font-semibold">Spending Patterns</h3>
+                    </div>
+                    <ul className="space-y-2">
+                      {aiInsights.spendingPatterns.map((pattern, idx) => (
+                        <li key={idx} className="text-xs sm:text-sm flex items-start gap-2">
+                          <span className="text-blue-600 mt-1 flex-shrink-0">•</span>
+                          <span>{pattern}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Priority Actions */}
+                {aiInsights.priorityActions && aiInsights.priorityActions.length > 0 && (
+                  <div className="bg-primary/5 border border-primary/20 rounded-lg p-3 sm:p-4">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Target className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+                      <h3 className="text-sm sm:text-base font-semibold text-primary">Priority Actions This Month</h3>
+                    </div>
+                    <ol className="space-y-2">
+                      {aiInsights.priorityActions.map((action, idx) => (
+                        <li key={idx} className="text-xs sm:text-sm flex items-start gap-2">
+                          <span className="font-bold text-primary flex-shrink-0">{idx + 1}.</span>
+                          <span className="font-medium">{action}</span>
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
+                )}
+
+                {/* Long-Term Advice */}
+                {aiInsights.longTermAdvice && (
+                  <div className="bg-muted/50 rounded-lg p-3 sm:p-4 border-l-4 border-primary">
+                    <div className="flex items-start gap-2 sm:gap-3">
+                      <Lightbulb className="w-4 h-4 sm:w-5 sm:h-5 text-primary flex-shrink-0 mt-0.5" />
+                      <div>
+                        <h3 className="text-sm sm:text-base font-semibold mb-1">Long-Term Strategy</h3>
+                        <p className="text-xs sm:text-sm text-muted-foreground">{aiInsights.longTermAdvice}</p>
+                      </div>
                     </div>
                   </div>
                 )}

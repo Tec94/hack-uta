@@ -36,6 +36,12 @@ export function RecommendedCards({
   onCardClick,
   cardOrigins = {}
 }: RecommendedCardsProps) {
+  // Debug: Log currentCards to see what's being passed
+  useEffect(() => {
+    console.log('RecommendedCards - currentCards:', currentCards)
+    console.log('RecommendedCards - total cards:', cards.length)
+  }, [currentCards, cards.length])
+
   // Carousel for recommendations
   const [emblaRef, emblaApi] = useEmblaCarousel({
     align: 'start',

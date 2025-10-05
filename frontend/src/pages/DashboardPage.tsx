@@ -13,7 +13,7 @@ import { useGeolocation } from '@/hooks/useGeolocation'
 import { useUserStore } from '@/store/userStore'
 import { CreditCard, Merchant, ApiCreditCard } from '@/types'
 import { fetchNearbyPlaces } from '@/lib/places'
-import { recommendCardsForMerchant, calculatePotentialEarnings, getRecommendationReason } from '@/lib/recommendations'
+import { recommendCardsForMerchant, calculatePotentialEarnings, recommendCardsForLocation, calculatePotentialEarningsApi, getRecommendationReasonApi } from '@/lib/recommendations'
 import { MapPin, AlertCircle, Loader2, TrendingUp, DollarSign, Award, Sparkles, Star, TestTube, Edit, RefreshCw } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { useNotification } from '@/contexts/NotificationContext'
@@ -24,7 +24,7 @@ export function DashboardPage() {
   const { user } = useAuth0()
   const navigate = useNavigate()
   const { showNotification } = useNotification()
-  const { location: storedLocation, budget, spending, onboardingCompleted, setLocation, currentCards, dwellRadiusMeters, linkedBank, setSpending, setLinkedBank } = useUserStore()
+  const { location: storedLocation, budget, spending, onboardingCompleted, setLocation, currentCards, dwellRadiusMeters, linkedBank, setSpending, setLinkedBank, setCurrentCards } = useUserStore()
   const { location: geoLocation, error: geoError, loading: geoLoading, refetch } = useGeolocation()
   const [selectedCard, setSelectedCard] = useState<CreditCard | null>(null)
   const [modalOpen, setModalOpen] = useState(false)
@@ -35,6 +35,8 @@ export function DashboardPage() {
   const [userCards, setUserCards] = useState<CreditCard[]>([])
   const [cardOriginMap, setCardOriginMap] = useState<Record<string, 'manual' | 'bank'>>({})
   const [spendingLoading, setSpendingLoading] = useState(false)
+  const [locationRecommendations, setLocationRecommendations] = useState<{cards: ApiCreditCard[], aiPowered: boolean, reason?: string} | null>(null)
+  const [loadingLocationRecs, setLoadingLocationRecs] = useState(false)
 
   // Redirect to onboarding if not completed
   useEffect(() => {
@@ -89,6 +91,11 @@ export function DashboardPage() {
           features: [] // Default value
         }))
         setUserCards(cards)
+
+        // Extract card IDs and update the store
+        const cardIds = userCardsData.map((card: any) => card.card_cat_id.toString())
+        setCurrentCards(cardIds)
+        console.log('Updated currentCards in store:', cardIds)
 
         const originMap: Record<string, 'manual' | 'bank'> = {}
         
@@ -228,8 +235,26 @@ export function DashboardPage() {
     setModalOpen(true)
   }
 
-  const handleMerchantSelect = (merchant: Merchant) => {
+  const handleMerchantSelect = async (merchant: Merchant) => {
     setSelectedMerchant(merchant)
+    
+    // Fetch AI recommendations for this location
+    if (apiCards.length > 0) {
+      setLoadingLocationRecs(true)
+      try {
+        const recommendations = await recommendCardsForLocation(
+          merchant,
+          apiCards,
+          currentCards
+        )
+        setLocationRecommendations(recommendations)
+        console.log('Location recommendations:', recommendations)
+      } catch (error) {
+        console.error('Error fetching location recommendations:', error)
+      } finally {
+        setLoadingLocationRecs(false)
+      }
+    }
   }
 
   // Test notification functionality
@@ -478,39 +503,82 @@ export function DashboardPage() {
 
                     {/* Recommended Cards for this Location */}
                     <div className="bg-card rounded-lg border p-4">
-                      <div className="flex items-center gap-2 mb-3">
-                        <Star className="w-4 h-4 fill-current" />
-                        <h4 className="font-semibold">Best Cards for This Location</h4>
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-2">
+                          <Star className="w-4 h-4 fill-current" />
+                          <h4 className="font-semibold">Best Cards for This Location</h4>
+                        </div>
+                        {locationRecommendations?.aiPowered && (
+                          <Badge variant="default" className="text-xs">
+                            <Sparkles className="w-3 h-3 mr-1" />
+                            AI
+                          </Badge>
+                        )}
                       </div>
-                      <div className="space-y-2">
-                        {recommendCardsForMerchant(selectedMerchant, userCards).map((card, index) => (
-                          <motion.div
-                            key={card.id}
-                            initial={{ opacity: 0, x: -10 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: index * 0.1 }}
-                            onClick={() => handleCardClick(card)}
-                            className="p-3 bg-muted rounded-lg border hover:border-primary cursor-pointer transition-all hover:shadow-sm"
-                          >
-                            <div className="flex items-start justify-between">
-                              <div className="flex-1">
-                                <div className="flex items-center gap-2 mb-1">
-                                  <Badge variant="secondary" className="text-xs">
-                                    #{index + 1}
-                                  </Badge>
-                                  <p className="font-semibold text-sm">{card.name}</p>
+                      
+                      {locationRecommendations?.reason && (
+                        <p className="text-xs text-muted-foreground mb-3 italic">
+                          {locationRecommendations.reason}
+                        </p>
+                      )}
+                      
+                      {loadingLocationRecs ? (
+                        <div className="flex items-center justify-center py-4">
+                          <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+                          <span className="ml-2 text-sm text-muted-foreground">Finding best cards...</span>
+                        </div>
+                      ) : (
+                        <div className="space-y-2">
+                          {(locationRecommendations?.cards || []).map((card, index) => (
+                            <motion.div
+                              key={card.id}
+                              initial={{ opacity: 0, x: -10 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              transition={{ delay: index * 0.1 }}
+                              onClick={() => {
+                                // Convert ApiCreditCard to CreditCard for modal
+                                const modalCard: CreditCard = {
+                                  id: card.id,
+                                  name: card.card_name,
+                                  issuer: card.bank_name,
+                                  network: card.network,
+                                  rewardRates: card.reward_summary,
+                                  logoUrl: '',
+                                  imageUrl: '',
+                                  annualFee: 0,
+                                  signupBonus: '',
+                                  primaryBenefit: '',
+                                  secondaryBenefits: [],
+                                  rewardsStructure: [],
+                                  creditScoreRequired: '',
+                                  fullDescription: '',
+                                  applicationUrl: '',
+                                  features: []
+                                };
+                                handleCardClick(modalCard);
+                              }}
+                              className="p-3 bg-muted rounded-lg border hover:border-primary cursor-pointer transition-all hover:shadow-sm"
+                            >
+                              <div className="flex items-start justify-between">
+                                <div className="flex-1">
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <Badge variant="secondary" className="text-xs">
+                                      #{index + 1}
+                                    </Badge>
+                                    <p className="font-semibold text-sm">{card.card_name}</p>
+                                  </div>
+                                  <p className="text-xs text-muted-foreground mb-1">
+                                    {getRecommendationReasonApi(selectedMerchant, card)}
+                                  </p>
+                                  <p className="text-xs font-medium">
+                                    Earn: {calculatePotentialEarningsApi(selectedMerchant, card)}
+                                  </p>
                                 </div>
-                                <p className="text-xs text-muted-foreground mb-1">
-                                  {getRecommendationReason(selectedMerchant, card)}
-                                </p>
-                                <p className="text-xs font-medium">
-                                  Earn: {calculatePotentialEarnings(selectedMerchant, card)}
-                                </p>
                               </div>
-                            </div>
-                          </motion.div>
-                        ))}
-                      </div>
+                            </motion.div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </motion.div>
                 )}

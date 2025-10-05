@@ -186,10 +186,12 @@ interface ChatMessage {
 export async function getChatbotResponse(
   userMessage: string,
   budget: UserBudget | null,
-  conversationHistory: ChatMessage[]
+  conversationHistory: ChatMessage[],
+  monthlyIncome?: number,
+  actualSpending?: UserBudget | null
 ): Promise<string> {
   if (!genAI) {
-    return getFallbackChatbotResponse(userMessage, budget);
+    return getFallbackChatbotResponse(userMessage, budget, monthlyIncome, actualSpending);
   }
 
   try {
@@ -201,16 +203,35 @@ export async function getChatbotResponse(
       .map((msg) => `${msg.role === 'user' ? 'User' : 'Assistant'}: ${msg.content}`)
       .join('\n');
 
+    const totalBudget = budget ? Object.values(budget).reduce((sum, val) => sum + val, 0) : 0;
+    const totalSpending = actualSpending ? Object.values(actualSpending).reduce((sum, val) => sum + val, 0) : 0;
+    const hasActualSpending = actualSpending && totalSpending > 0;
+
     const budgetContext = budget
       ? `
-User's Monthly Budget:
+User's Monthly Budget (Planned):
+- Rent: $${budget.rent}
 - Dining: $${budget.dining}
 - Gas: $${budget.gas}
 - Groceries: $${budget.groceries}
 - Travel: $${budget.travel}
 - Shopping: $${budget.shopping}
 - Entertainment: $${budget.entertainment}
-Total: $${Object.values(budget).reduce((sum, val) => sum + val, 0)}
+Total Budget: $${totalBudget}
+${monthlyIncome && monthlyIncome > 0 ? `Monthly Income: $${monthlyIncome}` : ''}
+
+${hasActualSpending ? `
+User's Actual Spending (Current Month from Bank Transactions):
+- Rent: $${actualSpending.rent}
+- Dining: $${actualSpending.dining}
+- Gas: $${actualSpending.gas}
+- Groceries: $${actualSpending.groceries}
+- Travel: $${actualSpending.travel}
+- Shopping: $${actualSpending.shopping}
+- Entertainment: $${actualSpending.entertainment}
+Total Actual Spending: $${totalSpending}
+Difference: $${(totalSpending - totalBudget).toFixed(2)} (${totalSpending > totalBudget ? 'over' : 'under'} budget)
+` : ''}
 `
       : 'User has not set up a budget yet.';
 
@@ -224,7 +245,9 @@ ${historyContext}
 
 User's current question: ${userMessage}
 
-Provide a helpful, concise, and friendly response (2-4 sentences). If the user asks about card recommendations, consider their budget. If they ask about rewards optimization, provide actionable advice. Keep responses conversational and easy to understand.
+${hasActualSpending ? 'NOTE: Use the ACTUAL SPENDING data from their bank transactions when giving advice, as it reflects their real behavior, not just their planned budget.' : ''}
+
+Provide a helpful, concise, and friendly response (2-4 sentences). If the user asks about card recommendations, consider their ${hasActualSpending ? 'actual spending patterns' : 'budget'}. If they ask about rewards optimization, provide actionable advice based on their real spending. Keep responses conversational and easy to understand.
     `;
 
     const result = await model.generateContent(prompt);
@@ -232,7 +255,7 @@ Provide a helpful, concise, and friendly response (2-4 sentences). If the user a
     return response.text();
   } catch (error) {
     console.error('Gemini API error:', error);
-    return getFallbackChatbotResponse(userMessage, budget);
+    return getFallbackChatbotResponse(userMessage, budget, monthlyIncome, actualSpending);
   }
 }
 
@@ -312,9 +335,8 @@ Keep response conversational, encouraging, and practical (2-4 sentences).
 function getFallbackTransactionBudgetInsights(
   spendingData: SpendingData,
   budget: UserBudget,
-  monthlyIncome?: number
+  monthlyIncome?: number // Available for income-based insights
 ): string {
-  // Use monthlyIncome for potential future enhancements
   const totalSpending = Object.values(spendingData).reduce((sum, val) => sum + val, 0);
   const totalBudget = Object.values(budget).reduce((sum, val) => sum + val, 0);
 
@@ -340,23 +362,41 @@ function getFallbackTransactionBudgetInsights(
   return `You're spending ${Math.abs(variancePercent).toFixed(1)}% under your budget! That's great financial discipline. You have $${Math.abs(variance).toFixed(2)} extra that could go toward savings or debt reduction.`;
 }
 
-function getFallbackChatbotResponse(userMessage: string, budget: UserBudget | null): string {
+function getFallbackChatbotResponse(
+  userMessage: string, 
+  budget: UserBudget | null,
+  monthlyIncome?: number,
+  actualSpending?: UserBudget | null
+): string {
   const lowerMessage = userMessage.toLowerCase();
+  const hasActualSpending = actualSpending && Object.values(actualSpending).some(val => val > 0);
+  const dataSource = hasActualSpending ? actualSpending : budget;
 
   if (lowerMessage.includes('recommend') || lowerMessage.includes('card') || lowerMessage.includes('best')) {
-    if (!budget) {
+    if (!dataSource) {
       return "I'd love to recommend cards for you! To give you the best recommendations, please set up your monthly budget first. This helps me understand your spending patterns.";
     }
-    const topCategory = Object.entries(budget).sort((a, b) => b[1] - a[1])[0];
-    return `Based on your spending, you spend the most on ${topCategory[0]} ($${topCategory[1]}/month). I recommend looking for cards with strong rewards in this category, typically offering 3-5% cash back or points.`;
+    const topCategory = Object.entries(dataSource).sort((a, b) => b[1] - a[1])[0];
+    return `Based on your ${hasActualSpending ? 'actual spending from transactions' : 'budget'}, you spend the most on ${topCategory[0]} ($${topCategory[1]}/month). I recommend looking for cards with strong rewards in this category, typically offering 3-5% cash back or points.`;
   }
 
-  if (lowerMessage.includes('budget') || lowerMessage.includes('spending')) {
+  if (lowerMessage.includes('budget') || lowerMessage.includes('spending') || lowerMessage.includes('income')) {
     if (!budget) {
       return "You haven't set up your budget yet. Setting up a budget helps me provide personalized card recommendations and track your rewards potential!";
     }
-    const total = Object.values(budget).reduce((sum, val) => sum + val, 0);
-    return `Your total monthly budget is $${total}. Your top spending categories are ${Object.entries(budget)
+    const totalBudget = Object.values(budget).reduce((sum, val) => sum + val, 0);
+    const totalSpending = hasActualSpending ? Object.values(actualSpending!).reduce((sum, val) => sum + val, 0) : 0;
+    
+    if (hasActualSpending) {
+      const difference = totalSpending - totalBudget;
+      return `Your planned budget is $${totalBudget}/month${monthlyIncome ? ` (income: $${monthlyIncome})` : ''}, but you're actually spending $${totalSpending} this month - that's $${Math.abs(difference).toFixed(2)} ${difference > 0 ? 'over' : 'under'} budget. Your top spending categories are ${Object.entries(actualSpending!)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 3)
+        .map(([cat, amt]) => `${cat} ($${amt})`)
+        .join(', ')}.`;
+    }
+    
+    return `Your total monthly budget is $${totalBudget}${monthlyIncome ? ` out of $${monthlyIncome} income` : ''}. Your top spending categories are ${Object.entries(budget)
       .sort((a, b) => b[1] - a[1])
       .slice(0, 3)
       .map(([cat, amt]) => `${cat} ($${amt})`)

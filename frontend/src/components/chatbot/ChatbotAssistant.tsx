@@ -28,7 +28,7 @@ export function ChatbotAssistant() {
   const [isLoading, setIsLoading] = useState(false)
   const [hasUnreadMessages, setHasUnreadMessages] = useState(true) // Initial greeting is unread
   const messagesEndRef = useRef<HTMLDivElement>(null)
-  const { budget } = useUserStore()
+  const { budget, monthlyIncome, spending } = useUserStore()
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -53,7 +53,7 @@ export function ChatbotAssistant() {
     setIsLoading(true)
 
     try {
-      const response = await getChatbotResponse(input.trim(), budget, messages)
+      const response = await getChatbotResponse(input.trim(), budget, messages, monthlyIncome, spending)
       
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
