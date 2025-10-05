@@ -490,27 +490,15 @@ export function CreditCardManagementPage() {
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 py-6">
-        {/* Recommendations Slider */}
-        <div className="mb-8">
-          <RecommendedCards
-            cards={allCards}
-            currentCards={currentCards}
-            budget={budget ?? undefined}
-            onAddCard={handleAddCard}
-            showAddButton={true}
-            onCardClick={handleCardClick}
-          />
-        </div>
-
         {/* Search and Filter Bar */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="mb-6"
+          className="mb-8"
         >
-          <Card>
-            <CardContent className="pt-6">
+          <Card className="border-0 shadow-none bg-transparent">
+            <CardContent className="p-0">
               <div className="flex flex-col md:flex-row gap-4">
                 <div className="flex-1 relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
@@ -539,6 +527,18 @@ export function CreditCardManagementPage() {
             </CardContent>
           </Card>
         </motion.div>
+
+        {/* Recommendations Slider */}
+        <div className="mb-8">
+          <RecommendedCards
+            cards={allCards}
+            currentCards={currentCards}
+            budget={budget ?? undefined}
+            onAddCard={handleAddCard}
+            showAddButton={true}
+            onCardClick={handleCardClick}
+          />
+        </div>
 
         {/* Tabs for My Cards and Browse Cards */}
         <Tabs defaultValue="my-cards" className="w-full">

@@ -278,48 +278,6 @@ export function TransferRatesPage() {
           </div>
         )}
 
-        {/* Summary Stats */}
-        {filteredRates.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="mt-8"
-          >
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <TrendingUp className="w-5 h-5" />
-                  Quick Stats
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className="text-center p-4 bg-muted rounded-lg">
-                    <div className="text-2xl font-bold">{transferRates.length}</div>
-                    <div className="text-xs text-muted-foreground">Total Rates</div>
-                  </div>
-                  <div className="text-center p-4 bg-muted rounded-lg">
-                    <div className="text-2xl font-bold">{issuers.length - 1}</div>
-                    <div className="text-xs text-muted-foreground">Card Issuers</div>
-                  </div>
-                  <div className="text-center p-4 bg-muted rounded-lg">
-                    <div className="text-2xl font-bold">
-                      {new Set(transferRates.map(r => r.from_program)).size}
-                    </div>
-                    <div className="text-xs text-muted-foreground">From Programs</div>
-                  </div>
-                  <div className="text-center p-4 bg-muted rounded-lg">
-                    <div className="text-2xl font-bold">
-                      {new Set(transferRates.map(r => r.to_program)).size}
-                    </div>
-                    <div className="text-xs text-muted-foreground">To Programs</div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-        )}
           </TabsContent>
         </Tabs>
       </div>
