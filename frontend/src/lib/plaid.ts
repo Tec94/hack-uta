@@ -32,18 +32,21 @@ export async function createLinkToken(userId: string): Promise<string> {
 }
 
 /**
- * Exchange public token for access token
+ * Exchange public token for access token and persist to database
  * This is called after user successfully links their account
  */
-export async function exchangePublicToken(publicToken: string) {
+export async function exchangePublicToken(publicToken: string, userId: string) {
   try {
     const response = await axios.post(`${BACKEND_URL}/api/plaid/exchange_public_token`, {
       public_token: publicToken,
+      user_id: userId,
     });
 
     return {
       access_token: response.data.access_token,
       item_id: response.data.item_id,
+      bank_link_id: response.data.bank_link_id,
+      created_at: response.data.created_at,
     };
   } catch (error) {
     console.error('Error exchanging public token:', error);
@@ -52,14 +55,37 @@ export async function exchangePublicToken(publicToken: string) {
 }
 
 /**
- * Get account balance
+ * Get user's stored access token from database
  */
-export async function getBalance(accessToken: string) {
+export async function getStoredAccessToken(userId: string) {
   try {
-    const response = await axios.post(`${BACKEND_URL}/api/plaid/balance`, {
-      access_token: accessToken,
-    });
+    const response = await axios.get(`${BACKEND_URL}/api/plaid/access_token/${userId}`);
+    return response.data;
+  } catch (error: any) {
+    if (error.response?.status === 404) {
+      return { has_bank_link: false };
+    }
+    console.error('Error getting stored access token:', error);
+    throw new Error('Failed to get stored access token');
+  }
+}
 
+/**
+ * Get account balance (can use either accessToken directly or userId)
+ */
+export async function getBalance(accessToken?: string, userId?: string) {
+  try {
+    const requestBody: any = {};
+    
+    if (accessToken) {
+      requestBody.access_token = accessToken;
+    } else if (userId) {
+      requestBody.user_id = userId;
+    } else {
+      throw new Error('Either accessToken or userId is required');
+    }
+
+    const response = await axios.post(`${BACKEND_URL}/api/plaid/balance`, requestBody);
     return response.data.accounts;
   } catch (error) {
     console.error('Error getting balance:', error);
@@ -68,18 +94,27 @@ export async function getBalance(accessToken: string) {
 }
 
 /**
- * Get transactions (last 30 days)
+ * Get transactions (can use either accessToken directly or userId)
  */
-export async function getTransactions(accessToken: string, startDate?: string, endDate?: string) {
+export async function getTransactions(accessToken?: string, userId?: string, startDate?: string, endDate?: string) {
   const start = startDate || new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
   const end = endDate || new Date().toISOString().split('T')[0];
 
   try {
-    const response = await axios.post(`${BACKEND_URL}/api/plaid/transactions`, {
-      access_token: accessToken,
+    const requestBody: any = {
       start_date: start,
       end_date: end,
-    });
+    };
+    
+    if (accessToken) {
+      requestBody.access_token = accessToken;
+    } else if (userId) {
+      requestBody.user_id = userId;
+    } else {
+      throw new Error('Either accessToken or userId is required');
+    }
+
+    const response = await axios.post(`${BACKEND_URL}/api/plaid/transactions`, requestBody);
 
     return {
       transactions: response.data.transactions,

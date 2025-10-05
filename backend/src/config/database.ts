@@ -83,6 +83,132 @@ class Database {
       waitingCount: this.pool.waitingCount
     };
   }
+
+  // Bank Links operations
+  async createBankLink(userId: string, plaidToken: string): Promise<any> {
+    try {
+      const query = `
+        INSERT INTO bank_links (user_id, plaid_token)
+        VALUES ($1, $2)
+        RETURNING id, created_at, user_id, plaid_token
+      `;
+      const result = await this.query(query, [userId, plaidToken]);
+      return result.rows[0];
+    } catch (error) {
+      console.error('Error creating bank link:', error);
+      throw error;
+    }
+  }
+
+  async getBankLinkByUserId(userId: string): Promise<any> {
+    try {
+      const query = `
+        SELECT id, created_at, user_id, plaid_token
+        FROM bank_links
+        WHERE user_id = $1
+        ORDER BY created_at DESC
+        LIMIT 1
+      `;
+      const result = await this.query(query, [userId]);
+      return result.rows[0] || null;
+    } catch (error) {
+      console.error('Error getting bank link:', error);
+      throw error;
+    }
+  }
+
+  async updateBankLinkToken(userId: string, plaidToken: string): Promise<any> {
+    try {
+      const query = `
+        UPDATE bank_links
+        SET plaid_token = $2, created_at = now()
+        WHERE user_id = $1
+        RETURNING id, created_at, user_id, plaid_token
+      `;
+      const result = await this.query(query, [userId, plaidToken]);
+      return result.rows[0];
+    } catch (error) {
+      console.error('Error updating bank link token:', error);
+      throw error;
+    }
+  }
+
+  async deleteBankLink(userId: string): Promise<boolean> {
+    try {
+      const query = `
+        DELETE FROM bank_links
+        WHERE user_id = $1
+      `;
+      const result = await this.query(query, [userId]);
+      return result.rowCount > 0;
+    } catch (error) {
+      console.error('Error deleting bank link:', error);
+      throw error;
+    }
+  }
+
+  // Card Catalog operations
+  async getAllCards(): Promise<any[]> {
+    try {
+      const query = `
+        SELECT id, created_at, bank_name, card_name, network, category, reward_summary
+        FROM card_catalog
+        ORDER BY created_at DESC
+      `;
+      const result = await this.query(query);
+      return result.rows;
+    } catch (error) {
+      console.error('Error getting all cards:', error);
+      throw error;
+    }
+  }
+
+  async getCardById(cardId: number): Promise<any> {
+    try {
+      const query = `
+        SELECT id, created_at, bank_name, card_name, network, category, reward_summary
+        FROM card_catalog
+        WHERE id = $1
+      `;
+      const result = await this.query(query, [cardId]);
+      return result.rows[0] || null;
+    } catch (error) {
+      console.error('Error getting card by ID:', error);
+      throw error;
+    }
+  }
+
+  async getCardsByCategory(category: string): Promise<any[]> {
+    try {
+      const query = `
+        SELECT id, created_at, bank_name, card_name, network, category, reward_summary
+        FROM card_catalog
+        WHERE category = $1
+        ORDER BY created_at DESC
+      `;
+      const result = await this.query(query, [category]);
+      return result.rows;
+    } catch (error) {
+      console.error('Error getting cards by category:', error);
+      throw error;
+    }
+  }
+
+  async getCardsByBank(bankName: string): Promise<any[]> {
+    try {
+      const query = `
+        SELECT id, created_at, bank_name, card_name, network, category, reward_summary
+        FROM card_catalog
+        WHERE bank_name = $1
+        ORDER BY created_at DESC
+      `;
+      const result = await this.query(query, [bankName]);
+      return result.rows;
+    } catch (error) {
+      console.error('Error getting cards by bank:', error);
+      throw error;
+    }
+  }
 }
 
 // Create and export a singleton instance
