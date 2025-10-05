@@ -126,7 +126,7 @@ Keep the insight conversational and encouraging. Focus on their top 2 spending c
  */
 router.post('/recommend-cards', async (req: Request, res: Response) => {
   try {
-    const { budget, availableCards, userCards, limit = 5 } = req.body;
+    const { budget, availableCards, userCards, limit = 5, actualSpending } = req.body;
 
     // Validate input
     if (!budget || typeof budget !== 'object') {
@@ -145,10 +145,16 @@ router.post('/recommend-cards', async (req: Request, res: Response) => {
       });
     }
 
+    // Use actual spending if available, otherwise fall back to budget
+    const spendingData = actualSpending || budget;
+    const hasActualSpending = actualSpending && typeof actualSpending === 'object';
+
     // Calculate spending analysis
     const budgetEntries = Object.entries(budget).sort((a: any, b: any) => b[1] - a[1]);
-    const totalSpending = Object.values(budget).reduce((sum: number, val: any) => sum + val, 0);
-    const topCategories = budgetEntries.slice(0, 3).map((entry: any) => ({
+    const spendingEntries = Object.entries(spendingData).sort((a: any, b: any) => b[1] - a[1]);
+    const totalSpending = Object.values(spendingData).reduce((sum: number, val: any) => sum + val, 0);
+    const totalBudget = Object.values(budget).reduce((sum: number, val: any) => sum + val, 0);
+    const topCategories = spendingEntries.slice(0, 3).map((entry: any) => ({
       category: entry[0],
       amount: entry[1],
       percentage: ((entry[1] / totalSpending) * 100).toFixed(1)
@@ -168,9 +174,21 @@ router.post('/recommend-cards', async (req: Request, res: Response) => {
 
     const prompt = `You are an expert credit card rewards optimizer. Analyze the user's spending and recommend the best credit cards.
 
-User Spending Pattern (Monthly):
+${hasActualSpending ? 'User Actual Spending Pattern (from transaction history, last 30 days):' : 'User Planned Budget (Monthly):'}
 ${topCategories.map(c => `- ${c.category}: $${c.amount} (${c.percentage}%)`).join('\n')}
-Total: $${totalSpending}
+Total ${hasActualSpending ? 'Spending' : 'Budget'}: $${totalSpending}
+
+${hasActualSpending ? `
+Planned Budget vs Actual Spending:
+${Object.entries(budget).map(([cat, budgetAmt]: [string, any]) => {
+  const spent = spendingData[cat] || 0;
+  const variance = spent - budgetAmt;
+  const variancePercent = budgetAmt > 0 ? ((variance / budgetAmt) * 100).toFixed(1) : '0.0';
+  return `- ${cat}: Budget $${budgetAmt} → Actual $${spent} (${variance >= 0 ? '+' : ''}${variancePercent}%)`;
+}).join('\n')}
+
+NOTE: User has linked their bank account. Use their ACTUAL SPENDING PATTERNS from transaction history to recommend cards, not their planned budget. This is more accurate for what they will actually use.
+` : ''}
 
 Available Credit Cards:
 ${cardCatalog.slice(0, 20).map((card: any, idx: number) => 
@@ -178,10 +196,12 @@ ${cardCatalog.slice(0, 20).map((card: any, idx: number) =>
    Rewards: ${card.rewards}`
 ).join('\n\n')}
 
-Task: Recommend the top ${limit} credit cards that best match this user's spending pattern. Consider:
-1. Reward rates that align with their top spending categories
-2. Overall value and versatility
-3. Category-specific strengths
+Task: Recommend the top ${limit} credit cards that best match this user's ${hasActualSpending ? 'ACTUAL spending behavior from their bank transactions' : 'planned budget'}. Consider:
+1. ${hasActualSpending ? 'ACTUAL spending patterns from their transaction history (prioritize these over budget)' : 'Planned budget allocations'}
+2. Reward rates that align with their top ${hasActualSpending ? 'spending' : 'budget'} categories
+3. Overall value and versatility
+4. Category-specific strengths
+${hasActualSpending ? '5. Where they are overspending vs budget (these categories have the most optimization potential)' : ''}
 
 Respond with ONLY a JSON array of card IDs in order of recommendation (best first):
 ["card_id_1", "card_id_2", "card_id_3", ...]
@@ -256,12 +276,17 @@ Return exactly ${limit} card IDs from the list above.`;
       success: true,
       data: {
         recommendedCardIds: recommendedCardIds,
-        reasoning: 'AI-powered recommendations based on your spending patterns',
+        reasoning: hasActualSpending 
+          ? 'AI-powered recommendations based on your actual transaction history' 
+          : 'AI-powered recommendations based on your planned budget',
         aiPowered: true,
+        usedActualSpending: hasActualSpending,
         metadata: {
           totalSpending,
+          totalBudget,
           topCategories: topCategories.map((c: any) => c.category),
-          analyzedCards: cardCatalog.length
+          analyzedCards: cardCatalog.length,
+          dataSource: hasActualSpending ? 'transaction_history' : 'planned_budget'
         }
       },
       timestamp: new Date().toISOString()

@@ -45,13 +45,25 @@ export function MonthlyBudgetBreakdown({
   const totalSpending = spending ? Object.values(spending).reduce((sum, val) => sum + val, 0) : 0
   const hasSpendingData = spending !== null
 
+  // Custom order for Essential: rent, groceries, gas
+  const essentialOrder = ['rent', 'groceries', 'gas']
   const essentialCategories = Object.entries(budget)
     .filter(([cat]) => categoryInfo[cat]?.group === 'Essential')
-    .sort((a, b) => b[1] - a[1])
+    .sort((a, b) => {
+      const indexA = essentialOrder.indexOf(a[0])
+      const indexB = essentialOrder.indexOf(b[0])
+      return indexA - indexB
+    })
 
+  // Custom order for Lifestyle: travel, dining, shopping, entertainment
+  const lifestyleOrder = ['travel', 'dining', 'shopping', 'entertainment']
   const lifestyleCategories = Object.entries(budget)
     .filter(([cat]) => categoryInfo[cat]?.group === 'Lifestyle')
-    .sort((a, b) => b[1] - a[1])
+    .sort((a, b) => {
+      const indexA = lifestyleOrder.indexOf(a[0])
+      const indexB = lifestyleOrder.indexOf(b[0])
+      return indexA - indexB
+    })
 
   return (
     <motion.div

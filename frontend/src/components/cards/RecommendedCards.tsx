@@ -19,6 +19,7 @@ interface RecommendedCardsProps {
   cards: ApiCreditCard[]
   currentCards: string[]
   budget?: UserBudget
+  actualSpending?: UserBudget | null // Actual spending from transaction history
   onAddCard?: (cardId: string) => void
   showAddButton?: boolean
   onCardClick?: (card: ApiCreditCard) => void
@@ -29,6 +30,7 @@ export function RecommendedCards({
   cards,
   currentCards,
   budget,
+  actualSpending = null,
   onAddCard,
   showAddButton = false,
   onCardClick,
@@ -50,24 +52,32 @@ export function RecommendedCards({
     if (budget && cards.length > 0) {
       fetchAIRecommendations()
     }
-  }, [budget, cards.length])
+  }, [budget, actualSpending, cards.length])
 
   const fetchAIRecommendations = async () => {
     if (!budget || cards.length === 0) return
 
     setLoadingAI(true)
     try {
+      const requestBody: any = {
+        budget: budget,
+        availableCards: cards,
+        userCards: currentCards,
+        limit: 5,
+      }
+
+      // Include actual spending data if available (from transaction history)
+      if (actualSpending && Object.values(actualSpending).some(val => val > 0)) {
+        requestBody.actualSpending = actualSpending
+        console.log('Using actual spending data for AI recommendations:', actualSpending)
+      }
+
       const response = await fetch('http://localhost:3000/api/insights/recommend-cards', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          budget: budget,
-          availableCards: cards,
-          userCards: currentCards,
-          limit: 5,
-        }),
+        body: JSON.stringify(requestBody),
       })
 
       const data = await response.json()
@@ -75,6 +85,11 @@ export function RecommendedCards({
       if (response.ok && data.success && data.data.recommendedCardIds) {
         setAiRecommendedIds(data.data.recommendedCardIds)
         setUseAI(data.data.aiPowered !== false)
+        console.log('AI recommendations received:', {
+          cardIds: data.data.recommendedCardIds,
+          usedActualSpending: data.data.usedActualSpending,
+          dataSource: data.data.metadata?.dataSource
+        })
       }
     } catch (err) {
       console.error('Error fetching AI recommendations:', err)
@@ -214,7 +229,9 @@ export function RecommendedCards({
                   ? 'AI is analyzing the best cards for you...'
                   : budget 
                     ? useAI 
-                      ? 'Personalized AI recommendations based on your spending' 
+                      ? actualSpending && Object.values(actualSpending).some(val => val > 0)
+                        ? 'AI-powered recommendations based on your transaction history' 
+                        : 'AI-powered recommendations based on your spending patterns'
                       : 'Matched to your spending habits'
                     : 'Top rated cards to maximize rewards'
                 }

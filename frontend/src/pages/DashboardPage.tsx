@@ -514,6 +514,7 @@ export function DashboardPage() {
             cards={apiCards}
             currentCards={currentCards}
             budget={budget ?? undefined}
+            actualSpending={linkedBank ? spending : null}
             showAddButton={false}
             cardOrigins={cardOriginMap}
           />
