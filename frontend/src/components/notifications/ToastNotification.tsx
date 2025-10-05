@@ -118,13 +118,13 @@ export function ToastNotification({
             }}
           >
             {/* Gradient accent bar on top */}
-            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-500 via-pink-500 to-red-500" />
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500" />
 
             <div className="p-4">
               {/* Header */}
               <div className="flex items-start gap-3 mb-3">
                 {/* App Icon / Emoji */}
-                <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-[12px] flex items-center justify-center text-2xl shadow-lg">
+                <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-[12px] flex items-center justify-center text-2xl shadow-lg">
                   {emoji}
                 </div>
 
@@ -141,7 +141,7 @@ export function ToastNotification({
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="flex items-center gap-1 text-xs text-gray-600">
-                        <MapPin className="w-3 h-3 text-blue-600" />
+                        <MapPin className="w-3 h-3 text-primary" />
                         <span className="font-medium truncate max-w-[120px]">{notification.merchant.name}</span>
                       </div>
                       <button
@@ -162,7 +162,7 @@ export function ToastNotification({
               {/* Card Recommendation */}
               <div 
                 onClick={handleCardClick}
-                className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-[14px] p-3 border border-purple-100 cursor-pointer hover:border-purple-200 transition-all active:scale-[0.98]"
+                className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-[14px] p-3 border border-green-100 cursor-pointer hover:border-green-200 transition-all active:scale-[0.98]"
               >
                 <div className="flex items-center gap-3">
                   {/* Card Logo */}
@@ -180,7 +180,7 @@ export function ToastNotification({
 
                   {/* Card Details */}
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-semibold text-purple-900 truncate">
+                    <p className="text-xs font-semibold text-green-900 truncate">
                       {notification.recommendedCard.name}
                     </p>
                     <div className="flex items-center gap-1 mt-1">

@@ -59,6 +59,14 @@ const config = {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      boxShadow: {
+        'sm': '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+        'DEFAULT': '0 2px 8px 0 rgba(0, 0, 0, 0.08)',
+        'md': '0 4px 16px 0 rgba(0, 0, 0, 0.10)',
+        'lg': '0 8px 24px 0 rgba(0, 0, 0, 0.12)',
+        'xl': '0 16px 48px 0 rgba(0, 0, 0, 0.15)',
+        '2xl': '0 24px 64px 0 rgba(0, 0, 0, 0.18)',
+      },
       keyframes: {
         "accordion-down": {
           from: { height: "0" },

@@ -30,11 +30,11 @@ import { UserBudget } from '@/types'
 
 const categoryInfo: Record<string, { label: string; icon: string; group: string; color: string }> = {
   groceries: { label: 'Groceries', icon: '🛒', group: 'Essential', color: 'from-green-500 to-emerald-600' },
-  gas: { label: 'Gas & Transportation', icon: '⛽', group: 'Essential', color: 'from-orange-500 to-amber-600' },
-  dining: { label: 'Dining & Restaurants', icon: '🍽️', group: 'Lifestyle', color: 'from-red-500 to-rose-600' },
-  shopping: { label: 'Shopping & Retail', icon: '🛍️', group: 'Lifestyle', color: 'from-purple-500 to-pink-600' },
-  entertainment: { label: 'Entertainment', icon: '🎬', group: 'Lifestyle', color: 'from-blue-500 to-cyan-600' },
-  travel: { label: 'Travel & Hotels', icon: '✈️', group: 'Lifestyle', color: 'from-indigo-500 to-purple-600' },
+  gas: { label: 'Gas & Transportation', icon: '⛽', group: 'Essential', color: 'from-amber-500 to-orange-600' },
+  dining: { label: 'Dining & Restaurants', icon: '🍽️', group: 'Lifestyle', color: 'from-emerald-500 to-teal-600' },
+  shopping: { label: 'Shopping & Retail', icon: '🛍️', group: 'Lifestyle', color: 'from-teal-500 to-cyan-600' },
+  entertainment: { label: 'Entertainment', icon: '🎬', group: 'Lifestyle', color: 'from-lime-500 to-green-600' },
+  travel: { label: 'Travel & Hotels', icon: '✈️', group: 'Lifestyle', color: 'from-green-600 to-emerald-700' },
 }
 
 interface AIInsights {
@@ -179,7 +179,7 @@ export function BudgetManagementPage() {
 
             {/* Budget Summary */}
             <div className="mt-6">
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
                 <Card className="shadow-sm">
                   <CardContent className="p-4">
                     <p className="text-xs text-muted-foreground mb-2">Monthly Income</p>

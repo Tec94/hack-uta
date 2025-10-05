@@ -156,35 +156,35 @@ export function DashboardPage() {
           
           {/* Quick Stats */}
           {totalBudget > 0 && (
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mt-4">
+            <div className="grid grid-cols-3 gap-3 sm:gap-4 mt-4">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="rounded-xl p-3 sm:p-4 border bg-card"
+                className="rounded-xl p-3 sm:p-4 border bg-card hover:shadow-md transition-shadow"
               >
-                <DollarSign className="w-5 h-5 mb-2 opacity-80" />
-                <p className="text-xl sm:text-2xl font-bold">${totalBudget}</p>
-                <p className="text-xs opacity-80">Monthly Budget</p>
+                <DollarSign className="w-4 h-4 sm:w-5 sm:h-5 mb-1 sm:mb-2 opacity-80" />
+                <p className="text-lg sm:text-2xl font-bold">${totalBudget}</p>
+                <p className="text-[10px] sm:text-xs opacity-80">Monthly Budget</p>
               </motion.div>
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
-                className="rounded-xl p-3 sm:p-4 border bg-card"
+                className="rounded-xl p-3 sm:p-4 border bg-card hover:shadow-md transition-shadow"
               >
-                <Award className="w-5 h-5 mb-2 opacity-80" />
-                <p className="text-xl sm:text-2xl font-bold">{mockCreditCards.length}</p>
-                <p className="text-xs opacity-80">Top Cards</p>
+                <Award className="w-4 h-4 sm:w-5 sm:h-5 mb-1 sm:mb-2 opacity-80" />
+                <p className="text-lg sm:text-2xl font-bold">{mockCreditCards.length}</p>
+                <p className="text-[10px] sm:text-xs opacity-80">Top Cards</p>
               </motion.div>
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
-                className="rounded-xl p-3 sm:p-4 border bg-card"
+                className="rounded-xl p-3 sm:p-4 border bg-card hover:shadow-md transition-shadow"
               >
-                <TrendingUp className="w-5 h-5 mb-2 opacity-80" />
-                <p className="text-xl sm:text-2xl font-bold">3.2x</p>
-                <p className="text-xs opacity-80">Avg. Rewards</p>
+                <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 mb-1 sm:mb-2 opacity-80" />
+                <p className="text-lg sm:text-2xl font-bold">3.2x</p>
+                <p className="text-[10px] sm:text-xs opacity-80">Avg. Rewards</p>
               </motion.div>
             </div>
           )}
@@ -198,11 +198,11 @@ export function DashboardPage() {
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-lg p-3 sm:p-4"
+            className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-3 sm:p-4"
           >
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
               <div className="flex items-start gap-3 flex-1">
-                <div className="w-10 h-10 sm:w-10 sm:h-10 bg-purple-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                <div className="w-10 h-10 sm:w-10 sm:h-10 bg-green-600 rounded-lg flex items-center justify-center flex-shrink-0">
                   <TestTube className="w-5 h-5 text-white" />
                 </div>
                 <div className="flex-1 min-w-0">
@@ -215,7 +215,7 @@ export function DashboardPage() {
               <Button
                 onClick={handleTestNotification}
                 size="sm"
-                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 w-full sm:w-auto flex-shrink-0"
+                className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 w-full sm:w-auto flex-shrink-0"
               >
                 <TestTube className="w-4 h-4 mr-2" />
                 Test Now

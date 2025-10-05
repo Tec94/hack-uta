@@ -20,8 +20,8 @@ const notificationConfig = {
   info: {
     icon: Info,
     bgGradient: 'from-blue-500 to-blue-600',
-    iconBg: 'bg-blue-500',
-    borderColor: 'border-blue-200',
+    iconBg: 'bg-primary',
+    borderColor: 'border-primary/20',
   },
   success: {
     icon: CheckCircle,

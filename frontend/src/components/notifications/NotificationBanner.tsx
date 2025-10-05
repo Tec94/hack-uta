@@ -76,7 +76,7 @@ export function NotificationBanner({
           transition={{ type: 'spring', damping: 25, stiffness: 300 }}
           className="fixed top-4 left-4 right-4 z-50 mx-auto max-w-lg"
         >
-          <div className="relative bg-gradient-to-r from-purple-600 via-pink-600 to-red-500 rounded-2xl shadow-2xl overflow-hidden">
+          <div className="relative bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 rounded-2xl shadow-2xl overflow-hidden">
             {/* Animated background gradient */}
             <div className="absolute inset-0 bg-grid-white/10 opacity-20"></div>
             <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-32 translate-x-32"></div>
@@ -145,7 +145,7 @@ export function NotificationBanner({
                 <Button
                   onClick={handleCardClick}
                   size="sm"
-                  className="flex-1 bg-white text-purple-700 hover:bg-white/90 font-semibold"
+                  className="flex-1 bg-white text-green-700 hover:bg-white/90 font-semibold"
                 >
                   View Details
                 </Button>

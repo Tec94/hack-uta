@@ -16,13 +16,13 @@ export function CardDetailModal({ card, isOpen, onClose, aiRecommendation }: Car
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto sm:rounded-lg">
         <DialogHeader>
           <DialogTitle className="text-2xl">{card.name}</DialogTitle>
         </DialogHeader>
 
         {/* Card Visual */}
-        <div className="w-full h-48 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl p-6 text-white mb-6 relative overflow-hidden">
+        <div className="w-full h-48 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl p-6 text-white mb-6 relative overflow-hidden">
           <div className="absolute inset-0 opacity-10">
             <div className="absolute top-0 right-0 w-48 h-48 bg-white rounded-full -translate-y-24 translate-x-24" />
             <div className="absolute bottom-0 left-0 w-32 h-32 bg-white rounded-full translate-y-16 -translate-x-16" />
@@ -38,16 +38,16 @@ export function CardDetailModal({ card, isOpen, onClose, aiRecommendation }: Car
 
         {/* AI Recommendation */}
         {aiRecommendation && (
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-            <h4 className="font-semibold text-blue-900 mb-2 flex items-center gap-2">
+          <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 mb-4">
+            <h4 className="font-semibold text-primary mb-2 flex items-center gap-2">
               <span className="text-lg">🤖</span> AI Recommendation
             </h4>
-            <p className="text-sm text-blue-800">{aiRecommendation}</p>
+            <p className="text-sm text-foreground/80">{aiRecommendation}</p>
           </div>
         )}
 
         {/* Key Details */}
-        <div className="grid grid-cols-2 gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
           <div className="bg-gray-50 p-4 rounded-lg">
             <p className="text-sm text-gray-600 mb-1">Annual Fee</p>
             <p className="text-xl font-bold">

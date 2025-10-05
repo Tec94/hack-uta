@@ -10,7 +10,7 @@ export function CreditCardItem({ card, onClick }: CreditCardItemProps) {
   return (
     <div
       onClick={onClick}
-      className="w-[280px] h-[160px] bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl p-4 cursor-pointer hover:scale-105 transition-transform shadow-lg touch-target relative overflow-hidden"
+      className="w-[280px] h-[160px] bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl p-4 cursor-pointer hover:scale-105 transition-all shadow-lg hover:shadow-xl touch-target relative overflow-hidden"
     >
       {/* Background pattern */}
       <div className="absolute inset-0 opacity-10">

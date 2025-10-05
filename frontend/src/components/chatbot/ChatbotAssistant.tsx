@@ -112,7 +112,7 @@ export function ChatbotAssistant() {
           >
             <button
               onClick={handleOpenChat}
-              className="relative h-16 w-16 rounded-full shadow-2xl bg-gradient-to-br from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 transition-all duration-300 hover:scale-110 flex items-center justify-center p-0 border-0 cursor-pointer"
+              className="relative h-16 w-16 rounded-full shadow-2xl bg-gradient-to-br from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 transition-all duration-300 hover:scale-110 flex items-center justify-center p-0 border-0 cursor-pointer"
               aria-label="Open chat assistant"
             >
               <img 
@@ -145,7 +145,7 @@ export function ChatbotAssistant() {
             className="fixed bottom-24 right-6 z-50 w-[380px] max-w-[calc(100vw-3rem)]"
           >
             <Card className="shadow-2xl border-2 border-primary/20 overflow-hidden">
-              <CardHeader className="bg-gradient-to-br from-blue-600 to-purple-600 text-white pb-4">
+              <CardHeader className="bg-gradient-to-br from-green-600 to-emerald-600 text-white pb-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
@@ -180,7 +180,7 @@ export function ChatbotAssistant() {
                       <div
                         className={`max-w-[85%] rounded-2xl px-4 py-2.5 ${
                           message.role === 'user'
-                            ? 'bg-gradient-to-br from-blue-600 to-purple-600 text-white'
+                            ? 'bg-gradient-to-br from-green-600 to-emerald-600 text-white'
                             : 'bg-white border border-gray-200 text-gray-900 shadow-sm'
                         }`}
                       >
@@ -231,7 +231,7 @@ export function ChatbotAssistant() {
                     <Button
                       onClick={handleSend}
                       disabled={!input.trim() || isLoading}
-                      className="bg-gradient-to-br from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 h-10 w-10 p-0"
+                      className="bg-gradient-to-br from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 h-10 w-10 p-0"
                     >
                       <Send className="w-4 h-4" />
                     </Button>
