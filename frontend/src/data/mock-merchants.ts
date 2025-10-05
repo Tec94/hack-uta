@@ -1,5 +1,9 @@
 import { Merchant } from '@/types';
 
+/**
+ * @deprecated Use fetchNearbyPlaces from @/lib/places instead for real location data
+ * Generates mock merchants with random locations around a center point
+ */
 export function generateNearbyMerchants(
   centerLat: number,
   centerLng: number,

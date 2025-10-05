@@ -13,8 +13,9 @@ import { useGeolocation } from '@/hooks/useGeolocation'
 import { useUserStore } from '@/store/userStore'
 import { CreditCard, Merchant } from '@/types'
 import { mockCreditCards } from '@/data/mock-cards'
-import { generateNearbyMerchants } from '@/data/mock-merchants'
-import { MapPin, AlertCircle, Loader2, TrendingUp, DollarSign, Award, Sparkles } from 'lucide-react'
+import { fetchNearbyPlaces } from '@/lib/places'
+import { recommendCardsForMerchant, calculatePotentialEarnings, getRecommendationReason } from '@/lib/recommendations'
+import { MapPin, AlertCircle, Loader2, TrendingUp, DollarSign, Award, Sparkles, Star } from 'lucide-react'
 import { motion } from 'framer-motion'
 
 const categoryInfo: Record<string, { label: string; icon: string; group: string }> = {
@@ -47,8 +48,10 @@ export function DashboardPage() {
   useEffect(() => {
     if (geoLocation) {
       setLocation(geoLocation)
-      const nearby = generateNearbyMerchants(geoLocation.lat, geoLocation.lng)
-      setMerchants(nearby)
+      // Fetch real nearby places using Mapbox Places API
+      fetchNearbyPlaces(geoLocation.lat, geoLocation.lng).then(nearby => {
+        setMerchants(nearby)
+      })
     }
   }, [geoLocation, setLocation])
 
@@ -195,21 +198,66 @@ export function DashboardPage() {
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="mt-4 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl border border-blue-200"
+                    className="mt-4 space-y-4"
                   >
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <h3 className="font-semibold text-gray-900 mb-1 flex items-center gap-2">
-                          <MapPin className="w-4 h-4 text-blue-600" />
-                          {selectedMerchant.name}
-                        </h3>
-                        <p className="text-sm text-gray-600">
-                          {selectedMerchant.category}
-                        </p>
+                    {/* Merchant Info */}
+                    <div className="p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl border border-blue-200">
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <h3 className="font-semibold text-gray-900 mb-1 flex items-center gap-2">
+                            <MapPin className="w-4 h-4 text-blue-600" />
+                            {selectedMerchant.name}
+                          </h3>
+                          <p className="text-sm text-gray-600 capitalize">
+                            {selectedMerchant.category}
+                          </p>
+                          {selectedMerchant.address && (
+                            <p className="text-xs text-gray-500 mt-1">
+                              {selectedMerchant.address}
+                            </p>
+                          )}
+                        </div>
+                        <Badge className="bg-green-100 text-green-800 border-green-300">
+                          ~${selectedMerchant.estimatedSpend}
+                        </Badge>
                       </div>
-                      <Badge className="bg-green-100 text-green-800 border-green-300">
-                        ~${selectedMerchant.estimatedSpend}
-                      </Badge>
+                    </div>
+
+                    {/* Recommended Cards for this Location */}
+                    <div className="bg-white rounded-xl border border-gray-200 p-4">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
+                        <h4 className="font-semibold text-gray-900">Best Cards for This Location</h4>
+                      </div>
+                      <div className="space-y-2">
+                        {recommendCardsForMerchant(selectedMerchant, mockCreditCards).map((card, index) => (
+                          <motion.div
+                            key={card.id}
+                            initial={{ opacity: 0, x: -10 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: index * 0.1 }}
+                            onClick={() => handleCardClick(card)}
+                            className="p-3 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border border-purple-200 hover:border-purple-400 cursor-pointer transition-all hover:shadow-md"
+                          >
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <span className="text-xs font-bold text-purple-600 bg-purple-100 px-2 py-0.5 rounded">
+                                    #{index + 1}
+                                  </span>
+                                  <p className="font-semibold text-gray-900 text-sm">{card.name}</p>
+                                </div>
+                                <p className="text-xs text-gray-600 mb-1">
+                                  {getRecommendationReason(selectedMerchant, card)}
+                                </p>
+                                <p className="text-xs font-medium text-green-700">
+                                  Earn: {calculatePotentialEarnings(selectedMerchant, card)}
+                                </p>
+                              </div>
+                            </div>
+                          </motion.div>
+                        ))}
+                      </div>
                     </div>
                   </motion.div>
                 )}
