@@ -182,52 +182,50 @@ export function RecommendedCards({
       transition={{ delay: 0.1 }}
     >
       <Card className="shadow-sm overflow-hidden bg-white">
-        <CardHeader>
-          <div className="flex items-center justify-between flex-wrap gap-4">
-            <div className="flex items-center gap-2 sm:gap-3">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary rounded-lg flex items-center justify-center flex-shrink-0">
-                <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-primary-foreground" />
+        <CardHeader className="pb-3 sm:pb-4 px-4 sm:px-6 pt-4 sm:pt-6">
+          <div className="flex items-start gap-2 sm:gap-3">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-primary rounded-lg flex items-center justify-center flex-shrink-0">
+              <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-primary-foreground" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mb-1">
+                <CardTitle className="text-base sm:text-lg md:text-xl">
+                  Recommended for You
+                </CardTitle>
+                {loadingAI ? (
+                  <Badge variant="secondary" className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5">
+                    <Loader2 className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1 animate-spin" />
+                    Analyzing...
+                  </Badge>
+                ) : useAI ? (
+                  <Badge variant="default" className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5">
+                    <Sparkles className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1" />
+                    AI Powered
+                  </Badge>
+                ) : (
+                  <Badge variant="secondary" className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5">
+                    <Zap className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1" />
+                    Smart Match
+                  </Badge>
+                )}
               </div>
-              <div className="min-w-0">
-                <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mb-1">
-                  <CardTitle className="text-lg sm:text-xl md:text-2xl">
-                    Recommended for You
-                  </CardTitle>
-                  {loadingAI ? (
-                    <Badge variant="secondary" className="w-fit">
-                      <Loader2 className="w-3 h-3 mr-1 animate-spin" />
-                      Analyzing...
-                    </Badge>
-                  ) : useAI ? (
-                    <Badge variant="default" className="w-fit">
-                      <Sparkles className="w-3 h-3 mr-1" />
-                      AI Powered
-                    </Badge>
-                  ) : (
-                    <Badge variant="secondary" className="w-fit">
-                      <Zap className="w-3 h-3 mr-1" />
-                      Smart Match
-                    </Badge>
-                  )}
-                </div>
-                <p className="text-xs sm:text-sm text-foreground">
-                  {loadingAI 
-                    ? 'AI is analyzing the best cards for you...'
-                    : budget 
-                      ? useAI 
-                        ? 'Personalized AI recommendations based on your spending' 
-                        : 'Matched to your spending habits'
-                      : 'Top rated cards to maximize rewards'
-                  }
-                </p>
-              </div>
+              <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                {loadingAI 
+                  ? 'AI is analyzing the best cards for you...'
+                  : budget 
+                    ? useAI 
+                      ? 'Personalized AI recommendations based on your spending' 
+                      : 'Matched to your spending habits'
+                    : 'Top rated cards to maximize rewards'
+                }
+              </p>
             </div>
           </div>
         </CardHeader>
-        <CardContent className="pb-6">
+        <CardContent className="pb-4 sm:pb-6">
           <div className="relative">
             <div className="overflow-hidden" ref={emblaRef}>
-              <div className="flex gap-4">
+              <div className="flex gap-3 sm:gap-4">
                 {recommendedCards.map((card, index) => {
                   const isOwned = currentCards.includes(card.id)
                   const cardOrigin = cardOrigins[card.id]
