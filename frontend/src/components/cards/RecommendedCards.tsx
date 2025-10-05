@@ -213,7 +213,7 @@ export function RecommendedCards({
                     </Badge>
                   )}
                 </div>
-                <p className="text-xs sm:text-sm text-muted-foreground">
+                <p className="text-xs sm:text-sm text-foreground">
                   {loadingAI 
                     ? 'AI is analyzing the best cards for you...'
                     : budget 
@@ -247,7 +247,7 @@ export function RecommendedCards({
                       <Card className={`h-full border-2 transition-all hover:shadow-lg bg-white ${
                         !isOwned 
                           ? 'border-primary' 
-                          : 'border-muted-foreground/20 opacity-75'
+                          : 'border-muted-foreground/20'
                       } ${onCardClick ? 'cursor-pointer' : ''}`}>
                         <CardHeader className="pb-3">
                           <div className="flex items-start justify-between mb-2">
@@ -256,13 +256,13 @@ export function RecommendedCards({
                             </Badge>
                             {isOwned && (
                               <Badge variant="secondary">
-                                <CheckCircle className="w-3 h-3 mr-1" />
+                                <CheckCircle className="w-3 h-3 mr-1 text-foreground" />
                                 Owned
                               </Badge>
                             )}
                           </div>
-                          <CardTitle className="text-lg line-clamp-1">{card.card_name}</CardTitle>
-                          <p className="text-sm text-muted-foreground">{card.bank_name}</p>
+                          <CardTitle className="text-lg line-clamp-1 text-foreground">{card.card_name}</CardTitle>
+                          <p className="text-sm text-foreground">{card.bank_name}</p>
                           <div className="flex items-center gap-2 mt-2">
                             <Badge className={getCategoryColor(card.category)} variant="outline">
                               {card.category}
@@ -274,14 +274,14 @@ export function RecommendedCards({
                           <div className="space-y-3">
                             <div className="bg-muted rounded-lg p-3">
                               <div className="flex items-center gap-2 mb-2">
-                                <Zap className="w-4 h-4" />
-                                <p className="text-xs font-semibold">Top Reward</p>
+                                <Zap className="w-4 h-4 text-foreground" />
+                                <p className="text-xs font-semibold text-foreground">Top Reward</p>
                               </div>
                               <div className="flex justify-between items-center">
-                                <span className="text-sm capitalize">
+                                <span className="text-sm capitalize text-foreground">
                                   {topReward[0].replace(/_/g, ' ')}
                                 </span>
-                                <span className="text-lg font-bold">
+                                <span className="text-lg font-bold text-foreground">
                                   {formatRewardRate(topReward[1])}
                                 </span>
                               </div>
@@ -309,7 +309,7 @@ export function RecommendedCards({
                                     size="sm"
                                     disabled
                                   >
-                                    <CheckCircle className="w-4 h-4 mr-2" />
+                                    <CheckCircle className="w-4 h-4 mr-2 text-foreground" />
                                     Already in Wallet
                                   </Button>
                                 )}

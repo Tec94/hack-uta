@@ -198,12 +198,12 @@ export function DashboardPage() {
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-3 sm:p-4"
+            className="bg-muted border rounded-lg p-3 sm:p-4"
           >
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
               <div className="flex items-start gap-3 flex-1">
-                <div className="w-10 h-10 sm:w-10 sm:h-10 bg-green-600 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <TestTube className="w-5 h-5 text-white" />
+                <div className="w-10 h-10 sm:w-10 sm:h-10 bg-primary rounded-lg flex items-center justify-center flex-shrink-0">
+                  <TestTube className="w-5 h-5 text-primary-foreground" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="font-medium mb-1 text-sm sm:text-base">Test Smart Notifications</p>
@@ -215,7 +215,7 @@ export function DashboardPage() {
               <Button
                 onClick={handleTestNotification}
                 size="sm"
-                className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 w-full sm:w-auto flex-shrink-0"
+                className="w-full sm:w-auto flex-shrink-0"
               >
                 <TestTube className="w-4 h-4 mr-2" />
                 Test Now

@@ -333,13 +333,13 @@ export function CreditCardManagementPage() {
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-2">
-                <CreditCardIcon className={`w-5 h-5 ${isOwned ? 'text-primary' : 'text-muted-foreground'}`} />
-                {isOwned && <CheckCircle className="w-4 h-4" />}
+                <CreditCardIcon className={`w-5 h-5 ${isOwned ? 'text-primary' : 'text-foreground'}`} />
+                {isOwned && <CheckCircle className="w-4 h-4 text-foreground" />}
               </div>
-              <CardTitle className="text-lg font-semibold mb-1">
+              <CardTitle className="text-lg font-semibold mb-1 text-foreground">
                 {card.card_name}
               </CardTitle>
-              <CardDescription className="text-sm">{card.bank_name}</CardDescription>
+              <CardDescription className="text-sm text-foreground">{card.bank_name}</CardDescription>
             </div>
           </div>
           <div className="flex items-center gap-2 mt-2 flex-wrap">
@@ -354,23 +354,23 @@ export function CreditCardManagementPage() {
 
         <CardContent className="flex-1 flex flex-col">
           <div className="flex-1">
-            <h4 className="font-medium text-sm mb-2 flex items-center gap-1">
-              <TrendingUp className="w-4 h-4" />
+            <h4 className="font-medium text-sm mb-2 flex items-center gap-1 text-foreground">
+              <TrendingUp className="w-4 h-4 text-foreground" />
               Reward Rates
             </h4>
             <div className="space-y-1.5">
               {Object.entries(card.reward_summary).slice(0, 3).map(([category, rate]) => (
                 <div key={category} className="flex justify-between items-center text-sm bg-muted rounded px-2 py-1">
-                  <span className="text-muted-foreground capitalize text-xs">
+                  <span className="text-foreground capitalize text-xs">
                     {category.replace(/_/g, ' ')}
                   </span>
-                  <span className="font-bold">
+                  <span className="font-bold text-foreground">
                     {formatRewardRate(rate)}
                   </span>
                 </div>
               ))}
               {Object.entries(card.reward_summary).length > 3 && (
-                <p className="text-xs text-muted-foreground text-center pt-1">
+                <p className="text-xs text-foreground text-center pt-1">
                   +{Object.entries(card.reward_summary).length - 3} more categories
                 </p>
               )}
@@ -623,10 +623,10 @@ export function CreditCardManagementPage() {
                 <Card className="text-center py-12">
                   <CardContent>
                     <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
-                      <CheckCircle className="w-10 h-10" />
+                      <CheckCircle className="w-10 h-10 text-foreground" />
                     </div>
-                    <h3 className="text-xl font-semibold mb-2">All Cards Added!</h3>
-                    <p className="text-muted-foreground">
+                    <h3 className="text-xl font-semibold mb-2 text-foreground">All Cards Added!</h3>
+                    <p className="text-foreground">
                       You've added all available cards to your wallet
                     </p>
                   </CardContent>
@@ -768,8 +768,8 @@ export function CreditCardManagementPage() {
           {selectedCard && (
             <>
               <DialogHeader>
-                <DialogTitle className="text-2xl">{selectedCard.card_name}</DialogTitle>
-                <p className="text-sm text-muted-foreground">{selectedCard.bank_name}</p>
+                <DialogTitle className="text-2xl text-foreground">{selectedCard.card_name}</DialogTitle>
+                <p className="text-sm text-foreground">{selectedCard.bank_name}</p>
               </DialogHeader>
 
               {/* Card Visual */}
@@ -793,8 +793,8 @@ export function CreditCardManagementPage() {
               {/* Reward Categories */}
               {Object.keys(selectedCard.reward_summary).length > 0 && (
                 <div className="mb-6">
-                  <h4 className="font-semibold text-lg mb-3 flex items-center gap-2">
-                    <Sparkles className="w-5 h-5" />
+                  <h4 className="font-semibold text-lg mb-3 flex items-center gap-2 text-foreground">
+                    <Sparkles className="w-5 h-5 text-foreground" />
                     Rewards Breakdown
                   </h4>
                   <div className="grid grid-cols-2 gap-3">
@@ -804,8 +804,8 @@ export function CreditCardManagementPage() {
                         <div key={category} className="bg-muted rounded-lg p-4">
                           <div className="flex items-start justify-between">
                             <div className="flex-1">
-                              <p className="text-sm text-muted-foreground capitalize mb-1">{category.replace(/_/g, ' ')}</p>
-                              <p className="text-2xl font-bold">{formatRewardRate(rate)}</p>
+                              <p className="text-sm text-foreground capitalize mb-1">{category.replace(/_/g, ' ')}</p>
+                              <p className="text-2xl font-bold text-foreground">{formatRewardRate(rate)}</p>
                             </div>
                             <TrendingUp className="w-5 h-5 text-primary mt-1" />
                           </div>
@@ -820,11 +820,11 @@ export function CreditCardManagementPage() {
               {/* Card Info */}
               <div className="space-y-4">
                 <div>
-                  <h4 className="font-semibold mb-2">Card Network</h4>
-                  <p className="text-sm text-muted-foreground">{selectedCard.network}</p>
+                  <h4 className="font-semibold mb-2 text-foreground">Card Network</h4>
+                  <p className="text-sm text-foreground">{selectedCard.network}</p>
                 </div>
                 <div>
-                  <h4 className="font-semibold mb-2">Primary Category</h4>
+                  <h4 className="font-semibold mb-2 text-foreground">Primary Category</h4>
                   <Badge className="bg-secondary text-secondary-foreground">
                     {selectedCard.category}
                   </Badge>

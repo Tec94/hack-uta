@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react'
-import { Routes, Route, Navigate, useNavigate } from 'react-router-dom'
+import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useAuth0 } from '@auth0/auth0-react'
+import { AnimatePresence, motion } from 'framer-motion'
 import { HomePage } from './pages/HomePage'
 import { OnboardingChoice } from './pages/OnboardingChoice'
 import { LinkBankPage } from './pages/LinkBankPage'
@@ -30,6 +31,20 @@ const queryClient = new QueryClient({
     },
   },
 })
+
+// Page transition wrapper component
+function PageTransition({ children }: { children: React.ReactNode }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -10 }}
+      transition={{ duration: 0.2, ease: 'easeInOut' }}
+    >
+      {children}
+    </motion.div>
+  )
+}
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useAuth0()
@@ -114,17 +129,21 @@ function SmartNotificationProvider() {
 
 function App() {
   const { isAuthenticated } = useAuth0()
+  const location = useLocation()
 
   return (
     <QueryClientProvider client={queryClient}>
       <NotificationProvider>
-        <Routes>
-          <Route path="/" element={<HomePage />} />
+        <AnimatePresence mode="wait">
+          <Routes location={location} key={location.pathname}>
+            <Route path="/" element={<PageTransition><HomePage /></PageTransition>} />
           <Route
             path="/onboarding/choice"
             element={
               <ProtectedRoute>
-                <OnboardingChoice />
+                <PageTransition>
+                  <OnboardingChoice />
+                </PageTransition>
               </ProtectedRoute>
             }
           />
@@ -132,7 +151,9 @@ function App() {
             path="/onboarding/link-bank"
             element={
               <ProtectedRoute>
-                <LinkBankPage />
+                <PageTransition>
+                  <LinkBankPage />
+                </PageTransition>
               </ProtectedRoute>
             }
           />
@@ -140,7 +161,9 @@ function App() {
             path="/onboarding/choose-card"
             element={
               <ProtectedRoute>
-                <ChooseYourCardPage />
+                <PageTransition>
+                  <ChooseYourCardPage />
+                </PageTransition>
               </ProtectedRoute>
             }
           />
@@ -148,7 +171,9 @@ function App() {
             path="/onboarding/budget-setup"
             element={
               <ProtectedRoute>
-                <ManualSetupPage />
+                <PageTransition>
+                  <ManualSetupPage />
+                </PageTransition>
               </ProtectedRoute>
             }
           />
@@ -156,7 +181,9 @@ function App() {
             path="/cards"
             element={
               <ProtectedRoute>
-                <CreditCardManagementPage />
+                <PageTransition>
+                  <CreditCardManagementPage />
+                </PageTransition>
               </ProtectedRoute>
             }
           />
@@ -164,7 +191,9 @@ function App() {
             path="/transfer-rates"
             element={
               <ProtectedRoute>
-                <TransferRatesPage />
+                <PageTransition>
+                  <TransferRatesPage />
+                </PageTransition>
               </ProtectedRoute>
             }
           />
@@ -172,7 +201,9 @@ function App() {
             path="/dashboard"
             element={
               <ProtectedRoute>
-                <DashboardPage />
+                <PageTransition>
+                  <DashboardPage />
+                </PageTransition>
               </ProtectedRoute>
             }
           />
@@ -180,7 +211,9 @@ function App() {
             path="/budget"
             element={
               <ProtectedRoute>
-                <BudgetManagementPage />
+                <PageTransition>
+                  <BudgetManagementPage />
+                </PageTransition>
               </ProtectedRoute>
             }
           />
@@ -188,11 +221,14 @@ function App() {
             path="/profile"
             element={
               <ProtectedRoute>
-                <ProfilePage />
+                <PageTransition>
+                  <ProfilePage />
+                </PageTransition>
               </ProtectedRoute>
             }
           />
-        </Routes>
+          </Routes>
+        </AnimatePresence>
         <Toaster />
         {isAuthenticated && (
           <>

@@ -129,12 +129,12 @@ export function BudgetManagementPage() {
 
   if (!budget) {
     return (
-      <div className="min-h-screen bg-background pb-24 flex items-center justify-center">
-        <Card className="max-w-md mx-4 shadow-sm">
-          <CardContent className="p-8 text-center">
-            <PiggyBank className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-            <h2 className="text-2xl font-bold mb-2">No Budget Set</h2>
-            <p className="text-muted-foreground mb-6">
+      <div className="min-h-screen bg-background pb-24 flex items-center justify-center px-4">
+        <Card className="max-w-md w-full shadow-sm">
+          <CardContent className="p-6 sm:p-8 text-center">
+            <PiggyBank className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 text-muted-foreground" />
+            <h2 className="text-xl sm:text-2xl font-bold mb-2">No Budget Set</h2>
+            <p className="text-sm sm:text-base text-muted-foreground mb-4 sm:mb-6">
               Set up your monthly budget to get started with personalized recommendations.
             </p>
             <Button onClick={() => navigate('/onboarding/choice')} size="lg" className="w-full">
@@ -159,51 +159,43 @@ export function BudgetManagementPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center">
-                  <DollarSign className="w-6 h-6 text-primary-foreground" />
-                </div>
-                <div>
-                  <h1 className="text-2xl sm:text-3xl font-bold">Budget Manager</h1>
-                  <p className="text-sm text-muted-foreground">Track and optimize your spending</p>
-                </div>
+            <div className="flex items-center gap-2 sm:gap-3 mb-4">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary rounded-xl flex items-center justify-center flex-shrink-0">
+                <DollarSign className="w-5 h-5 sm:w-6 sm:h-6 text-primary-foreground" />
               </div>
-              {!editMode && (
-                <Button onClick={() => setEditMode(true)} variant="outline" size="sm">
-                  <Edit className="w-4 h-4 mr-2" />
-                  Edit
-                </Button>
-              )}
+              <div className="min-w-0">
+                <h1 className="text-xl sm:text-2xl md:text-3xl font-bold">Budget Manager</h1>
+                <p className="text-xs sm:text-sm text-muted-foreground">Track and optimize your spending</p>
+              </div>
             </div>
 
             {/* Budget Summary */}
             <div className="mt-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
                 <Card className="shadow-sm">
-                  <CardContent className="p-4">
+                  <CardContent className="p-3 sm:p-4">
                     <p className="text-xs text-muted-foreground mb-2">Monthly Income</p>
                     <Input
                       type="number"
                       value={monthlyIncome || ''}
                       onChange={(e) => setMonthlyIncome(parseInt(e.target.value) || 0)}
                       placeholder="Enter income"
-                      className="text-xl font-bold h-12"
+                      className="text-lg sm:text-xl font-bold h-10 sm:h-12"
                     />
                   </CardContent>
                 </Card>
 
                 <Card className="shadow-sm">
-                  <CardContent className="p-4">
+                  <CardContent className="p-3 sm:p-4">
                     <p className="text-xs text-muted-foreground mb-1">Total Budget</p>
-                    <p className="text-2xl sm:text-3xl font-bold">{formatCurrency(totalMonthlySpending)}</p>
+                    <p className="text-xl sm:text-2xl md:text-3xl font-bold">{formatCurrency(totalMonthlySpending)}</p>
                   </CardContent>
                 </Card>
 
                 <Card className={`shadow-sm ${monthlyIncome > 0 ? (remainingAmount >= 0 ? 'border-green-200 bg-green-50/50' : 'border-red-200 bg-red-50/50') : ''}`}>
-                  <CardContent className="p-4">
+                  <CardContent className="p-3 sm:p-4">
                     <p className="text-xs text-muted-foreground mb-1">Remaining</p>
-                    <p className={`text-2xl sm:text-3xl font-bold ${monthlyIncome > 0 ? (remainingAmount >= 0 ? 'text-green-600' : 'text-red-600') : ''}`}>
+                    <p className={`text-xl sm:text-2xl md:text-3xl font-bold ${monthlyIncome > 0 ? (remainingAmount >= 0 ? 'text-green-600' : 'text-red-600') : ''}`}>
                       {monthlyIncome > 0 ? formatCurrency(Math.abs(remainingAmount)) : '—'}
                     </p>
                   </CardContent>
@@ -224,64 +216,64 @@ export function BudgetManagementPage() {
           >
             <Card className="shadow-sm overflow-hidden">
               <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center">
-                      <Sparkles className="w-6 h-6 text-primary-foreground" />
+                <div className="flex flex-col sm:flex-row items-start sm:items-center sm:justify-between gap-3">
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary rounded-xl flex items-center justify-center flex-shrink-0">
+                      <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-primary-foreground" />
                     </div>
-                    <div>
-                      <CardTitle className="text-xl">AI Budget Insights</CardTitle>
-                      <p className="text-sm text-muted-foreground">Personalized recommendations</p>
+                    <div className="min-w-0">
+                      <CardTitle className="text-lg sm:text-xl">AI Budget Insights</CardTitle>
+                      <p className="text-xs sm:text-sm text-muted-foreground">Personalized recommendations</p>
                     </div>
                   </div>
                   {loadingInsights && (
-                    <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+                    <Loader2 className="w-5 h-5 animate-spin text-muted-foreground flex-shrink-0" />
                   )}
                 </div>
               </CardHeader>
               <CardContent className="space-y-6">
                 {/* Health Score */}
-                <div className="bg-muted/50 rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-3">
+                <div className="bg-muted/50 rounded-lg p-3 sm:p-4">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center sm:justify-between gap-2 sm:gap-3 mb-3">
                     <div className="flex items-center gap-2">
-                      <Activity className="w-5 h-5" />
-                      <span className="font-semibold">Budget Health Score</span>
+                      <Activity className="w-4 h-4 sm:w-5 sm:h-5" />
+                      <span className="text-sm sm:text-base font-semibold">Budget Health Score</span>
                     </div>
-                    <span className="text-2xl font-bold">{aiInsights.healthScore}/100</span>
+                    <span className="text-xl sm:text-2xl font-bold">{aiInsights.healthScore}/100</span>
                   </div>
-                  <Progress value={aiInsights.healthScore} className="h-3" />
-                  <p className="text-sm text-muted-foreground mt-2">{aiInsights.summary}</p>
+                  <Progress value={aiInsights.healthScore} className="h-2 sm:h-3" />
+                  <p className="text-xs sm:text-sm text-muted-foreground mt-2">{aiInsights.summary}</p>
                 </div>
 
                 {/* Savings Opportunity */}
                 {aiInsights.savingsOpportunity > 0 && (
-                  <div className="bg-muted/50 rounded-lg p-4 border border-primary/20">
-                    <div className="flex items-center gap-3 mb-2">
-                      <PiggyBank className="w-6 h-6 text-primary" />
-                      <div>
-                        <p className="font-semibold">Potential Monthly Savings</p>
-                        <p className="text-2xl font-bold text-primary">
+                  <div className="bg-muted/50 rounded-lg p-3 sm:p-4 border border-primary/20">
+                    <div className="flex items-start sm:items-center gap-2 sm:gap-3 mb-2">
+                      <PiggyBank className="w-5 h-5 sm:w-6 sm:h-6 text-primary flex-shrink-0 mt-0.5 sm:mt-0" />
+                      <div className="min-w-0">
+                        <p className="text-sm sm:text-base font-semibold">Potential Monthly Savings</p>
+                        <p className="text-xl sm:text-2xl font-bold text-primary">
                           +{formatCurrency(aiInsights.savingsOpportunity)}
                         </p>
                       </div>
                     </div>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-xs sm:text-sm text-muted-foreground">
                       Based on optimization opportunities in your current budget
                     </p>
                   </div>
                 )}
 
-                <div className="grid md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                   {/* Strengths */}
-                  <div className="bg-muted/50 rounded-lg p-4">
+                  <div className="bg-muted/50 rounded-lg p-3 sm:p-4">
                     <div className="flex items-center gap-2 mb-3">
-                      <ThumbsUp className="w-5 h-5 text-green-600" />
-                      <h3 className="font-semibold">What's Working</h3>
+                      <ThumbsUp className="w-4 h-4 sm:w-5 sm:h-5 text-green-600" />
+                      <h3 className="text-sm sm:text-base font-semibold">What's Working</h3>
                     </div>
                     <ul className="space-y-2">
                       {aiInsights.strengths.map((strength, idx) => (
-                        <li key={idx} className="text-sm flex items-start gap-2">
-                          <Check className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
+                        <li key={idx} className="text-xs sm:text-sm flex items-start gap-2">
+                          <Check className="w-3 h-3 sm:w-4 sm:h-4 text-green-600 mt-0.5 flex-shrink-0" />
                           <span>{strength}</span>
                         </li>
                       ))}
@@ -289,15 +281,15 @@ export function BudgetManagementPage() {
                   </div>
 
                   {/* Improvements */}
-                  <div className="bg-muted/50 rounded-lg p-4">
+                  <div className="bg-muted/50 rounded-lg p-3 sm:p-4">
                     <div className="flex items-center gap-2 mb-3">
-                      <Lightbulb className="w-5 h-5 text-amber-600" />
-                      <h3 className="font-semibold">Opportunities</h3>
+                      <Lightbulb className="w-4 h-4 sm:w-5 sm:h-5 text-amber-600" />
+                      <h3 className="text-sm sm:text-base font-semibold">Opportunities</h3>
                     </div>
                     <ul className="space-y-2">
                       {aiInsights.improvements.map((improvement, idx) => (
-                        <li key={idx} className="text-sm flex items-start gap-2">
-                          <TrendingUp className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
+                        <li key={idx} className="text-xs sm:text-sm flex items-start gap-2">
+                          <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 text-amber-600 mt-0.5 flex-shrink-0" />
                           <span>{improvement}</span>
                         </li>
                       ))}
@@ -307,15 +299,15 @@ export function BudgetManagementPage() {
 
                 {/* Category Insights */}
                 {Object.keys(aiInsights.categoryInsights).length > 0 && (
-                  <div className="bg-muted/50 rounded-lg p-4">
-                    <h3 className="font-semibold mb-3">Category Analysis</h3>
+                  <div className="bg-muted/50 rounded-lg p-3 sm:p-4">
+                    <h3 className="text-sm sm:text-base font-semibold mb-3">Category Analysis</h3>
                     <div className="space-y-3">
                       {Object.entries(aiInsights.categoryInsights).map(([category, insight]) => (
-                        <div key={category} className="flex items-start gap-3">
-                          <span className="text-2xl">{categoryInfo[category]?.icon}</span>
-                          <div>
-                            <p className="font-medium text-sm">{categoryInfo[category]?.label}</p>
-                            <p className="text-sm text-muted-foreground">{insight}</p>
+                        <div key={category} className="flex items-start gap-2 sm:gap-3">
+                          <span className="text-xl sm:text-2xl flex-shrink-0">{categoryInfo[category]?.icon}</span>
+                          <div className="min-w-0">
+                            <p className="font-medium text-xs sm:text-sm">{categoryInfo[category]?.label}</p>
+                            <p className="text-xs sm:text-sm text-muted-foreground">{insight}</p>
                           </div>
                         </div>
                       ))}
@@ -356,14 +348,14 @@ export function BudgetManagementPage() {
           >
             <Card className="shadow-sm">
               <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle>Edit Monthly Budget</CardTitle>
-                  <div className="flex gap-2">
-                    <Button onClick={handleCancel} variant="outline" size="sm">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center sm:justify-between gap-3">
+                  <CardTitle className="text-lg sm:text-xl">Edit Monthly Budget</CardTitle>
+                  <div className="flex gap-2 w-full sm:w-auto">
+                    <Button onClick={handleCancel} variant="outline" size="sm" className="flex-1 sm:flex-initial">
                       <X className="w-4 h-4 mr-2" />
                       Cancel
                     </Button>
-                    <Button onClick={handleSave} size="sm">
+                    <Button onClick={handleSave} size="sm" className="flex-1 sm:flex-initial">
                       <Check className="w-4 h-4 mr-2" />
                       Save
                     </Button>
@@ -373,21 +365,21 @@ export function BudgetManagementPage() {
             <CardContent>
               {/* Essential Expenses */}
               <div className="mb-6">
-                <h3 className="text-sm font-semibold mb-4 flex items-center gap-2">
-                  <Target className="w-4 h-4" />
+                <h3 className="text-xs sm:text-sm font-semibold mb-3 sm:mb-4 flex items-center gap-2">
+                  <Target className="w-3 h-3 sm:w-4 sm:h-4" />
                   Essential Expenses
                 </h3>
-                <div className="space-y-4">
+                <div className="space-y-3 sm:space-y-4">
                   {essentialCategories.map(([category, info]) => {
                     const amount = tempBudget[category as keyof UserBudget] || 0
                     
                     return (
                       <div key={category}>
-                        <div className="flex justify-between items-center mb-2">
+                        <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2 mb-2">
                           <div className="flex items-center gap-2 flex-1">
-                            <span className="text-2xl">{info.icon}</span>
-                            <div className="flex-1">
-                              <Label htmlFor={category} className="text-sm font-medium">{info.label}</Label>
+                            <span className="text-xl sm:text-2xl flex-shrink-0">{info.icon}</span>
+                            <div className="flex-1 min-w-0">
+                              <Label htmlFor={category} className="text-xs sm:text-sm font-medium">{info.label}</Label>
                             </div>
                           </div>
                           <Input
@@ -395,7 +387,7 @@ export function BudgetManagementPage() {
                             type="number"
                             value={amount || ''}
                             onChange={(e) => handleCategoryChange(category as keyof UserBudget, e.target.value)}
-                            className="w-32 text-right"
+                            className="w-full sm:w-28 md:w-32 text-right"
                             placeholder="0"
                           />
                         </div>
@@ -409,21 +401,21 @@ export function BudgetManagementPage() {
 
               {/* Lifestyle & Discretionary */}
               <div>
-                <h3 className="text-sm font-semibold mb-4 flex items-center gap-2">
-                  <Sparkles className="w-4 h-4" />
+                <h3 className="text-xs sm:text-sm font-semibold mb-3 sm:mb-4 flex items-center gap-2">
+                  <Sparkles className="w-3 h-3 sm:w-4 sm:h-4" />
                   Lifestyle & Discretionary
                 </h3>
-                <div className="space-y-4">
+                <div className="space-y-3 sm:space-y-4">
                   {lifestyleCategories.map(([category, info]) => {
                     const amount = tempBudget[category as keyof UserBudget] || 0
                     
                     return (
                       <div key={category}>
-                        <div className="flex justify-between items-center mb-2">
+                        <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2 mb-2">
                           <div className="flex items-center gap-2 flex-1">
-                            <span className="text-2xl">{info.icon}</span>
-                            <div className="flex-1">
-                              <Label htmlFor={category} className="text-sm font-medium">{info.label}</Label>
+                            <span className="text-xl sm:text-2xl flex-shrink-0">{info.icon}</span>
+                            <div className="flex-1 min-w-0">
+                              <Label htmlFor={category} className="text-xs sm:text-sm font-medium">{info.label}</Label>
                             </div>
                           </div>
                           <Input
@@ -431,7 +423,7 @@ export function BudgetManagementPage() {
                             type="number"
                             value={amount || ''}
                             onChange={(e) => handleCategoryChange(category as keyof UserBudget, e.target.value)}
-                            className="w-32 text-right"
+                            className="w-full sm:w-28 md:w-32 text-right"
                             placeholder="0"
                           />
                         </div>

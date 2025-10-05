@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -104,14 +104,14 @@ export function TransferRatesPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-background py-12 px-4 pb-24">
+      <div className="min-h-screen bg-background py-8 sm:py-12 px-4 pb-24">
         <div className="max-w-4xl mx-auto">
-          <Card className="text-center p-8">
+          <Card className="text-center p-6 sm:p-8">
             <div className="text-destructive mb-4">
-              <ArrowRightLeft className="w-12 h-12 mx-auto" />
+              <ArrowRightLeft className="w-10 h-10 sm:w-12 sm:h-12 mx-auto" />
             </div>
-            <h2 className="text-2xl font-bold mb-2">Error Loading Transfer Rates</h2>
-            <p className="text-muted-foreground mb-6">{error}</p>
+            <h2 className="text-xl sm:text-2xl font-bold mb-2">Error Loading Transfer Rates</h2>
+            <p className="text-sm sm:text-base text-muted-foreground mb-6 px-4">{error}</p>
           </Card>
         </div>
       </div>
@@ -142,22 +142,22 @@ export function TransferRatesPage() {
           </div>
 
           {/* Search and Filter Bar */}
-          <div className="flex flex-col md:flex-row gap-4">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4 sm:w-5 sm:h-5" />
               <Input
                 placeholder="Search by program or issuer..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
+                className="pl-9 sm:pl-10 text-sm sm:text-base h-10 sm:h-11"
               />
             </div>
-            <div className="flex items-center gap-2">
-              <Filter className="w-5 h-5 text-muted-foreground" />
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <Filter className="w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground" />
               <select
                 value={selectedIssuer}
                 onChange={(e) => setSelectedIssuer(e.target.value)}
-                className="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-ring h-11"
+                className="px-3 sm:px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-ring h-10 sm:h-11 text-sm sm:text-base min-w-[140px]"
               >
                 {issuers.map(issuer => (
                   <option key={issuer} value={issuer}>
@@ -179,12 +179,12 @@ export function TransferRatesPage() {
           className="mb-6"
         >
           <Card className="bg-muted/30">
-            <CardContent className="p-4">
-              <div className="flex items-start gap-3">
-                <Info className="w-5 h-5 text-muted-foreground mt-0.5 flex-shrink-0" />
+            <CardContent className="p-3 sm:p-4">
+              <div className="flex items-start gap-2 sm:gap-3">
+                <Info className="w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground mt-0.5 flex-shrink-0" />
                 <div>
-                  <p className="font-medium text-sm mb-1">About Transfer Rates</p>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="font-medium text-xs sm:text-sm mb-1">About Transfer Rates</p>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
                     Transfer your credit card points to airline and hotel partners to maximize their value. 
                     Rates and transfer times vary by issuer and partner program.
                   </p>
@@ -196,88 +196,95 @@ export function TransferRatesPage() {
 
         {/* Tabs for Airlines and Hotels */}
         <Tabs value={selectedTab} onValueChange={(value) => setSelectedTab(value as 'airline' | 'hotel')} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-6">
-            <TabsTrigger value="airline" className="flex items-center gap-2">
+          <TabsList className="grid w-full grid-cols-2 mb-4 sm:mb-6">
+            <TabsTrigger value="airline" className="flex items-center gap-1 sm:gap-2 text-sm sm:text-base">
               <Plane className="w-4 h-4" />
-              <span className="hidden sm:inline">Airlines</span>
-              <span className="sm:hidden">✈️</span>
+              <span>Airlines</span>
             </TabsTrigger>
-            <TabsTrigger value="hotel" className="flex items-center gap-2">
+            <TabsTrigger value="hotel" className="flex items-center gap-1 sm:gap-2 text-sm sm:text-base">
               <HotelIcon className="w-4 h-4" />
-              <span className="hidden sm:inline">Hotels</span>
-              <span className="sm:hidden">🏨</span>
+              <span>Hotels</span>
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value={selectedTab} className="mt-0">
-            {/* Transfer Rates Table */}
-        {filteredRates.length === 0 ? (
-          <Card className="text-center py-12">
-            <CardContent>
-              <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
-                <Search className="w-10 h-10 text-muted-foreground" />
-              </div>
-              <h3 className="text-xl font-semibold mb-2">No Transfer Rates Found</h3>
-              <p className="text-muted-foreground">
-                Try adjusting your search or filter criteria
-              </p>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="grid gap-4">
-            {filteredRates.map((rate, index) => (
+            <AnimatePresence mode="wait">
               <motion.div
-                key={rate.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.05 }}
+                key={selectedTab}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 20 }}
+                transition={{ duration: 0.2 }}
               >
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader className="pb-3">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Building2 className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-                          <span className="text-sm font-medium">{rate.card_issuer}</span>
-                        </div>
-                        <div className="flex items-center gap-3 flex-wrap">
-                          <Badge className="bg-secondary text-secondary-foreground">
-                            {rate.from_program}
-                          </Badge>
-                          <ArrowRightLeft className="w-4 h-4 text-muted-foreground" />
-                          <Badge className="bg-secondary text-secondary-foreground">
-                            {rate.to_program}
-                          </Badge>
-                        </div>
+                {/* Transfer Rates Table */}
+                {filteredRates.length === 0 ? (
+                  <Card className="text-center py-8 sm:py-12">
+                    <CardContent>
+                      <div className="w-16 h-16 sm:w-20 sm:h-20 bg-muted rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                        <Search className="w-8 h-8 sm:w-10 sm:h-10 text-muted-foreground" />
                       </div>
-                      <div className="text-right flex-shrink-0">
-                        <div className="text-2xl font-bold">{rate.transfer_ratio}</div>
-                        <div className="text-xs text-muted-foreground">ratio</div>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex items-center justify-between flex-wrap gap-4">
-                      <div className="flex items-center gap-2">
-                        <Clock className="w-4 h-4 text-muted-foreground" />
-                        <span className="text-sm text-muted-foreground">
-                          Transfer Time: <span className="font-medium text-foreground">{rate.transfer_time}</span>
-                        </span>
-                      </div>
-                      {rate.notes && (
-                        <div className="flex items-start gap-2 flex-1 min-w-[200px]">
-                          <Info className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                          <p className="text-sm text-muted-foreground">{rate.notes}</p>
-                        </div>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
+                      <h3 className="text-lg sm:text-xl font-semibold mb-2">No Transfer Rates Found</h3>
+                      <p className="text-sm sm:text-base text-muted-foreground px-4">
+                        Try adjusting your search or filter criteria
+                      </p>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <div className="grid gap-4">
+                    {filteredRates.map((rate, index) => (
+                      <motion.div
+                        key={rate.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.05 }}
+                      >
+                        <Card className="hover:shadow-lg transition-shadow">
+                          <CardHeader className="pb-3">
+                            <div className="flex flex-col sm:flex-row items-start sm:justify-between gap-3 sm:gap-4">
+                              <div className="flex-1 min-w-0 w-full sm:w-auto">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <Building2 className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                                  <span className="text-xs sm:text-sm font-medium">{rate.card_issuer}</span>
+                                </div>
+                                <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+                                  <Badge className="bg-secondary text-secondary-foreground text-xs">
+                                    {rate.from_program}
+                                  </Badge>
+                                  <ArrowRightLeft className="w-3 h-3 sm:w-4 sm:h-4 text-muted-foreground" />
+                                  <Badge className="bg-secondary text-secondary-foreground text-xs">
+                                    {rate.to_program}
+                                  </Badge>
+                                </div>
+                              </div>
+                              <div className="text-left sm:text-right flex-shrink-0 w-full sm:w-auto">
+                                <div className="text-xl sm:text-2xl font-bold">{rate.transfer_ratio}</div>
+                                <div className="text-xs text-muted-foreground">ratio</div>
+                              </div>
+                            </div>
+                          </CardHeader>
+                          <CardContent>
+                            <div className="flex flex-col sm:flex-row items-start sm:items-center sm:justify-between gap-3 sm:gap-4">
+                              <div className="flex items-center gap-2">
+                                <Clock className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                                <span className="text-xs sm:text-sm text-muted-foreground">
+                                  Transfer Time: <span className="font-medium text-foreground">{rate.transfer_time}</span>
+                                </span>
+                              </div>
+                              {rate.notes && (
+                                <div className="flex items-start gap-2 flex-1 w-full sm:min-w-[200px]">
+                                  <Info className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                                  <p className="text-xs sm:text-sm text-muted-foreground">{rate.notes}</p>
+                                </div>
+                              )}
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </motion.div>
+                    ))}
+                  </div>
+                )}
               </motion.div>
-            ))}
-          </div>
-        )}
-
+            </AnimatePresence>
           </TabsContent>
         </Tabs>
       </div>
