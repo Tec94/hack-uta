@@ -159,12 +159,12 @@ export function calculateSpendingFromTransactions(transactions: any[]) {
     }
 
     if (tx.amount > 0) { // Only count outflows
-      const category = tx.category?.[0]?.toLowerCase() || '';
-      const allCategories = tx.category?.map((c: string) => c.toLowerCase()).join(', ') || 'none';
-      
+      // Use personal_finance_category.primary instead of the deprecated category field
+      const category = tx.personal_finance_category?.primary?.toLowerCase() || '';
+
       let matched = false;
-      
-      if (category.includes('food') || category.includes('restaurant') || allCategories.includes('dining')) {
+
+      if (category.includes('food') || category.includes('restaurant') || category.includes('dining')) {
         spending.dining += tx.amount;
         matched = true;
       } else if (category.includes('gas') || category.includes('fuel') || category.includes('transportation')) {
@@ -176,20 +176,20 @@ export function calculateSpendingFromTransactions(transactions: any[]) {
       } else if (category.includes('travel') || category.includes('airline') || category.includes('hotel')) {
         spending.travel += tx.amount;
         matched = true;
-      } else if (category.includes('shopping') || category.includes('retail') || category.includes('shops')) {
+      } else if (category.includes('shopping') || category.includes('retail') || category.includes('general_merchandise')) {
         spending.shopping += tx.amount;
         matched = true;
       } else if (category.includes('entertainment') || category.includes('recreation')) {
         spending.entertainment += tx.amount;
         matched = true;
       }
-      
+
       if (matched) {
         categorizedCount++;
       } else {
         uncategorizedCount++;
         if (uncategorizedCount <= 3) {
-          console.log('Uncategorized transaction:', tx.name, 'Category:', allCategories, 'Amount:', tx.amount);
+          console.log('Uncategorized transaction:', tx.name, 'Category:', category, 'Amount:', tx.amount);
         }
       }
     }
