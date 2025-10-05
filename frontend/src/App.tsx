@@ -177,6 +177,14 @@ function App() {
             }
           />
           <Route
+            path="/budget"
+            element={
+              <ProtectedRoute>
+                <BudgetManagementPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/profile"
             element={
               <ProtectedRoute>

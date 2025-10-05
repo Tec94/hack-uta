@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Home, CreditCard, User, ArrowRightLeft } from "lucide-react";
+import { Home, CreditCard, User, ArrowRightLeft, Wallet } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState, useEffect, useRef } from "react";
 
@@ -16,6 +16,7 @@ export function BottomNav() {
   const location = useLocation();
   const pathname = location.pathname;
   const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0 });
+  const [animatingRoute, setAnimatingRoute] = useState<string | null>(null);
   const navRefs = useRef<Map<string, HTMLAnchorElement>>(new Map());
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -33,6 +34,16 @@ export function BottomNav() {
         width: activeRect.width,
       });
     }
+    
+    // Trigger animation for the new active route
+    setAnimatingRoute(pathname);
+    
+    // Reset animation state after animation completes
+    const timer = setTimeout(() => {
+      setAnimatingRoute(null);
+    }, 600);
+    
+    return () => clearTimeout(timer);
   }, [pathname]);
 
   return (
@@ -64,24 +75,37 @@ export function BottomNav() {
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = pathname === item.route;
+            const shouldAnimate = animatingRoute === item.route;
 
             return (
-              <Link
+              <motion.div
                 key={item.route}
-                to={item.route}
-                ref={(el) => {
-                  if (el) {
-                    navRefs.current.set(item.route, el);
-                  }
+                animate={{ 
+                  scale: shouldAnimate ? [1, 1.2, 0.95, 1] : 1 
                 }}
-                className={cn(
-                  "relative z-10 flex items-center justify-center rounded-full p-3 transition-all duration-200 hover:bg-accent",
-                  isActive && "text-primary-foreground"
-                )}
-                title={item.label}
+                transition={{
+                  type: "spring",
+                  stiffness: 400,
+                  damping: 12,
+                }}
               >
-                <Icon className="w-5 h-5" strokeWidth={2} />
-              </Link>
+                <Link
+                  to={item.route}
+                  ref={(el) => {
+                    if (el) {
+                      navRefs.current.set(item.route, el);
+                    }
+                  }}
+                  className={cn(
+                    "relative z-10 flex items-center justify-center rounded-full p-3 transition-all duration-200",
+                    !isActive && "hover:bg-accent",
+                    isActive && "text-primary-foreground"
+                  )}
+                  title={item.label}
+                >
+                  <Icon className="w-5 h-5" strokeWidth={2} />
+                </Link>
+              </motion.div>
             );
           })}
         </div>
