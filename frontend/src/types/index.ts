@@ -2,16 +2,19 @@ export interface CreditCard {
   id: string;
   name: string;
   issuer: string;
-  logoUrl: string;
-  imageUrl: string;
-  annualFee: number;
+  logoUrl?: string;
+  imageUrl?: string;
+  annualFee?: number;
   signupBonus?: string;
-  primaryBenefit: string;
-  secondaryBenefits: string[];
-  rewardsStructure: RewardCategory[];
-  creditScoreRequired: string;
-  fullDescription: string;
-  applicationUrl: string;
+  primaryBenefit?: string;
+  secondaryBenefits?: string[];
+  rewardsStructure?: RewardCategory[];
+  creditScoreRequired?: string;
+  fullDescription?: string;
+  applicationUrl?: string;
+  network?: string;
+  rewardRates?: Record<string, number>;
+  features?: string[];
 }
 
 export interface RewardCategory {

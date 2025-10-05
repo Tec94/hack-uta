@@ -162,10 +162,11 @@ export function TransferRatesPage() {
               <select
                 value={selectedIssuer}
                 onChange={(e) => setSelectedIssuer(e.target.value)}
-                className="px-3 sm:px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-ring h-10 sm:h-11 text-sm sm:text-base min-w-[140px]"
+                className="px-3 sm:px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-ring h-10 sm:h-11 min-w-[140px]"
+                style={{ fontSize: '16px' }}
               >
                 {issuers.map(issuer => (
-                  <option key={issuer} value={issuer}>
+                  <option key={issuer} value={issuer} style={{ fontSize: '16px' }}>
                     {issuer === 'all' ? 'All Issuers' : issuer}
                   </option>
                 ))}

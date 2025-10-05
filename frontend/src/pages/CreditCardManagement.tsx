@@ -296,12 +296,19 @@ export function CreditCardManagementPage() {
   const categories = ['all', ...new Set(allCards.map(card => card.category))]
 
   const filterCards = (cards: ApiCreditCard[]) => {
-    return cards.filter(card => {
+    const filtered = cards.filter(card => {
       const matchesSearch = card.card_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                            card.bank_name.toLowerCase().includes(searchQuery.toLowerCase())
       const matchesCategory = selectedCategory === 'all' || card.category === selectedCategory
       return matchesSearch && matchesCategory
     })
+    console.log('Filtering cards:', { 
+      searchQuery, 
+      selectedCategory, 
+      totalCards: cards.length, 
+      filteredCards: filtered.length 
+    })
+    return filtered
   }
 
   if (loading) {
@@ -780,11 +787,16 @@ export function CreditCardManagementPage() {
             <CardContent className="p-0">
               <div className="flex flex-col md:flex-row gap-4">
                 <div className="flex-1 relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5 pointer-events-none" />
                   <Input
+                    type="text"
                     placeholder="Search cards by name or bank..."
                     value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onChange={(e) => {
+                      const value = e.target.value
+                      setSearchQuery(value)
+                      console.log('Search query updated:', value)
+                    }}
                     className="pl-10 h-11"
                   />
                 </div>
@@ -793,10 +805,11 @@ export function CreditCardManagementPage() {
                   <select
                     value={selectedCategory}
                     onChange={(e) => setSelectedCategory(e.target.value)}
-                    className="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-ring h-11"
+                    className="px-3 sm:px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-ring h-11"
+                    style={{ fontSize: '16px' }}
                   >
                     {categories.map(category => (
-                      <option key={category} value={category}>
+                      <option key={category} value={category} style={{ fontSize: '16px' }}>
                         {category === 'all' ? 'All Categories' : category}
                       </option>
                     ))}

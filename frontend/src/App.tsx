@@ -17,10 +17,13 @@ import { Loading } from './components/common/Loading'
 import { Toaster } from './components/ui/toaster'
 import { ChatbotAssistant } from './components/chatbot/ChatbotAssistant'
 import { ToastNotification } from './components/notifications/ToastNotification'
-import { CardDetailModal } from './components/cards/CardDetailModal'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from './components/ui/dialog'
+import { Badge } from './components/ui/badge'
+import { Separator } from './components/ui/separator'
 import { useSmartNotifications } from './hooks/useSmartNotifications'
 import type { SmartNotification, CreditCard } from './types'
 import { NotificationProvider } from './contexts/NotificationContext'
+import { Sparkles, TrendingUp } from 'lucide-react'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -141,6 +144,10 @@ function SmartNotificationProvider() {
     setCardModalOpen(true)
   }
 
+  const formatRewardRate = (rate: number) => {
+    return `${(rate * 100).toFixed(1)}%`
+  }
+
   return (
     <>
       <ToastNotification
@@ -150,11 +157,83 @@ function SmartNotificationProvider() {
         onCardClick={handleCardClick}
         autoHideDuration={8000}
       />
-      <CardDetailModal
-        card={selectedCard}
-        isOpen={cardModalOpen}
-        onClose={() => setCardModalOpen(false)}
-      />
+      
+      {/* Card Detail Modal - Same style as Card Management Page */}
+      <Dialog open={cardModalOpen} onOpenChange={setCardModalOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-white">
+          {selectedCard && (
+            <>
+              <DialogHeader>
+                <DialogTitle className="text-2xl text-foreground">{selectedCard.name}</DialogTitle>
+                <p className="text-sm text-foreground">{selectedCard.issuer}</p>
+              </DialogHeader>
+
+              {/* Card Visual */}
+              <div className="w-full h-48 bg-primary rounded-xl p-6 text-primary-foreground mb-6 relative overflow-hidden shadow-lg">
+                <div className="absolute inset-0 opacity-10">
+                  <div className="absolute top-0 right-0 w-48 h-48 bg-white rounded-full -translate-y-24 translate-x-24" />
+                  <div className="absolute bottom-0 left-0 w-32 h-32 bg-white rounded-full translate-y-16 -translate-x-16" />
+                </div>
+                <div className="relative z-10 h-full flex flex-col justify-between">
+                  <div className="flex items-center gap-2">
+                    {selectedCard.network && <Badge variant="secondary">{selectedCard.network}</Badge>}
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-bold mb-2">{selectedCard.name}</h3>
+                    <p className="text-sm opacity-90">{selectedCard.issuer}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Reward Categories */}
+              {selectedCard.rewardRates && Object.keys(selectedCard.rewardRates).length > 0 && (
+                <div className="mb-6">
+                  <h4 className="font-semibold text-lg mb-3 flex items-center gap-2 text-foreground">
+                    <Sparkles className="w-5 h-5 text-foreground" />
+                    Rewards Breakdown
+                  </h4>
+                  <div className="grid grid-cols-2 gap-3">
+                    {Object.entries(selectedCard.rewardRates)
+                      .sort((a, b) => b[1] - a[1])
+                      .map(([category, rate]) => (
+                        <div key={category} className="bg-muted rounded-lg p-4">
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <p className="text-sm text-foreground capitalize mb-1">{category.replace(/_/g, ' ')}</p>
+                              <p className="text-2xl font-bold text-foreground">{formatRewardRate(rate)}</p>
+                            </div>
+                            <TrendingUp className="w-5 h-5 text-primary mt-1" />
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                </div>
+              )}
+
+              <Separator className="my-4" />
+
+              {/* Card Info */}
+              <div className="space-y-4">
+                {selectedCard.network && (
+                  <div>
+                    <h4 className="font-semibold mb-2 text-foreground">Card Network</h4>
+                    <p className="text-sm text-foreground">{selectedCard.network}</p>
+                  </div>
+                )}
+                {notificationToShow && (
+                  <div>
+                    <h4 className="font-semibold mb-2 text-foreground">Why this card?</h4>
+                    <p className="text-sm text-foreground">{notificationToShow.reason}</p>
+                    <p className="text-sm text-primary font-semibold mt-2">
+                      Estimated earnings: {notificationToShow.estimatedEarnings}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </>
   )
 }
