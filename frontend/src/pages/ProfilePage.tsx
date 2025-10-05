@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { Separator } from '@/components/ui/separator'
 import { useUserStore } from '@/store/userStore'
-import { Mail, CreditCard, DollarSign, LogOut, Settings, Shield, Bell, HelpCircle, Sparkles, TrendingUp, Award, RefreshCw } from 'lucide-react'
+import { Mail, CreditCard, DollarSign, LogOut, Settings, Shield, Bell, HelpCircle, Sparkles, RefreshCw } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils'
 import { motion } from 'framer-motion'
 
