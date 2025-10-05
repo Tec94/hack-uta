@@ -1,4 +1,5 @@
 import { useAuth0 } from '@auth0/auth0-react'
+import { useNavigate } from 'react-router-dom'
 import { BottomNav } from '@/components/navigation/BottomNav'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -7,13 +8,14 @@ import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { Separator } from '@/components/ui/separator'
 import { useUserStore } from '@/store/userStore'
-import { Mail, CreditCard, DollarSign, LogOut, Settings, Shield, Bell, HelpCircle, Sparkles, TrendingUp, Award } from 'lucide-react'
+import { Mail, CreditCard, DollarSign, LogOut, Settings, Shield, Bell, HelpCircle, Sparkles, TrendingUp, Award, RefreshCw } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils'
 import { motion } from 'framer-motion'
 
 export function ProfilePage() {
   const { user, logout } = useAuth0()
-  const { budget, linkedBank, onboardingCompleted } = useUserStore()
+  const navigate = useNavigate()
+  const { budget, linkedBank, onboardingCompleted, reset } = useUserStore()
 
   const totalMonthlySpending = budget
     ? Object.values(budget).reduce((sum, val) => sum + val, 0)
@@ -233,6 +235,25 @@ export function ProfilePage() {
                 <Shield className="w-5 h-5 mr-3 text-indigo-600" />
                 <span>Security</span>
               </Button>
+              
+              <Separator className="my-2" />
+              
+              {/* Testing button to reset onboarding */}
+              <Button
+                variant="outline"
+                className="w-full justify-start text-orange-600 hover:text-orange-700 hover:bg-orange-50 hover:border-orange-300 transition-colors"
+                size="lg"
+                onClick={() => {
+                  if (confirm('Reset bank integration? This will clear your budget and bank connection data for testing purposes.')) {
+                    reset()
+                    navigate('/onboarding/choice')
+                  }
+                }}
+              >
+                <RefreshCw className="w-5 h-5 mr-3" />
+                <span>Reset Bank Integration (Test)</span>
+              </Button>
+              
               <Button
                 variant="outline"
                 className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50 hover:border-red-300 transition-colors"
