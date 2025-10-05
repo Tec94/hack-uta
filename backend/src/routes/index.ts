@@ -4,6 +4,8 @@ import healthRoutes from './health';
 import databaseRoutes from './database';
 import plaidRoutes from './plaid';
 import placesRoutes from './places';
+import geminiRoutes from './gemini';
+import cardsRoutes from './cards';
 
 const router = Router();
 
@@ -13,5 +15,7 @@ router.use('/', healthRoutes);
 router.use('/', databaseRoutes);
 router.use('/api/plaid', plaidRoutes);
 router.use('/api/places', placesRoutes);
+router.use('/api/cards', cardsRoutes);
+router.use('/', geminiRoutes);
 
 export default router;

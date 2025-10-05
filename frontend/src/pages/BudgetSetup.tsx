@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Slider } from '@/components/ui/slider'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
@@ -16,27 +15,19 @@ const categoryGroups = [
   {
     title: 'Essential Expenses',
     categories: [
-      { key: 'rent', label: 'Rent/Mortgage', icon: '🏠', max: 5000 },
-      { key: 'utilities', label: 'Utilities & Bills', icon: '💡', max: 500 },
-      { key: 'groceries', label: 'Groceries', icon: '🛒', max: 1000 },
-      { key: 'gas', label: 'Gas & Transportation', icon: '⛽', max: 500 },
-    ]
-  },
-  {
-    title: 'Financial Goals',
-    categories: [
-      { key: 'savings', label: 'Savings', icon: '💰', max: 3000 },
-      { key: 'investing', label: 'Investing', icon: '📈', max: 3000 },
-      { key: 'debt', label: 'Debt Payments', icon: '💳', max: 2000 },
+      { key: 'rent', label: 'Rent/Mortgage', icon: '🏠', max: 5000, suggestedRatio: 0.3 },
+      { key: 'utilities', label: 'Utilities & Bills', icon: '💡', max: 500, suggestedRatio: 0.08 },
+      { key: 'groceries', label: 'Groceries', icon: '🛒', max: 1000, suggestedRatio: 0.12 },
+      { key: 'gas', label: 'Gas & Transportation', icon: '⛽', max: 500, suggestedRatio: 0.1 },
     ]
   },
   {
     title: 'Lifestyle & Discretionary',
     categories: [
-      { key: 'dining', label: 'Dining & Restaurants', icon: '🍽️', max: 1000 },
-      { key: 'shopping', label: 'Shopping & Retail', icon: '🛍️', max: 1000 },
-      { key: 'entertainment', label: 'Entertainment', icon: '🎬', max: 500 },
-      { key: 'travel', label: 'Travel & Hotels', icon: '✈️', max: 2000 },
+      { key: 'dining', label: 'Dining & Restaurants', icon: '🍽️', max: 1000, suggestedRatio: 0.08 },
+      { key: 'shopping', label: 'Shopping & Retail', icon: '🛍️', max: 1000, suggestedRatio: 0.08 },
+      { key: 'entertainment', label: 'Entertainment', icon: '🎬', max: 500, suggestedRatio: 0.06 },
+      { key: 'travel', label: 'Travel & Hotels', icon: '✈️', max: 2000, suggestedRatio: 0.06 },
     ]
   }
 ]
@@ -50,18 +41,11 @@ export function ManualSetupPage() {
     utilities: 0,
     groceries: 0,
     gas: 0,
-    savings: 0,
-    investing: 0,
-    debt: 0,
     dining: 0,
     shopping: 0,
     entertainment: 0,
     travel: 0,
   })
-
-  const handleSliderChange = (key: string, value: number[]) => {
-    setBudgets((prev) => ({ ...prev, [key]: value[0] }))
-  }
 
   const handleInputChange = (key: string, value: string) => {
     const numValue = parseInt(value) || 0
@@ -88,26 +72,6 @@ export function ManualSetupPage() {
     setBudgets(resetBudgets)
   }
 
-  const handleSetDefaultBudget = () => {
-    // 50/30/20 rule based on income: 50% needs, 30% wants, 20% savings
-    const needs = Math.round(monthlyIncome * 0.5)
-    const wants = Math.round(monthlyIncome * 0.3)
-    const savings = Math.round(monthlyIncome * 0.2)
-    
-    setBudgets({
-      rent: Math.round(needs * 0.5),
-      utilities: Math.round(needs * 0.1),
-      groceries: Math.round(needs * 0.25),
-      gas: Math.round(needs * 0.15),
-      savings: Math.round(savings * 0.6),
-      investing: Math.round(savings * 0.3),
-      debt: Math.round(savings * 0.1),
-      dining: Math.round(wants * 0.35),
-      shopping: Math.round(wants * 0.3),
-      entertainment: Math.round(wants * 0.2),
-      travel: Math.round(wants * 0.15),
-    })
-  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -234,27 +198,15 @@ export function ManualSetupPage() {
             <CardHeader>
               <CardTitle className="flex justify-between items-center flex-wrap gap-4">
                 <span>Budget Allocation</span>
-                <div className="flex gap-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={handleResetBudget}
-                    className="text-xs"
-                  >
-                    Reset All
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={handleSetDefaultBudget}
-                    className="text-xs"
-                    disabled={monthlyIncome === 0}
-                  >
-                    Use 50/30/20 Rule
-                  </Button>
-                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={handleResetBudget}
+                  className="text-xs"
+                >
+                  Reset All
+                </Button>
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -290,18 +242,14 @@ export function ManualSetupPage() {
                               />
                             </div>
                           </div>
-                          <Slider
-                            value={[budgets[category.key] || 0]}
-                            onValueChange={(value) => handleSliderChange(category.key, value)}
-                            min={0}
-                            max={category.max}
-                            step={category.max > 1000 ? 100 : 50}
-                            className="w-full"
-                          />
-                          <div className="flex justify-between text-xs text-gray-500">
-                            <span>$0</span>
-                            <span>{formatCurrency(category.max)}</span>
-                          </div>
+                          <p className="text-xs text-gray-500">
+                            Suggested allocation: {Math.round((category.suggestedRatio || 0) * 100)}% of income
+                            {monthlyIncome > 0 && (
+                              <span className="ml-1">
+                                (~{formatCurrency(Math.round(monthlyIncome * (category.suggestedRatio || 0)))} )
+                              </span>
+                            )}
+                          </p>
                         </motion.div>
                       ))}
                     </div>
@@ -311,9 +259,9 @@ export function ManualSetupPage() {
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-6">
                   <h4 className="font-semibold text-blue-900 mb-2">💡 Budgeting Tips</h4>
                   <ul className="text-sm text-blue-800 space-y-1">
-                    <li>• <strong>50/30/20 Rule:</strong> 50% needs, 30% wants, 20% savings/debt</li>
                     <li>• Be realistic about your spending to get better card recommendations</li>
                     <li>• Don't forget to include all recurring expenses</li>
+                    <li>• Your budget should not exceed your income</li>
                   </ul>
                 </div>
 
@@ -330,9 +278,8 @@ export function ManualSetupPage() {
                     type="submit" 
                     className="flex-1 text-lg" 
                     size="lg"
-                    disabled={monthlyIncome === 0 || totalBudget === 0}
                   >
-                    Complete Setup
+                    {monthlyIncome === 0 && totalBudget === 0 ? 'Skip & Continue' : 'Complete Setup'}
                   </Button>
                 </div>
               </form>

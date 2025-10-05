@@ -18,6 +18,15 @@ import { recommendCardsForMerchant, calculatePotentialEarnings, getRecommendatio
 import { MapPin, AlertCircle, Loader2, TrendingUp, DollarSign, Award, Sparkles, Star } from 'lucide-react'
 import { motion } from 'framer-motion'
 
+const categoryInfo: Record<string, { label: string; icon: string; group: string }> = {
+  groceries: { label: 'Groceries', icon: '🛒', group: 'Essential' },
+  gas: { label: 'Gas & Transportation', icon: '⛽', group: 'Essential' },
+  dining: { label: 'Dining & Restaurants', icon: '🍽️', group: 'Lifestyle' },
+  shopping: { label: 'Shopping & Retail', icon: '🛍️', group: 'Lifestyle' },
+  entertainment: { label: 'Entertainment', icon: '🎬', group: 'Lifestyle' },
+  travel: { label: 'Travel & Hotels', icon: '✈️', group: 'Lifestyle' },
+}
+
 export function DashboardPage() {
   const { user } = useAuth0()
   const navigate = useNavigate()
@@ -79,7 +88,7 @@ export function DashboardPage() {
             </div>
             <Badge variant="secondary" className="bg-white/20 text-white border-white/30 backdrop-blur-sm">
               <Sparkles className="w-3 h-3 mr-1" />
-              Premium
+              Testing Member
             </Badge>
           </div>
           
@@ -309,43 +318,78 @@ export function DashboardPage() {
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {Object.entries(budget)
-                    .sort((a, b) => b[1] - a[1])
-                    .map(([category, amount], index) => {
-                      const percentage = totalBudget > 0 ? (amount / totalBudget) * 100 : 0
-                      const colors = [
-                        'bg-blue-500',
-                        'bg-purple-500',
-                        'bg-pink-500',
-                        'bg-indigo-500',
-                        'bg-violet-500',
-                        'bg-fuchsia-500'
-                      ]
-                      return (
-                        <motion.div
-                          key={category}
-                          initial={{ opacity: 0, x: -20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: index * 0.05 }}
-                          className="group"
-                        >
-                          <div className="flex items-center justify-between mb-2">
-                            <div className="flex items-center gap-2">
-                              <div className={`w-3 h-3 rounded-full ${colors[index % colors.length]}`}></div>
-                              <span className="text-sm font-medium capitalize group-hover:text-primary transition-colors">
-                                {category}
-                              </span>
+                {/* Essential Expenses */}
+                <div className="mb-6">
+                  <h3 className="text-sm font-semibold text-gray-700 mb-3">Essential Expenses</h3>
+                  <div className="space-y-3">
+                    {Object.entries(budget)
+                      .filter(([cat]) => categoryInfo[cat]?.group === 'Essential')
+                      .sort((a, b) => b[1] - a[1])
+                      .map(([category, amount], index) => {
+                        const percentage = totalBudget > 0 ? (amount / totalBudget) * 100 : 0
+                        const info = categoryInfo[category]
+                        return (
+                          <motion.div
+                            key={category}
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: index * 0.05 }}
+                            className="group"
+                          >
+                            <div className="flex items-center justify-between mb-2">
+                              <div className="flex items-center gap-2">
+                                <span className="text-lg">{info.icon}</span>
+                                <span className="text-sm font-medium group-hover:text-primary transition-colors">
+                                  {info.label}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="text-sm text-muted-foreground">{percentage.toFixed(0)}%</span>
+                                <span className="text-lg font-bold text-gray-900">${amount}</span>
+                              </div>
                             </div>
-                            <div className="flex items-center gap-2">
-                              <span className="text-sm text-muted-foreground">{percentage.toFixed(0)}%</span>
-                              <span className="text-lg font-bold text-gray-900">${amount}</span>
+                            <Progress value={percentage} className="h-2" />
+                          </motion.div>
+                        )
+                      })}
+                  </div>
+                </div>
+
+                {/* Lifestyle & Discretionary */}
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-700 mb-3">Lifestyle & Discretionary</h3>
+                  <div className="space-y-3">
+                    {Object.entries(budget)
+                      .filter(([cat]) => categoryInfo[cat]?.group === 'Lifestyle')
+                      .sort((a, b) => b[1] - a[1])
+                      .map(([category, amount], index) => {
+                        const percentage = totalBudget > 0 ? (amount / totalBudget) * 100 : 0
+                        const info = categoryInfo[category]
+                        return (
+                          <motion.div
+                            key={category}
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: (2 + index) * 0.05 }}
+                            className="group"
+                          >
+                            <div className="flex items-center justify-between mb-2">
+                              <div className="flex items-center gap-2">
+                                <span className="text-lg">{info.icon}</span>
+                                <span className="text-sm font-medium group-hover:text-primary transition-colors">
+                                  {info.label}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="text-sm text-muted-foreground">{percentage.toFixed(0)}%</span>
+                                <span className="text-lg font-bold text-gray-900">${amount}</span>
+                              </div>
                             </div>
-                          </div>
-                          <Progress value={percentage} className="h-2" />
-                        </motion.div>
-                      )
-                    })}
+                            <Progress value={percentage} className="h-2" />
+                          </motion.div>
+                        )
+                      })}
+                  </div>
                 </div>
                 
                 <div className="mt-6 pt-6 border-t border-gray-200">

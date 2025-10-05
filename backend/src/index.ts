@@ -41,6 +41,9 @@ app.listen(PORT, async () => {
   console.log(`📱 Health check: http://localhost:${PORT}/health`);
   console.log(`🗄️  Database health: http://localhost:${PORT}/db-health`);
   console.log(`🧪 Database test: http://localhost:${PORT}/db-test`);
+  console.log(`🤖 Gemini health: http://localhost:${PORT}/gemini-health`);
+  console.log(`🧠 Gemini test: http://localhost:${PORT}/gemini/test`);
+  console.log(`💳 Cards catalog: http://localhost:${PORT}/api/cards`);
   console.log(`🌐 API endpoint: http://localhost:${PORT}/`);
   
   // Test database connection on startup

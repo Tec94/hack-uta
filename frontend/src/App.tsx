@@ -4,12 +4,15 @@ import { useAuth0 } from '@auth0/auth0-react'
 import { HomePage } from './pages/HomePage'
 import { OnboardingChoice } from './pages/OnboardingChoice'
 import { LinkBankPage } from './pages/LinkBankPage'
-import { ManualSetupPage } from './pages/ManualSetupPage'
+import { ManualSetupPage } from './pages/BudgetSetup'
+import { ChooseYourCardPage } from './pages/ChooseYourCard'
+import { CreditCardManagementPage } from './pages/CreditCardManagement'
 import { DashboardPage } from './pages/DashboardPage'
 import { RecommendationsPage } from './pages/RecommendationsPage'
 import { ProfilePage } from './pages/ProfilePage'
 import { Loading } from './components/common/Loading'
 import { Toaster } from './components/ui/toaster'
+import { ChatbotAssistant } from './components/chatbot/ChatbotAssistant'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -35,6 +38,8 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 }
 
 function App() {
+  const { isAuthenticated } = useAuth0()
+
   return (
     <QueryClientProvider client={queryClient}>
       <Routes>
@@ -56,10 +61,26 @@ function App() {
           }
         />
         <Route
-          path="/onboarding/manual-setup"
+          path="/onboarding/choose-card"
+          element={
+            <ProtectedRoute>
+              <ChooseYourCardPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/onboarding/budget-setup"
           element={
             <ProtectedRoute>
               <ManualSetupPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/cards"
+          element={
+            <ProtectedRoute>
+              <CreditCardManagementPage />
             </ProtectedRoute>
           }
         />
@@ -89,6 +110,7 @@ function App() {
         />
       </Routes>
       <Toaster />
+      {isAuthenticated && <ChatbotAssistant />}
     </QueryClientProvider>
   )
 }
