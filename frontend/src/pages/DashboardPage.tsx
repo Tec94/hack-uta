@@ -128,6 +128,7 @@ export function DashboardPage() {
 
         // Update spending in store
         setSpending({
+          rent: 0, // Rent not tracked via transactions
           dining: Math.round(currentSpending.dining),
           gas: Math.round(currentSpending.gas),
           groceries: Math.round(currentSpending.groceries),
@@ -160,6 +161,7 @@ export function DashboardPage() {
       const currentSpending = calculateSpendingFromTransactions(transactions)
 
       setSpending({
+        rent: 0, // Rent not tracked via transactions
         dining: Math.round(currentSpending.dining),
         gas: Math.round(currentSpending.gas),
         groceries: Math.round(currentSpending.groceries),
@@ -518,8 +520,8 @@ export function DashboardPage() {
             <MonthlyBudgetBreakdown
               budget={budget}
               spending={spending}
-              title={linkedBank ? "Current Month Spending vs Budget" : "Budget Breakdown"}
-              description={linkedBank ? "Track your progress this month" : "Monthly budget allocation"}
+              title={linkedBank ? "Current Month Spending vs Budget" : "Monthly Budget Breakdown"}
+              description={linkedBank ? "Track your progress this month" : "View and track your spending categories"}
               showTotal={true}
               actionButton={{
                 label: 'Manage',

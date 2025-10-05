@@ -39,12 +39,13 @@ export interface UserLocation {
 }
 
 export interface UserBudget {
-  dining: number;
-  gas: number;
+  rent: number;
   groceries: number;
-  travel: number;
+  gas: number;
+  dining: number;
   shopping: number;
   entertainment: number;
+  travel: number;
 }
 
 export interface UserProfile {
@@ -74,7 +75,7 @@ export interface Recommendation {
   confidence: number;
 }
 
-export type SpendingCategory = 'dining' | 'gas' | 'groceries' | 'travel' | 'shopping' | 'entertainment';
+export type SpendingCategory = 'rent' | 'groceries' | 'gas' | 'dining' | 'shopping' | 'entertainment' | 'travel';
 
 // API Credit Card type from the cards API
 export interface ApiCreditCard {

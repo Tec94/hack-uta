@@ -6,6 +6,7 @@ interface UserState {
   location: UserLocation | null;
   budget: UserBudget | null;
   spending: UserBudget | null; // Actual spending from transactions
+  monthlyIncome: number;
   currentCards: string[];
   onboardingCompleted: boolean;
   linkedBank: boolean;
@@ -16,6 +17,7 @@ interface UserState {
   setLocation: (location: UserLocation) => void;
   setBudget: (budget: UserBudget) => void;
   setSpending: (spending: UserBudget) => void;
+  setMonthlyIncome: (income: number) => void;
   setCurrentCards: (cards: string[]) => void;
   setOnboardingCompleted: (completed: boolean) => void;
   setLinkedBank: (linked: boolean) => void;
@@ -30,6 +32,7 @@ const initialState = {
   location: null,
   budget: null,
   spending: null,
+  monthlyIncome: 0,
   currentCards: [],
   onboardingCompleted: false,
   linkedBank: false,
@@ -46,6 +49,7 @@ export const useUserStore = create<UserState>()(
       setLocation: (location) => set({ location }),
       setBudget: (budget) => set({ budget }),
       setSpending: (spending) => set({ spending }),
+      setMonthlyIncome: (income) => set({ monthlyIncome: income }),
       setCurrentCards: (cards) => set({ currentCards: cards }),
       setOnboardingCompleted: (completed) => set({ onboardingCompleted: completed }),
       setLinkedBank: (linked) => set({ linkedBank: linked }),

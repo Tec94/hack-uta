@@ -7,6 +7,7 @@ import { UserBudget } from '@/types'
 import { formatCurrency } from '@/lib/utils'
 
 const categoryInfo: Record<string, { label: string; icon: string; group: string }> = {
+  rent: { label: 'Rent/Mortgage', icon: '🏠', group: 'Essential' },
   groceries: { label: 'Groceries', icon: '🛒', group: 'Essential' },
   gas: { label: 'Gas & Transportation', icon: '⛽', group: 'Essential' },
   dining: { label: 'Dining & Restaurants', icon: '🍽️', group: 'Lifestyle' },

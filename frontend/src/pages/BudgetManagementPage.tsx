@@ -29,6 +29,7 @@ import { motion } from 'framer-motion'
 import { UserBudget } from '@/types'
 
 const categoryInfo: Record<string, { label: string; icon: string; group: string; color: string }> = {
+  rent: { label: 'Rent/Mortgage', icon: '🏠', group: 'Essential', color: 'from-blue-500 to-indigo-600' },
   groceries: { label: 'Groceries', icon: '🛒', group: 'Essential', color: 'from-green-500 to-emerald-600' },
   gas: { label: 'Gas & Transportation', icon: '⛽', group: 'Essential', color: 'from-amber-500 to-orange-600' },
   dining: { label: 'Dining & Restaurants', icon: '🍽️', group: 'Lifestyle', color: 'from-emerald-500 to-teal-600' },
@@ -49,18 +50,19 @@ interface AIInsights {
 
 export function BudgetManagementPage() {
   const navigate = useNavigate()
-  const { budget, setBudget } = useUserStore()
+  const { budget, setBudget, monthlyIncome: storedIncome, setMonthlyIncome: saveMonthlyIncome } = useUserStore()
   
   const [editMode, setEditMode] = useState(false)
   const [tempBudget, setTempBudget] = useState<UserBudget>(budget || {
-    dining: 0,
-    gas: 0,
+    rent: 0,
     groceries: 0,
-    travel: 0,
+    gas: 0,
+    dining: 0,
     shopping: 0,
     entertainment: 0,
+    travel: 0,
   })
-  const [monthlyIncome, setMonthlyIncome] = useState<number>(0)
+  const [monthlyIncome, setMonthlyIncome] = useState<number>(storedIncome || 0)
   
   // AI Insights state
   const [aiInsights, setAiInsights] = useState<AIInsights | null>(null)
@@ -72,6 +74,10 @@ export function BudgetManagementPage() {
       fetchAIInsights()
     }
   }, [budget])
+
+  useEffect(() => {
+    setMonthlyIncome(storedIncome || 0)
+  }, [storedIncome])
 
   const fetchAIInsights = async () => {
     if (!budget) return
@@ -85,7 +91,7 @@ export function BudgetManagementPage() {
         },
         body: JSON.stringify({
           budget: budget,
-          monthlyIncome: null,
+          monthlyIncome: monthlyIncome > 0 ? monthlyIncome : null,
         }),
       })
 
@@ -117,6 +123,7 @@ export function BudgetManagementPage() {
 
   const handleSave = () => {
     setBudget(tempBudget)
+    saveMonthlyIncome(monthlyIncome)
     setEditMode(false)
     // Refresh AI insights
     setTimeout(() => fetchAIInsights(), 500)
@@ -179,6 +186,7 @@ export function BudgetManagementPage() {
                       type="number"
                       value={monthlyIncome || ''}
                       onChange={(e) => setMonthlyIncome(parseInt(e.target.value) || 0)}
+                      onBlur={() => saveMonthlyIncome(monthlyIncome)}
                       placeholder="Enter income"
                       className="text-lg sm:text-xl font-bold h-10 sm:h-12"
                     />

@@ -75,6 +75,7 @@ export function LinkBankPage() {
 
       // Store spending data in user store (separate from budget)
       setSpending({
+        rent: 0, // Rent not tracked via transactions
         dining: Math.round(spending.dining),
         gas: Math.round(spending.gas),
         groceries: Math.round(spending.groceries),

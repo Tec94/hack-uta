@@ -37,9 +37,13 @@ const categoryGroups = [
 
 export function ManualSetupPage() {
   const navigate = useNavigate()
+<<<<<<< Updated upstream
   const { user } = useAuth0()
   const { toast } = useToast()
   const { setBudget, setLinkedBank, setOnboardingCompleted } = useUserStore()
+=======
+  const { setBudget, setLinkedBank, setOnboardingCompleted, setMonthlyIncome: saveMonthlyIncome } = useUserStore()
+>>>>>>> Stashed changes
   const [monthlyIncome, setMonthlyIncome] = useState<number>(0)
   const [budgets, setBudgets] = useState<Record<string, number>>({
     rent: 0,
@@ -99,6 +103,7 @@ export function ManualSetupPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
+<<<<<<< Updated upstream
     if (!user?.sub) {
       toast({
         title: 'Error',
@@ -150,6 +155,27 @@ export function ManualSetupPage() {
     } finally {
       setLoading(false)
     }
+=======
+    // Map to UserBudget format for existing system
+    const userBudget: UserBudget = {
+      rent: budgets.rent || 0,
+      groceries: budgets.groceries || 0,
+      gas: budgets.gas || 0,
+      dining: budgets.dining || 0,
+      shopping: budgets.shopping || 0,
+      entertainment: budgets.entertainment || 0,
+      travel: budgets.travel || 0,
+    }
+    
+    // Save to store
+    setBudget(userBudget)
+    saveMonthlyIncome(monthlyIncome)
+    setLinkedBank(false)
+    setOnboardingCompleted(true)
+    
+    // Navigate to dashboard
+    navigate('/dashboard')
+>>>>>>> Stashed changes
   }
 
   const totalBudget = Object.values(budgets).reduce((sum, val) => sum + val, 0)
