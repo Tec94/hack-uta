@@ -209,10 +209,10 @@ export function ChooseYourCardPage() {
                   <CardHeader className="pb-4">
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex-1 min-w-0">
-                        <CardTitle className="text-lg font-semibold text-gray-900 mb-1 truncate">
+                        <CardTitle className="text-lg font-semibold mb-1 truncate">
                           {card.card_name}
                         </CardTitle>
-                        <p className="text-sm text-gray-600">{card.bank_name}</p>
+                        <p className="text-sm text-muted-foreground">{card.bank_name}</p>
                         {userHasCard && (
                           <Badge className="mt-1 bg-green-100 text-green-800 text-xs">
                             Already in your collection

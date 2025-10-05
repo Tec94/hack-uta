@@ -181,7 +181,7 @@ export function ChatbotAssistant() {
                         className={`max-w-[85%] rounded-2xl px-3 sm:px-4 py-2 sm:py-2.5 ${
                           message.role === 'user'
                             ? 'bg-gradient-to-br from-green-600 to-emerald-600 text-white'
-                            : 'bg-white border border-gray-200 text-gray-900 shadow-sm'
+                            : 'bg-card border text-foreground shadow-sm'
                         }`}
                       >
                         <p className="text-xs sm:text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
