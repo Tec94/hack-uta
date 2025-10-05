@@ -107,8 +107,8 @@ export function ManualSetupPage() {
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-8"
         >
-          <h1 className="text-3xl font-bold mb-4">Set Your Monthly Budget</h1>
-          <p className="text-muted-foreground">Adjust the sliders to match your typical monthly spending</p>
+          <h1 className="text-2xl sm:text-3xl font-bold mb-4">Set Your Monthly Budget</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">Adjust the sliders to match your typical monthly spending</p>
           <div className="mt-6 flex items-center justify-center gap-2">
             <div className="w-2 h-2 rounded-full bg-muted"></div>
             <div className="w-2 h-2 rounded-full bg-muted"></div>
@@ -131,9 +131,9 @@ export function ManualSetupPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                <Label htmlFor="income" className="text-base">What is your monthly income?</Label>
+                <Label htmlFor="income" className="text-sm sm:text-base">What is your monthly income?</Label>
                 <div className="flex items-center gap-2">
-                  <DollarSign className="w-5 h-5 text-muted-foreground" />
+                  <DollarSign className="w-5 h-5 text-muted-foreground flex-shrink-0" />
                   <Input
                     id="income"
                     type="number"
@@ -141,10 +141,10 @@ export function ManualSetupPage() {
                     onChange={(e) => setMonthlyIncome(parseInt(e.target.value) || 0)}
                     placeholder="e.g., 5000"
                     min={0}
-                    className="text-2xl font-bold h-14"
+                    className="text-xl sm:text-2xl font-bold h-12 sm:h-14"
                   />
                 </div>
-                <p className="text-sm text-muted-foreground">Enter your total monthly take-home income (after taxes)</p>
+                <p className="text-xs sm:text-sm text-muted-foreground">Enter your total monthly take-home income (after taxes)</p>
               </div>
             </CardContent>
           </Card>
@@ -158,19 +158,19 @@ export function ManualSetupPage() {
         >
           <Card className="mb-6 shadow-sm">
             <CardContent className="pt-6">
-              <div className="grid grid-cols-3 gap-4 text-center">
+              <div className="grid grid-cols-3 gap-2 sm:gap-4 text-center">
                 <div>
-                  <p className="text-sm text-muted-foreground mb-1">Income</p>
-                  <p className="text-xl font-bold">{formatCurrency(monthlyIncome)}</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground mb-1">Income</p>
+                  <p className="text-base sm:text-xl font-bold">{formatCurrency(monthlyIncome)}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground mb-1">Allocated</p>
-                  <p className="text-xl font-bold">{formatCurrency(totalBudget)}</p>
-                  <p className="text-xs text-muted-foreground">{percentageUsed}%</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground mb-1">Allocated</p>
+                  <p className="text-base sm:text-xl font-bold">{formatCurrency(totalBudget)}</p>
+                  <p className="text-[10px] sm:text-xs text-muted-foreground">{percentageUsed}%</p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground mb-1">Remaining</p>
-                  <p className="text-xl font-bold">
+                  <p className="text-xs sm:text-sm text-muted-foreground mb-1">Remaining</p>
+                  <p className="text-base sm:text-xl font-bold">
                     {formatCurrency(remaining)}
                   </p>
                 </div>
@@ -224,13 +224,13 @@ export function ManualSetupPage() {
                           transition={{ delay: 0.5 + groupIndex * 0.2 + index * 0.05 }}
                           className="space-y-3"
                         >
-                          <div className="flex justify-between items-center">
+                          <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2">
                             <label className="text-sm font-medium flex items-center gap-2">
-                              <span className="text-2xl">{category.icon}</span>
-                              {category.label}
+                              <span className="text-xl sm:text-2xl">{category.icon}</span>
+                              <span className="text-xs sm:text-sm">{category.label}</span>
                             </label>
                             <div className="flex items-center gap-2">
-                              <DollarSign className="w-4 h-4 text-muted-foreground" />
+                              <DollarSign className="w-4 h-4 text-muted-foreground flex-shrink-0" />
                               <input
                                 type="number"
                                 value={budgets[category.key] || ''}
@@ -238,7 +238,7 @@ export function ManualSetupPage() {
                                 min={0}
                                 max={category.max}
                                 aria-label={`${category.label} budget amount`}
-                                className="w-28 px-3 py-1.5 text-right font-bold border rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
+                                className="w-24 sm:w-28 px-2 sm:px-3 py-1.5 text-right font-bold border rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
                               />
                             </div>
                           </div>

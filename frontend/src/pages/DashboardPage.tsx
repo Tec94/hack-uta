@@ -96,13 +96,13 @@ export function DashboardPage() {
     <div className="min-h-screen bg-background pb-24">
       {/* Header */}
       <div className="border-b bg-card text-card-foreground">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <div className="flex items-start justify-between mb-4">
-            <div>
-              <h1 className="text-2xl font-bold mb-1">Welcome back, {user?.name?.split(' ')[0]}! 👋</h1>
-              <p className="text-sm text-muted-foreground">Here are your personalized insights</p>
+        <div className="max-w-7xl mx-auto px-4 py-4 sm:py-6">
+          <div className="flex flex-col sm:flex-row items-start sm:justify-between gap-3 sm:gap-4 mb-4">
+            <div className="min-w-0">
+              <h1 className="text-xl sm:text-2xl font-bold mb-1">Welcome back, {user?.name?.split(' ')[0]}! 👋</h1>
+              <p className="text-xs sm:text-sm text-muted-foreground">Here are your personalized insights</p>
             </div>
-            <Badge variant="outline" className="gap-1">
+            <Badge variant="outline" className="gap-1 flex-shrink-0">
               <Sparkles className="w-3 h-3" />
               Testing Member
             </Badge>
@@ -110,34 +110,34 @@ export function DashboardPage() {
           
           {/* Quick Stats */}
           {totalBudget > 0 && (
-            <div className="grid grid-cols-3 gap-4 mt-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mt-4">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="rounded-xl p-4 border bg-card"
+                className="rounded-xl p-3 sm:p-4 border bg-card"
               >
                 <DollarSign className="w-5 h-5 mb-2 opacity-80" />
-                <p className="text-2xl font-bold">${totalBudget}</p>
+                <p className="text-xl sm:text-2xl font-bold">${totalBudget}</p>
                 <p className="text-xs opacity-80">Monthly Budget</p>
               </motion.div>
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
-                className="rounded-xl p-4 border bg-card"
+                className="rounded-xl p-3 sm:p-4 border bg-card"
               >
                 <Award className="w-5 h-5 mb-2 opacity-80" />
-                <p className="text-2xl font-bold">{mockCreditCards.length}</p>
+                <p className="text-xl sm:text-2xl font-bold">{mockCreditCards.length}</p>
                 <p className="text-xs opacity-80">Top Cards</p>
               </motion.div>
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
-                className="rounded-xl p-4 border bg-card"
+                className="rounded-xl p-3 sm:p-4 border bg-card"
               >
                 <TrendingUp className="w-5 h-5 mb-2 opacity-80" />
-                <p className="text-2xl font-bold">3.2x</p>
+                <p className="text-xl sm:text-2xl font-bold">3.2x</p>
                 <p className="text-xs opacity-80">Avg. Rewards</p>
               </motion.div>
             </div>

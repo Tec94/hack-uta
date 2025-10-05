@@ -119,19 +119,21 @@ export function RecommendedCards({
       <Card className="shadow-sm overflow-hidden">
         <CardHeader>
           <div className="flex items-center justify-between flex-wrap gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-                <Sparkles className="w-5 h-5 text-primary-foreground" />
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary rounded-lg flex items-center justify-center flex-shrink-0">
+                <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-primary-foreground" />
               </div>
-              <div>
-                <CardTitle className="text-2xl flex items-center gap-2">
-                  Recommended for You
-                  <Badge variant="default">
+              <div className="min-w-0">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mb-1">
+                  <CardTitle className="text-lg sm:text-xl md:text-2xl">
+                    Recommended for You
+                  </CardTitle>
+                  <Badge variant="default" className="w-fit">
                     <Star className="w-3 h-3 mr-1 fill-current" />
                     AI Powered
                   </Badge>
-                </CardTitle>
-                <p className="text-sm text-muted-foreground mt-1">
+                </div>
+                <p className="text-xs sm:text-sm text-muted-foreground">
                   {budget ? 'Based on your spending habits' : 'Top rated cards to maximize rewards'}
                 </p>
               </div>
@@ -152,7 +154,7 @@ export function RecommendedCards({
                       initial={{ opacity: 0, scale: 0.95 }}
                       animate={{ opacity: 1, scale: 1 }}
                       transition={{ delay: index * 0.1 }}
-                      className="flex-[0_0_320px] min-w-0"
+                      className="flex-[0_0_280px] sm:flex-[0_0_320px] min-w-0"
                       onClick={() => onCardClick?.(card)}
                     >
                       <Card className={`h-full border-2 transition-all hover:shadow-lg ${

@@ -108,11 +108,11 @@ export function ChooseYourCardPage() {
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-8"
         >
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-primary rounded-full mb-4">
-            <CreditCardIcon className="w-8 h-8 text-primary-foreground" />
+          <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-primary rounded-full mb-4">
+            <CreditCardIcon className="w-6 h-6 sm:w-8 sm:h-8 text-primary-foreground" />
           </div>
-          <h1 className="text-3xl font-bold mb-4">Choose Your Credit Cards</h1>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+          <h1 className="text-2xl sm:text-3xl font-bold mb-4">Choose Your Credit Cards</h1>
+          <p className="text-muted-foreground text-sm sm:text-base md:text-lg max-w-2xl mx-auto">
             Select the credit cards you currently own or skip to continue.
           </p>
           <div className="mt-6 flex items-center justify-center gap-2">

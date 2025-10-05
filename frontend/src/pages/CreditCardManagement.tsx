@@ -213,54 +213,54 @@ export function CreditCardManagementPage() {
     <div className="min-h-screen bg-background pb-24">
       {/* Header */}
       <div className="border-b bg-card text-card-foreground">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <div className="flex items-start justify-between mb-4">
-            <div>
-              <h1 className="text-2xl font-bold mb-1 flex items-center gap-3">
-                <Wallet className="w-6 h-6" />
+        <div className="max-w-7xl mx-auto px-4 py-4 sm:py-6">
+          <div className="flex flex-col sm:flex-row items-start sm:justify-between gap-3 sm:gap-4 mb-4">
+            <div className="min-w-0">
+              <h1 className="text-xl sm:text-2xl font-bold mb-1 flex items-center gap-2 sm:gap-3">
+                <Wallet className="w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0" />
                 My Credit Cards
               </h1>
-              <p className="text-sm text-muted-foreground">Manage your portfolio and discover new rewards</p>
+              <p className="text-xs sm:text-sm text-muted-foreground">Manage your portfolio and discover new rewards</p>
             </div>
-            <Badge variant="outline" className="gap-1">
+            <Badge variant="outline" className="gap-1 flex-shrink-0">
               <Sparkles className="w-3 h-3" />
               {myCards.length} {myCards.length === 1 ? 'Card' : 'Cards'}
             </Badge>
           </div>
 
           {/* Quick Stats in Header */}
-          <div className="grid grid-cols-3 gap-4 mt-4">
+          <div className="grid grid-cols-3 gap-2 sm:gap-4 mt-4">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="rounded-xl p-4 border bg-card"
+              className="rounded-xl p-2 sm:p-4 border bg-card"
             >
-              <Wallet className="w-5 h-5 mb-2 opacity-80" />
-              <p className="text-xs text-muted-foreground">Total Cards</p>
-              <p className="text-2xl font-bold">{myCards.length}</p>
+              <Wallet className="w-4 h-4 sm:w-5 sm:h-5 mb-1 sm:mb-2 opacity-80" />
+              <p className="text-[10px] sm:text-xs text-muted-foreground">Total Cards</p>
+              <p className="text-lg sm:text-2xl font-bold">{myCards.length}</p>
             </motion.div>
 
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="rounded-xl p-4 border bg-card"
+              className="rounded-xl p-2 sm:p-4 border bg-card"
             >
-              <Star className="w-5 h-5 mb-2 opacity-80" />
-              <p className="text-xs text-muted-foreground">Categories</p>
-              <p className="text-2xl font-bold">{new Set(myCards.map(c => c.category)).size}</p>
+              <Star className="w-4 h-4 sm:w-5 sm:h-5 mb-1 sm:mb-2 opacity-80" />
+              <p className="text-[10px] sm:text-xs text-muted-foreground">Categories</p>
+              <p className="text-lg sm:text-2xl font-bold">{new Set(myCards.map(c => c.category)).size}</p>
             </motion.div>
 
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="rounded-xl p-4 border bg-card"
+              className="rounded-xl p-2 sm:p-4 border bg-card"
             >
-              <CreditCardIcon className="w-5 h-5 mb-2 opacity-80" />
-              <p className="text-xs text-muted-foreground">Networks</p>
-              <p className="text-2xl font-bold">{new Set(myCards.map(c => c.network)).size}</p>
+              <CreditCardIcon className="w-4 h-4 sm:w-5 sm:h-5 mb-1 sm:mb-2 opacity-80" />
+              <p className="text-[10px] sm:text-xs text-muted-foreground">Networks</p>
+              <p className="text-lg sm:text-2xl font-bold">{new Set(myCards.map(c => c.network)).size}</p>
             </motion.div>
           </div>
         </div>

@@ -33,23 +33,23 @@ export function ProfilePage() {
   return (
     <div className="min-h-screen bg-background pb-24">
       {/* Header */}
-      <div className="border-b bg-card px-4 py-12">
+      <div className="border-b bg-card px-4 py-8 sm:py-12">
         <div className="max-w-4xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="flex flex-col items-center text-center"
           >
-            <Avatar className="w-24 h-24 border-4 shadow-lg mb-4">
+            <Avatar className="w-20 h-20 sm:w-24 sm:h-24 border-4 shadow-lg mb-4">
               <AvatarImage src={user?.picture} alt={user?.name || 'User'} />
-              <AvatarFallback className="text-3xl bg-primary text-primary-foreground">
+              <AvatarFallback className="text-2xl sm:text-3xl bg-primary text-primary-foreground">
                 {user?.name?.split(' ').map(n => n[0]).join('') || 'U'}
               </AvatarFallback>
             </Avatar>
-            <h1 className="text-3xl font-bold mb-2">{user?.name}</h1>
-            <p className="text-muted-foreground flex items-center gap-2 mb-4">
+            <h1 className="text-2xl sm:text-3xl font-bold mb-2">{user?.name}</h1>
+            <p className="text-sm sm:text-base text-muted-foreground flex items-center gap-2 mb-4">
               <Mail className="w-4 h-4" />
-              {user?.email}
+              <span className="break-all">{user?.email}</span>
             </p>
             <Badge variant="secondary">
               <Sparkles className="w-3 h-3 mr-1" />
