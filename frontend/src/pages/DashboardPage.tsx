@@ -14,7 +14,7 @@ import { useUserStore } from '@/store/userStore'
 import { CreditCard, Merchant, ApiCreditCard } from '@/types'
 import { fetchNearbyPlaces } from '@/lib/places'
 import { recommendCardsForMerchant, calculatePotentialEarnings, recommendCardsForLocation, calculatePotentialEarningsApi, getRecommendationReasonApi } from '@/lib/recommendations'
-import { MapPin, AlertCircle, Loader2, TrendingUp, DollarSign, Award, Sparkles, Star, TestTube, Edit, RefreshCw } from 'lucide-react'
+import { MapPin, AlertCircle, Loader2, TrendingUp, DollarSign, Award, Sparkles, Star, TestTube, Edit } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { useNotification } from '@/contexts/NotificationContext'
 import { getUserCards } from '@/lib/user-cards'
@@ -34,7 +34,7 @@ export function DashboardPage() {
   const [cardsLoading, setCardsLoading] = useState(true)
   const [userCards, setUserCards] = useState<CreditCard[]>([])
   const [cardOriginMap, setCardOriginMap] = useState<Record<string, 'manual' | 'bank'>>({})
-  const [spendingLoading, setSpendingLoading] = useState(false)
+  const [, setSpendingLoading] = useState(false)
   const [locationRecommendations, setLocationRecommendations] = useState<{cards: ApiCreditCard[], aiPowered: boolean, reason?: string} | null>(null)
   const [loadingLocationRecs, setLoadingLocationRecs] = useState(false)
 
@@ -184,38 +184,38 @@ export function DashboardPage() {
     fetchCurrentMonthSpending()
   }, [user?.sub, linkedBank, setSpending])
 
-  // Manual refresh spending function
-  const refreshSpending = async () => {
-    if (!user?.sub || !linkedBank) return
-    
-    setSpendingLoading(true)
-    try {
-      const now = new Date()
-      const firstDay = new Date(now.getFullYear(), now.getMonth(), 1)
-      const startDate = firstDay.toISOString().split('T')[0]
-      const endDate = now.toISOString().split('T')[0]
+  // Manual refresh spending function (unused but kept for potential future use)
+  // const refreshSpending = async () => {
+  //   if (!user?.sub || !linkedBank) return
+  //
+  //   setSpendingLoading(true)
+  //   try {
+  //     const now = new Date()
+  //     const firstDay = new Date(now.getFullYear(), now.getMonth(), 1)
+  //     const startDate = firstDay.toISOString().split('T')[0]
+  //     const endDate = now.toISOString().split('T')[0]
 
-      const { transactions } = await getTransactions(undefined, user.sub, startDate, endDate)
-      const currentSpending = calculateSpendingFromTransactions(transactions)
-
-      setSpending({
-        rent: 0, // Rent not tracked via transactions
-        dining: Math.round(currentSpending.dining),
-        gas: Math.round(currentSpending.gas),
-        groceries: Math.round(currentSpending.groceries),
-        travel: Math.round(currentSpending.travel),
-        shopping: Math.round(currentSpending.shopping),
-        entertainment: Math.round(currentSpending.entertainment),
-      })
-
-      showNotification('Spending data refreshed successfully!', 'success')
-    } catch (err) {
-      console.error('Error refreshing spending:', err)
-      showNotification('Failed to refresh spending data', 'error')
-    } finally {
-      setSpendingLoading(false)
-    }
-  }
+  //     const { transactions } = await getTransactions(undefined, user.sub, startDate, endDate)
+  //     const currentSpending = calculateSpendingFromTransactions(transactions)
+  //
+  //     setSpending({
+  //       rent: 0, // Rent not tracked via transactions
+  //       dining: Math.round(currentSpending.dining),
+  //       gas: Math.round(currentSpending.gas),
+  //       groceries: Math.round(currentSpending.groceries),
+  //       travel: Math.round(currentSpending.travel),
+  //       shopping: Math.round(currentSpending.shopping),
+  //       entertainment: Math.round(currentSpending.entertainment),
+  //     })
+  //
+  //     showNotification('Spending data refreshed successfully!', 'success')
+  //   } catch (err) {
+  //     console.error('Error refreshing spending:', err)
+  //     showNotification('Failed to refresh spending data', 'error')
+  //   } finally {
+  //     setSpendingLoading(false)
+  //   }
+  // }
 
   // Update stored location when geolocation succeeds
   useEffect(() => {

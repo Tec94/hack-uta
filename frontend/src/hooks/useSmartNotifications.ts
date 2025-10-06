@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { useUserStore } from '@/store/userStore';
 import { useLocationMonitor } from './useLocationMonitor';
 import { fetchNearbyPlaces } from '@/lib/places';
@@ -40,7 +40,7 @@ export function useSmartNotifications({
   });
 
   const handleDwellDetected = useCallback(
-    async (location: UserLocation, dwellTime: number) => {
+    async (location: UserLocation) => {
       // Check if notifications are enabled
       if (!enabled || !notificationsEnabled) {
         return;
@@ -129,7 +129,7 @@ export function useSmartNotifications({
   );
 
   // Use location monitor to detect dwelling
-  const { isDwelling, dwellTimeSeconds: currentDwellTime, error } = useLocationMonitor({
+  useLocationMonitor({
     dwellThresholdSeconds: dwellTimeSeconds,
     dwellRadiusMeters: dwellRadiusMeters,
     onDwellDetected: handleDwellDetected,

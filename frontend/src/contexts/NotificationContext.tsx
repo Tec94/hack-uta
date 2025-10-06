@@ -9,7 +9,7 @@ const NotificationContext = createContext<NotificationContextType | undefined>(u
 
 export function NotificationProvider({ children }: { children: React.ReactNode }) {
   const [notification, setNotification] = useState<NotificationData | null>(null);
-  const [queue, setQueue] = useState<NotificationData[]>([]);
+  const [, setQueue] = useState<NotificationData[]>([]);
 
   const showNotification = useCallback((message: string, type: NotificationType = 'info') => {
     const newNotification: NotificationData = {

@@ -51,7 +51,7 @@ export function CardDetailModal({ card, isOpen, onClose, aiRecommendation }: Car
           <div className="bg-gray-50 p-4 rounded-lg">
             <p className="text-sm text-gray-600 mb-1">Annual Fee</p>
             <p className="text-xl font-bold">
-              {card.annualFee === 0 ? 'No Fee' : formatCurrency(card.annualFee)}
+              {card.annualFee === 0 ? 'No Fee' : formatCurrency(card.annualFee ?? 0)}
             </p>
           </div>
           {card.signupBonus && (
@@ -66,7 +66,7 @@ export function CardDetailModal({ card, isOpen, onClose, aiRecommendation }: Car
         <div className="mb-6">
           <h4 className="font-semibold text-lg mb-3">Rewards Structure</h4>
           <div className="space-y-2">
-            {card.rewardsStructure.map((reward, index) => (
+            {card.rewardsStructure?.map((reward, index) => (
               <div key={index} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
                 <CheckCircle2 className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
                 <div className="flex-1">
@@ -84,17 +84,19 @@ export function CardDetailModal({ card, isOpen, onClose, aiRecommendation }: Car
         </div>
 
         {/* Benefits */}
-        <div className="mb-6">
-          <h4 className="font-semibold text-lg mb-3">Additional Benefits</h4>
-          <ul className="space-y-2">
-            {card.secondaryBenefits.map((benefit, index) => (
+        {card.secondaryBenefits && card.secondaryBenefits.length > 0 && (
+          <div className="mb-6">
+            <h4 className="font-semibold text-lg mb-3">Additional Benefits</h4>
+            <ul className="space-y-2">
+              {card.secondaryBenefits.map((benefit, index) => (
               <li key={index} className="flex items-start gap-2 text-sm">
                 <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
                 <span>{benefit}</span>
               </li>
-            ))}
-          </ul>
-        </div>
+              ))}
+            </ul>
+          </div>
+        )}
 
         {/* Requirements */}
         <div className="mb-6">

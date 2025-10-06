@@ -35,8 +35,8 @@ export function CreditCardItem({ card, onClick }: CreditCardItemProps) {
           <p className="text-sm opacity-90 mb-2 line-clamp-1">{card.primaryBenefit}</p>
           <div className="flex justify-between items-center text-xs">
             <span className="opacity-80">{card.issuer}</span>
-            {card.annualFee > 0 && (
-              <span className="font-semibold">{formatCurrency(card.annualFee)}/year</span>
+            {(card.annualFee ?? 0) > 0 && (
+              <span className="font-semibold">{formatCurrency(card.annualFee ?? 0)}/year</span>
             )}
           </div>
         </div>

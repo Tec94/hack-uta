@@ -335,7 +335,7 @@ Keep response conversational, encouraging, and practical (2-4 sentences).
 function getFallbackTransactionBudgetInsights(
   spendingData: SpendingData,
   budget: UserBudget,
-  monthlyIncome?: number // Available for income-based insights
+  _monthlyIncome?: number // Available for income-based insights
 ): string {
   const totalSpending = Object.values(spendingData).reduce((sum, val) => sum + val, 0);
   const totalBudget = Object.values(budget).reduce((sum, val) => sum + val, 0);

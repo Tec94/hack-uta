@@ -14,13 +14,12 @@ import { useUserStore } from '@/store/userStore'
 import { useToast } from '@/hooks/use-toast'
 import { getBudget, updateBudget } from '@/lib/budget'
 import { getTransactions, calculateSpendingFromTransactions } from '@/lib/plaid'
-import { 
-  DollarSign, 
-  TrendingUp, 
-  Sparkles, 
-  Edit, 
-  Check, 
-  X, 
+import {
+  TrendingUp,
+  Sparkles,
+  Edit,
+  Check,
+  X,
   Loader2,
   PiggyBank,
   Target,

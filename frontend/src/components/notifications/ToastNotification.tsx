@@ -69,7 +69,7 @@ export function ToastNotification({
   // Extract cashback rate from card's rewards structure
   const getCashbackRate = () => {
     const category = notification.merchant.category.toLowerCase();
-    const categoryReward = notification.recommendedCard.rewardsStructure.find(r => {
+    const categoryReward = notification.recommendedCard.rewardsStructure?.find(r => {
       const rCat = r.category.toLowerCase();
       return rCat.includes(category) || 
              (category === 'dining' && (rCat.includes('restaurant') || rCat.includes('dining'))) ||
